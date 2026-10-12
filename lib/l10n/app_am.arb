@@ -1,0 +1,23 @@
+{
+  "@@locale": "am",
+  "appTitle": "Volt",
+  "signIn": "ግባ",
+  "signOut": "ውጣ",
+  "home": "መነሻ",
+  "language": "ቋንቋ",
+  "languageSystem": "የስልኩን ቋንቋ ተጠቀም",
+  "languageEnglish": "English",
+  "languageAmharic": "አማርኛ",
+  "placeholderNotice": "ዲዛይኑ እስኪዘጋጅ ድረስ ይህ ጊዜያዊ ገጽ ነው።",
+  "retry": "እንደገና ሞክር",
+  "errorNetwork": "የኢንተርኔት ግንኙነት የለም። ግንኙነትዎን አረጋግጠው እንደገና ይሞክሩ።",
+  "errorSessionExpired": "ክፍለ ጊዜዎ አብቅቷል። እባክዎ እንደገና ይግቡ።",
+  "errorForbidden": "ይህንን ለማግኘት ፈቃድ የለዎትም።",
+  "errorNotFound": "የፈለጉትን ማግኘት አልቻልንም።",
+  "errorConflict": "ይህ በመሃል ተቀይሯል። አድሰው እንደገና ይሞክሩ።",
+  "errorValidation": "አንዳንድ መረጃዎች መስተካከል አለባቸው። አረጋግጠው እንደገና ይሞክሩ።",
+  "errorRateLimited": "በጣም ብዙ ሙከራዎች ተደርገዋል። እባክዎ ትንሽ ቆይተው እንደገና ይሞክሩ።",
+  "errorUpdateRequired": "ይህ የመተግበሪያው ስሪት ከአሁን በኋላ አይደገፍም። ለመቀጠል እባክዎ ያዘምኑ።",
+  "errorServer": "በእኛ በኩል ችግር ተፈጥሯል። እባክዎ ቆይተው እንደገና ይሞክሩ።",
+  "errorUnexpected": "የሆነ ችግር ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።"
+}

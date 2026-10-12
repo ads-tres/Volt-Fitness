@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dev builds only: lets the app reach a local Laravel server over plain
+     HTTP. Staging and prod keep Android's default, HTTPS only. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

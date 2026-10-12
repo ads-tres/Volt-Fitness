@@ -1,0 +1,35 @@
+{
+  "@@locale": "en",
+  "appTitle": "Volt",
+  "@appTitle": {
+    "description": "App name in the task switcher. A brand name: not translated."
+  },
+  "signIn": "Sign in",
+  "signOut": "Sign out",
+  "home": "Home",
+  "language": "Language",
+  "languageSystem": "Use phone setting",
+  "@languageSystem": {
+    "description": "Language menu option that follows the phone's language."
+  },
+  "languageEnglish": "English",
+  "@languageEnglish": {
+    "description": "Always written in English, whatever the current language."
+  },
+  "languageAmharic": "አማርኛ",
+  "@languageAmharic": {
+    "description": "Always written in Amharic, whatever the current language."
+  },
+  "placeholderNotice": "This screen is a placeholder until the design is ready.",
+  "retry": "Try again",
+  "errorNetwork": "No internet connection. Check your connection and try again.",
+  "errorSessionExpired": "Your session has ended. Please sign in again.",
+  "errorForbidden": "You don't have access to this.",
+  "errorNotFound": "We couldn't find what you were looking for.",
+  "errorConflict": "This changed in the meantime. Refresh and try again.",
+  "errorValidation": "Some details need fixing. Check them and try again.",
+  "errorRateLimited": "Too many attempts. Please wait a moment and try again.",
+  "errorUpdateRequired": "This version of the app is no longer supported. Please update to continue.",
+  "errorServer": "Something went wrong on our side. Please try again later.",
+  "errorUnexpected": "Something went wrong. Please try again."
+}
