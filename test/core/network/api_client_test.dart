@@ -4,12 +4,12 @@ import 'dart:ui' show Locale;
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gym_mobile/core/auth/session.dart';
 import 'package:gym_mobile/core/auth/session_controller.dart';
 import 'package:gym_mobile/core/auth/token_store.dart';
 import 'package:gym_mobile/core/errors/failure.dart';
 import 'package:gym_mobile/core/localization/locale_controller.dart';
 import 'package:gym_mobile/core/network/api_client.dart';
-import 'package:gym_mobile/core/tenant/selected_organization.dart';
 
 import '../../support/test_doubles.dart';
 
@@ -55,21 +55,20 @@ void main() {
 
     test('carries the token, the selected gym and the chosen language', () async {
       final adapter = StubAdapter((_) => jsonResponse(200, null));
-      final container = await containerWithAdapter(adapter, token: 'token-1');
-      container.read(selectedOrganizationProvider.notifier).select('01K7Z6ABCDEFGHJKMNPQRSTVWX');
+      final container = await containerWithAdapter(adapter, signedInAs: memberOf([boleGym]));
       await container.read(localeControllerProvider.notifier).select(const Locale('am'));
 
       await container.read(apiClientProvider).get('/me');
 
       final headers = adapter.requests.single.headers;
       expect(headers['Authorization'], 'Bearer token-1');
-      expect(headers['X-Organization-ID'], '01K7Z6ABCDEFGHJKMNPQRSTVWX');
+      expect(headers['X-Organization-ID'], boleGym.id);
       expect(headers['Accept-Language'], 'am');
     });
 
     test('gets an Idempotency-Key only when the caller passes one', () async {
       final adapter = StubAdapter((_) => jsonResponse(201, null));
-      final container = await containerWithAdapter(adapter, token: 'token-1');
+      final container = await containerWithAdapter(adapter, signedInAs: memberOf([boleGym]));
       final api = container.read(apiClientProvider);
 
       await api.post('/payments/attempts', body: {'plan_id': 'p1'}, idempotencyKey: 'key-1');
@@ -83,14 +82,14 @@ void main() {
   group('A 401', () {
     test('ends the session and forgets the token', () async {
       final adapter = StubAdapter((_) => jsonResponse(401, {'message': 'Unauthenticated.', 'code': 'UNAUTHENTICATED'}));
-      final container = await containerWithAdapter(adapter, token: 'revoked-token');
-      expect(container.read(sessionControllerProvider), SessionStatus.signedIn);
+      final container = await containerWithAdapter(adapter, signedInAs: memberOf([boleGym]));
+      expect(container.read(sessionControllerProvider), isA<SignedIn>());
 
       final failure = await failureOf(container.read(apiClientProvider).get('/me'));
       await pumpEventQueue();
 
       expect(failure, isA<UnauthenticatedFailure>());
-      expect(container.read(sessionControllerProvider), SessionStatus.signedOut);
+      expect(container.read(sessionControllerProvider), isA<SignedOut>());
       expect(container.read(tokenStoreProvider).token, isNull);
     });
 
@@ -98,15 +97,17 @@ void main() {
       late ProviderContainer container;
       final adapter = StubAdapter((_) async {
         // The member signed in again while this old request was in flight.
-        await container.read(sessionControllerProvider.notifier).signIn('new-token');
+        await container
+            .read(sessionControllerProvider.notifier)
+            .signIn(token: 'new-token', profile: memberOf([boleGym]));
         return jsonResponse(401, {'message': 'Unauthenticated.'});
       });
-      container = await containerWithAdapter(adapter, token: 'old-token');
+      container = await containerWithAdapter(adapter, signedInAs: memberOf([boleGym]));
 
       await failureOf(container.read(apiClientProvider).get('/me'));
       await pumpEventQueue();
 
-      expect(container.read(sessionControllerProvider), SessionStatus.signedIn);
+      expect(container.read(sessionControllerProvider), isA<SignedIn>());
       expect(container.read(tokenStoreProvider).token, 'new-token');
     });
   });

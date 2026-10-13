@@ -12,6 +12,7 @@ import '../localization/locale_controller.dart';
 import '../tenant/selected_organization.dart';
 import 'api_headers.dart';
 import 'error_mapper.dart';
+import 'fake_backend.dart';
 import 'interceptors.dart';
 
 /// The app's only way to call the API. Paths are relative to `/api/v1`.
@@ -64,7 +65,7 @@ final dioProvider = Provider<Dio>((ref) {
     ContextHeadersInterceptor(
       appInfo: ref.watch(appInfoProvider),
       languageCode: () => ref.read(languageCodeProvider),
-      organizationId: () => ref.read(selectedOrganizationProvider),
+      organizationId: () => ref.read(selectedOrganizationProvider)?.id,
     ),
     AuthInterceptor(
       tokenStore: ref.watch(tokenStoreProvider),
@@ -72,8 +73,12 @@ final dioProvider = Provider<Dio>((ref) {
     ),
     if (env.logsNetwork) NetworkLogInterceptor(),
   ]);
+  if (env.usesFakeBackend) dio.httpClientAdapter = ref.watch(fakeBackendProvider);
   ref.onDispose(dio.close);
   return dio;
 });
+
+/// Only read when `Env.usesFakeBackend` is on.
+final fakeBackendProvider = Provider<FakeBackend>((ref) => FakeBackend());
 
 final apiClientProvider = Provider<ApiClient>((ref) => ApiClient(ref.watch(dioProvider)));

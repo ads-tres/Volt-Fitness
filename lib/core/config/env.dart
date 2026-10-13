@@ -6,11 +6,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 enum AppEnvironment { dev, staging, prod }
 
 final class Env {
-  const Env({required this.environment, required this.apiBaseUrl});
+  const Env({required this.environment, required this.apiBaseUrl, this.usesFakeBackend = false});
 
   /// A build without a flavor (tests, or iOS until it gets flavors) is dev,
   /// so nothing reaches production by accident. `--dart-define=API_BASE_URL=`
   /// points any build at another server, e.g. a laptop on the same Wi-Fi.
+  ///
+  /// Dev answers from the in-app fake backend until the API runs; pass
+  /// `--dart-define=FAKE_BACKEND=false` to use the real one. Prod never fakes.
   factory Env.fromFlavor(String? flavor) {
     final environment = switch (flavor) {
       'prod' => AppEnvironment.prod,
@@ -18,14 +21,21 @@ final class Env {
       _ => AppEnvironment.dev,
     };
     const override = String.fromEnvironment('API_BASE_URL');
+    const fake = String.fromEnvironment('FAKE_BACKEND');
     return Env(
       environment: environment,
       apiBaseUrl: override.isNotEmpty ? override : _defaultApiBaseUrl(environment),
+      usesFakeBackend: switch (environment) {
+        AppEnvironment.prod => false,
+        AppEnvironment.dev => fake != 'false',
+        AppEnvironment.staging => fake == 'true',
+      },
     );
   }
 
   final AppEnvironment environment;
   final String apiBaseUrl;
+  final bool usesFakeBackend;
 
   /// Request logs are for local debugging only; they never ship.
   bool get logsNetwork => environment == AppEnvironment.dev && kDebugMode;

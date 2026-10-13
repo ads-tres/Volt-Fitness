@@ -17,6 +17,7 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
+  device_info_plus: ^13.3.0
   dio: ^5.11.1
   flutter_riverpod: ^3.4.3
   flutter_secure_storage: ^11.2.0
@@ -36,10 +37,21 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/fonts/OFL.txt
+    - assets/brand/
+    - assets/fonts/OFL-Montserrat.txt
+    - assets/fonts/OFL-NotoSansEthiopic.txt
 
-  # Ge'ez script for Amharic, used as a fallback behind the main font.
   fonts:
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-Regular.ttf
+        - asset: assets/fonts/Montserrat-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Montserrat-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Montserrat-Bold.ttf
+          weight: 700
+    # Ge'ez script for Amharic, used as a fallback behind Montserrat.
     - family: NotoSansEthiopic
       fonts:
         - asset: assets/fonts/NotoSansEthiopic-Regular.ttf

@@ -29,6 +29,21 @@ flutter run --flavor dev --dart-define=API_BASE_URL=http://192.168.1.20:8000/api
 Android Studio and VS Code have run configurations for all three flavors. iOS
 flavors aren't set up yet; an iOS build without a flavor uses dev.
 
+### Fake backend
+
+Until the Laravel API runs, dev builds answer every call from an in-app fake
+(`lib/core/network/fake_backend.dart`) that uses the JSON shapes from the
+backend contract doc. Pass `--dart-define=FAKE_BACKEND=false` to use the real
+API instead. Prod builds never use the fake.
+
+| To try                    | Phone number    | Code     |
+| ------------------------- | --------------- | -------- |
+| Member of one gym         | any other       | `123456` |
+| Member of two gyms        | `0911 11 11 11` | `123456` |
+| Number with no gym        | `0900 00 00 00` | `123456` |
+| Expired code              | any             | `000000` |
+| Wrong code (5× locks out) | any             | anything else |
+
 ## Test
 
 ```sh
@@ -66,6 +81,9 @@ These follow the team's mobile architecture doc, with three deliberate changes:
   Add a use case only when an action coordinates several repositories.
 - **No Drift yet.** SQLite arrives with the scanner's offline outbox
   (Phase 7). The member app caches recent responses as JSON until then.
+- **No code generation yet.** DTOs are parsed by hand with Dart 3 patterns
+  (see `core/auth/profile_json.dart`). Freezed and json_serializable can come
+  in when the number of models makes hand-written parsing a burden.
 
 Other rules:
 
@@ -79,3 +97,22 @@ Other rules:
 - **Secrets go in `SecureStore`**: tokens and QR secrets. Everything else goes
   in `PreferencesStore`. Never log tokens, OTP codes or QR payloads.
 - **User-facing text goes in `lib/l10n/*.arb`**, in English and Amharic.
+
+## Design
+
+Light, soft and rounded, after the Covera reference: a brand-tinted wash at
+the top of each page, white cards with large radii, dark ink cards and buttons
+for the main action, and gradient icon tiles. Montserrat for Latin text, Noto
+Sans Ethiopic for Amharic. Light mode only for V1.
+
+- **Brand colours come from the gym.** Before sign-in the app is Volt red
+  (`#C3203A`) with the Volt logo. After sign-in, `brandProvider` switches to
+  the selected gym's `primary_color` and logo. Read colours from
+  `context.brand` or the theme, never hard-code a gym's colour.
+- **Neutrals are shared** (`AppColors` in `core/design/tokens.dart`): ink for
+  text and dark surfaces, greys for secondary text and lines.
+- **Reuse the building blocks** in `core/design/widgets/`: `SoftBackground`,
+  `AppCard`, `IconTile`, `DarkActionCard`, `CircleButton`, `GymAvatar`,
+  `PrimaryButton`, `ScreenHeader`, `SectionHeader`.
+- **Navigation:** five tabs with the QR raised in the middle, since members
+  open it at the gym door on every visit.

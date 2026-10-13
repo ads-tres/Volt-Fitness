@@ -1,29 +1,64 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../storage/preferences_store.dart';
+import 'profile.dart';
+import 'profile_cache.dart';
+import 'session.dart';
 import 'token_store.dart';
 
-enum SessionStatus { signedOut, signedIn }
+final profileCacheProvider = Provider<ProfileCache>((ref) => ProfileCache(ref.watch(preferencesStoreProvider)));
 
-/// Whether this phone has a session. Phase 2 adds the signed-in user and
-/// their gyms; the router only needs the status.
-final class SessionController extends Notifier<SessionStatus> {
+/// Who is signed in on this phone, and in which gym. Restored at startup
+/// from the stored token and the cached profile; both are needed.
+final class SessionController extends Notifier<Session> {
   @override
-  SessionStatus build() =>
-      ref.watch(tokenStoreProvider).token == null ? SessionStatus.signedOut : SessionStatus.signedIn;
-
-  Future<void> signIn(String token) async {
-    await ref.read(tokenStoreProvider).save(token);
-    state = SessionStatus.signedIn;
+  Session build() {
+    final token = ref.watch(tokenStoreProvider).token;
+    final cache = ref.watch(profileCacheProvider);
+    final profile = cache.readProfile();
+    if (token == null || profile == null) return const SignedOut();
+    return SignedIn(profile: profile, organizationId: _validOrganization(profile, cache.readOrganizationId()));
   }
 
-  /// Ends the session on this phone. Also runs when the API answers 401,
-  /// meaning the token was revoked.
+  Future<void> signIn({required String token, required Profile profile}) async {
+    final organizationId = _validOrganization(profile, null);
+    await ref.read(tokenStoreProvider).save(token);
+    await ref.read(profileCacheProvider).save(profile, organizationId: organizationId);
+    state = SignedIn(profile: profile, organizationId: organizationId);
+  }
+
+  /// Takes a fresh profile from `/me`, keeping the chosen gym if the member
+  /// still belongs to it.
+  Future<void> updateProfile(Profile profile) async {
+    if (state case SignedIn(:final organizationId)) {
+      final stillValid = _validOrganization(profile, organizationId);
+      await ref.read(profileCacheProvider).save(profile, organizationId: stillValid);
+      state = SignedIn(profile: profile, organizationId: stillValid);
+    }
+  }
+
+  Future<void> selectOrganization(String organizationId) async {
+    if (state case SignedIn(:final profile) when profile.organization(organizationId) != null) {
+      await ref.read(profileCacheProvider).save(profile, organizationId: organizationId);
+      state = SignedIn(profile: profile, organizationId: organizationId);
+    }
+  }
+
+  /// Ends the session on this phone only. Also runs when the API answers
+  /// 401, meaning the token was revoked. To end it on the server too, call
+  /// the logout endpoint first.
   Future<void> signOut() async {
     await ref.read(tokenStoreProvider).clear();
-    state = SessionStatus.signedOut;
+    await ref.read(profileCacheProvider).clear();
+    state = const SignedOut();
+  }
+
+  /// [preferred] if the member belongs to it; otherwise their only gym, if
+  /// there is exactly one. Null means they still have to choose.
+  static String? _validOrganization(Profile profile, String? preferred) {
+    if (profile.organization(preferred) != null) return preferred;
+    return profile.organizations.length == 1 ? profile.organizations.single.id : null;
   }
 }
 
-final sessionControllerProvider = NotifierProvider<SessionController, SessionStatus>(
-  SessionController.new,
-);
+final sessionControllerProvider = NotifierProvider<SessionController, Session>(SessionController.new);

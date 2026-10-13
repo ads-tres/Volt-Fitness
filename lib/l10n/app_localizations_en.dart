@@ -13,13 +13,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Volt';
 
   @override
-  String get signIn => 'Sign in';
-
-  @override
-  String get signOut => 'Sign out';
-
-  @override
-  String get home => 'Home';
+  String get back => 'Back';
 
   @override
   String get language => 'Language';
@@ -34,8 +28,148 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageAmharic => 'አማርኛ';
 
   @override
-  String get placeholderNotice =>
-      'This screen is a placeholder until the design is ready.';
+  String get welcomeTitle => 'Welcome to Volt';
+
+  @override
+  String get welcomeSubtitle =>
+      'Sign in with the phone number your gym has on file.';
+
+  @override
+  String get phoneLabel => 'Phone number';
+
+  @override
+  String get continueButton => 'Continue';
+
+  @override
+  String get smsNotice => 'We\'ll text you a 6-digit code.';
+
+  @override
+  String testModeNotice(String code) {
+    return 'Test mode · code $code';
+  }
+
+  @override
+  String get phoneInvalid =>
+      'Enter an Ethiopian mobile number, like 0911 23 45 67.';
+
+  @override
+  String get otpTitle => 'Enter the code';
+
+  @override
+  String otpSubtitle(String phone) {
+    return 'We sent a 6-digit code to $phone.';
+  }
+
+  @override
+  String get verifyButton => 'Verify';
+
+  @override
+  String resendIn(String time) {
+    return 'Resend code in $time';
+  }
+
+  @override
+  String get resendCode => 'Resend code';
+
+  @override
+  String get codeResent => 'We sent you a new code.';
+
+  @override
+  String get otpInvalid =>
+      'That code isn\'t right. Check the SMS and try again.';
+
+  @override
+  String get otpExpired => 'That code has expired. Ask for a new one.';
+
+  @override
+  String get otpTooManyAttempts =>
+      'Too many wrong codes. Wait a minute, then ask for a new one.';
+
+  @override
+  String get selectGymTitle => 'Choose your gym';
+
+  @override
+  String get selectGymSubtitle =>
+      'Your number is registered at more than one gym. You can switch later in your profile.';
+
+  @override
+  String get noGymTitle => 'No gym found';
+
+  @override
+  String noGymMessage(String phone) {
+    return 'We couldn\'t find a membership for $phone. Ask your gym\'s front desk to register this number.';
+  }
+
+  @override
+  String get useAnotherNumber => 'Use another number';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navMembership => 'Membership';
+
+  @override
+  String get navQr => 'My QR';
+
+  @override
+  String get navPayments => 'Payments';
+
+  @override
+  String get navProfile => 'Profile';
+
+  @override
+  String greeting(String name) {
+    return 'Hello, $name';
+  }
+
+  @override
+  String get greetingNoName => 'Hello';
+
+  @override
+  String welcomeBack(String gym) {
+    return 'Welcome back to $gym.';
+  }
+
+  @override
+  String get showQrTitle => 'Show my QR';
+
+  @override
+  String get showQrSubtitle => 'Scan it at the front desk to check in.';
+
+  @override
+  String get quickAccess => 'Quick access';
+
+  @override
+  String get yourGym => 'Your gym';
+
+  @override
+  String get frontDesk => 'Front desk';
+
+  @override
+  String get comingSoonTitle => 'Coming in the next update';
+
+  @override
+  String get comingSoonMembership =>
+      'Your plan, its dates and renewal will show here.';
+
+  @override
+  String get comingSoonQr => 'Your check-in QR code will show here.';
+
+  @override
+  String get comingSoonPayments =>
+      'Your invoices, payments and receipts will show here.';
+
+  @override
+  String get switchGym => 'Switch';
+
+  @override
+  String get signOut => 'Sign out';
+
+  @override
+  String appVersion(String version, String build) {
+    return 'Volt $version ($build)';
+  }
 
   @override
   String get retry => 'Try again';

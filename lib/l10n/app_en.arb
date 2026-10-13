@@ -4,9 +4,7 @@
   "@appTitle": {
     "description": "App name in the task switcher. A brand name: not translated."
   },
-  "signIn": "Sign in",
-  "signOut": "Sign out",
-  "home": "Home",
+  "back": "Back",
   "language": "Language",
   "languageSystem": "Use phone setting",
   "@languageSystem": {
@@ -20,7 +18,92 @@
   "@languageAmharic": {
     "description": "Always written in Amharic, whatever the current language."
   },
-  "placeholderNotice": "This screen is a placeholder until the design is ready.",
+
+  "welcomeTitle": "Welcome to Volt",
+  "welcomeSubtitle": "Sign in with the phone number your gym has on file.",
+  "phoneLabel": "Phone number",
+  "continueButton": "Continue",
+  "smsNotice": "We'll text you a 6-digit code.",
+  "testModeNotice": "Test mode · code {code}",
+  "@testModeNotice": {
+    "description": "Shown only in development builds that use the built-in fake backend.",
+    "placeholders": {
+      "code": { "type": "String", "example": "123456" }
+    }
+  },
+  "phoneInvalid": "Enter an Ethiopian mobile number, like 0911 23 45 67.",
+
+  "otpTitle": "Enter the code",
+  "otpSubtitle": "We sent a 6-digit code to {phone}.",
+  "@otpSubtitle": {
+    "placeholders": {
+      "phone": { "type": "String", "example": "+251 91 123 4567" }
+    }
+  },
+  "verifyButton": "Verify",
+  "resendIn": "Resend code in {time}",
+  "@resendIn": {
+    "placeholders": {
+      "time": { "type": "String", "example": "0:42" }
+    }
+  },
+  "resendCode": "Resend code",
+  "codeResent": "We sent you a new code.",
+  "otpInvalid": "That code isn't right. Check the SMS and try again.",
+  "otpExpired": "That code has expired. Ask for a new one.",
+  "otpTooManyAttempts": "Too many wrong codes. Wait a minute, then ask for a new one.",
+
+  "selectGymTitle": "Choose your gym",
+  "selectGymSubtitle": "Your number is registered at more than one gym. You can switch later in your profile.",
+  "noGymTitle": "No gym found",
+  "noGymMessage": "We couldn't find a membership for {phone}. Ask your gym's front desk to register this number.",
+  "@noGymMessage": {
+    "placeholders": {
+      "phone": { "type": "String", "example": "+251 91 123 4567" }
+    }
+  },
+  "useAnotherNumber": "Use another number",
+
+  "navHome": "Home",
+  "navMembership": "Membership",
+  "navQr": "My QR",
+  "navPayments": "Payments",
+  "navProfile": "Profile",
+
+  "greeting": "Hello, {name}",
+  "@greeting": {
+    "placeholders": {
+      "name": { "type": "String", "example": "Abebe" }
+    }
+  },
+  "greetingNoName": "Hello",
+  "welcomeBack": "Welcome back to {gym}.",
+  "@welcomeBack": {
+    "placeholders": {
+      "gym": { "type": "String", "example": "Bole Iron Gym" }
+    }
+  },
+  "showQrTitle": "Show my QR",
+  "showQrSubtitle": "Scan it at the front desk to check in.",
+  "quickAccess": "Quick access",
+  "yourGym": "Your gym",
+  "frontDesk": "Front desk",
+
+  "comingSoonTitle": "Coming in the next update",
+  "comingSoonMembership": "Your plan, its dates and renewal will show here.",
+  "comingSoonQr": "Your check-in QR code will show here.",
+  "comingSoonPayments": "Your invoices, payments and receipts will show here.",
+
+  "switchGym": "Switch",
+  "signOut": "Sign out",
+  "appVersion": "Volt {version} ({build})",
+  "@appVersion": {
+    "placeholders": {
+      "version": { "type": "String", "example": "1.0.0" },
+      "build": { "type": "String", "example": "1" }
+    }
+  },
+
   "retry": "Try again",
   "errorNetwork": "No internet connection. Check your connection and try again.",
   "errorSessionExpired": "Your session has ended. Please sign in again.",

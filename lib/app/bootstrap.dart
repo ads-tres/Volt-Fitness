@@ -25,8 +25,9 @@ Future<void> bootstrap() async {
     return true;
   };
   LicenseRegistry.addLicense(() async* {
-    final license = await rootBundle.loadString('assets/fonts/OFL.txt');
-    yield LicenseEntryWithLineBreaks(const ['Noto Sans Ethiopic'], license);
+    for (final (font, file) in const [('Montserrat', 'OFL-Montserrat.txt'), ('Noto Sans Ethiopic', 'OFL-NotoSansEthiopic.txt')]) {
+      yield LicenseEntryWithLineBreaks([font], await rootBundle.loadString('assets/fonts/$file'));
+    }
   });
 
   final env = Env.fromFlavor(appFlavor);
