@@ -33,7 +33,7 @@ class LanguageMenu extends ConsumerWidget {
         option(l10n.languageEnglish, const Locale('en')),
         option(l10n.languageAmharic, const Locale('am')),
       ],
-      builder: (context, menu, child) => CircleButton(
+      builder: (context, menu, child) => HeaderButton(
         tooltip: l10n.language,
         onPressed: () => menu.isOpen ? menu.close() : menu.open(),
         child: Text(

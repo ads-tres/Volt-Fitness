@@ -104,6 +104,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get useAnotherNumber => 'Use another number';
 
   @override
+  String get onboardingTrainTitle => 'Your gym,\nin your pocket';
+
+  @override
+  String get onboardingTrainBody =>
+      'Your membership, check-ins and payments in one app.';
+
+  @override
+  String get onboardingCheckInTitle => 'Check in with\none scan';
+
+  @override
+  String get onboardingCheckInBody =>
+      'Show your QR code at the front desk. No card to forget.';
+
+  @override
+  String get onboardingRenewTitle => 'Renew without\nthe queue';
+
+  @override
+  String get onboardingRenewBody =>
+      'See what you owe, pay from your phone and get a reminder before your plan ends.';
+
+  @override
+  String get onboardingPinDaysLeft => '18 days left';
+
+  @override
+  String get onboardingPinCheckedIn => 'Checked in · 06:42';
+
+  @override
+  String get onboardingPinPaid => 'Paid · 1,500 ETB';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get getStarted => 'Get started';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
   String get navHome => 'Home';
 
   @override

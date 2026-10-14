@@ -66,16 +66,19 @@ Profile memberOf(List<Organization> organizations) => Profile(
 );
 
 /// The overrides bootstrap() makes, with in-memory storage. [signedInAs]
-/// starts the app signed in, the way a restart after sign-in would.
+/// starts the app signed in, the way a restart after sign-in would; the
+/// welcome pages count as seen unless [onboardingDone] is false.
 Future<List<Override>> testOverrides({
   Profile? signedInAs,
   String? organizationId,
   InMemorySecureStore? secureStore,
   InMemoryPreferencesStore? preferences,
   bool fakeBackend = false,
+  bool onboardingDone = true,
 }) async {
   secureStore ??= InMemorySecureStore();
   preferences ??= InMemoryPreferencesStore();
+  if (onboardingDone) preferences.values['onboarding.done'] = 'true';
   if (signedInAs != null) {
     secureStore.values['auth.token'] = 'token-1';
     await ProfileCache(preferences).save(

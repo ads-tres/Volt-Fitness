@@ -38,6 +38,7 @@ flutter:
 
   assets:
     - assets/brand/
+    - assets/photos/
     - assets/fonts/OFL-Montserrat.txt
     - assets/fonts/OFL-NotoSansEthiopic.txt
 

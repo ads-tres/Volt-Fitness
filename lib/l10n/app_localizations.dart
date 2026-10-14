@@ -260,6 +260,78 @@ abstract class AppLocalizations {
   /// **'Use another number'**
   String get useAnotherNumber;
 
+  /// No description provided for @onboardingTrainTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your gym,\nin your pocket'**
+  String get onboardingTrainTitle;
+
+  /// No description provided for @onboardingTrainBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your membership, check-ins and payments in one app.'**
+  String get onboardingTrainBody;
+
+  /// No description provided for @onboardingCheckInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check in with\none scan'**
+  String get onboardingCheckInTitle;
+
+  /// No description provided for @onboardingCheckInBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Show your QR code at the front desk. No card to forget.'**
+  String get onboardingCheckInBody;
+
+  /// No description provided for @onboardingRenewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Renew without\nthe queue'**
+  String get onboardingRenewTitle;
+
+  /// No description provided for @onboardingRenewBody.
+  ///
+  /// In en, this message translates to:
+  /// **'See what you owe, pay from your phone and get a reminder before your plan ends.'**
+  String get onboardingRenewBody;
+
+  /// Sample value on a welcome photo, showing what the app tracks.
+  ///
+  /// In en, this message translates to:
+  /// **'18 days left'**
+  String get onboardingPinDaysLeft;
+
+  /// No description provided for @onboardingPinCheckedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked in · 06:42'**
+  String get onboardingPinCheckedIn;
+
+  /// No description provided for @onboardingPinPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid · 1,500 ETB'**
+  String get onboardingPinPaid;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get getStarted;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
   /// No description provided for @navHome.
   ///
   /// In en, this message translates to:

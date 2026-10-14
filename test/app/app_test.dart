@@ -6,11 +6,16 @@ import 'package:material_ui/material_ui.dart';
 import '../support/test_doubles.dart';
 
 /// The app on a 360×780 phone, signed out, talking to the fake backend.
-Future<void> startApp(WidgetTester tester) async {
+Future<void> startApp(WidgetTester tester, {bool onboardingDone = true}) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
-  await tester.pumpWidget(ProviderScope(overrides: await testOverrides(fakeBackend: true), child: const VoltApp()));
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: await testOverrides(fakeBackend: true, onboardingDone: onboardingDone),
+      child: const VoltApp(),
+    ),
+  );
   await tester.pumpAndSettle();
 }
 
@@ -24,6 +29,32 @@ Future<void> signInWith(WidgetTester tester, {required String phone, String code
 }
 
 void main() {
+  testWidgets('a first launch walks through the welcome pages to sign-in', (tester) async {
+    await startApp(tester, onboardingDone: false);
+    expect(find.text('Your gym,\nin your pocket'), findsOneWidget);
+
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.text('Check in with\none scan'), findsOneWidget);
+
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.text('Skip'), findsNothing);
+    await tester.tap(find.text('Get started'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Welcome to Volt'), findsOneWidget);
+  });
+
+  testWidgets('the welcome pages can be skipped', (tester) async {
+    await startApp(tester, onboardingDone: false);
+
+    await tester.tap(find.text('Skip'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Welcome to Volt'), findsOneWidget);
+  });
+
   testWidgets('a member of one gym goes from phone and code straight to their gym', (tester) async {
     await startApp(tester);
     expect(find.text('Welcome to Volt'), findsOneWidget);
@@ -33,6 +64,10 @@ void main() {
     expect(find.text('Hello, Abebe'), findsOneWidget);
     expect(find.text('Bole Iron Gym'), findsWidgets);
     expect(find.text('Show my QR'), findsOneWidget);
+
+    await tester.tap(find.text('Show my QR'));
+    await tester.pumpAndSettle();
+    expect(find.text('Your check-in QR code will show here.'), findsOneWidget);
   });
 
   testWidgets('a wrong number or code is explained, and the code can be retyped', (tester) async {
@@ -85,14 +120,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('ሰላም፣ Abebe'), findsOneWidget);
-    expect(find.text('መነሻ'), findsOneWidget);
+    expect(find.byTooltip('መነሻ'), findsOneWidget);
   });
 
   testWidgets('signing out from the profile returns to the phone screen', (tester) async {
     await startApp(tester);
     await signInWith(tester, phone: '0912345678');
 
-    await tester.tap(find.text('Profile').last);
+    await tester.tap(find.byTooltip('Profile'));
     await tester.pumpAndSettle();
     expect(find.text('+251\u00A091\u00A0234\u00A05678'), findsOneWidget);
 

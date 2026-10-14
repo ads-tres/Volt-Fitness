@@ -1,13 +1,19 @@
 import 'package:material_ui/material_ui.dart';
 
-/// Neutrals shared by every gym. A gym only changes the brand colour.
+/// Warm neutrals shared by every gym. A gym only changes the brand colour.
 abstract final class AppColors {
-  /// Text, the dark action cards and the primary button.
-  static const ink = Color(0xFF15171C);
-  static const textSecondary = Color(0xFF667085);
-  static const textTertiary = Color(0xFF98A2B3);
-  static const line = Color(0xFFE7EAF0);
-  static const canvas = Color(0xFFF4F6F9);
+  /// Text, buttons and the navigation bar.
+  static const ink = Color(0xFF1F1E1D);
+
+  /// The navigation bar the pages curve down into.
+  static const night = Color(0xFF262524);
+  static const textSecondary = Color(0xFF7C766F);
+  static const textTertiary = Color(0xFFA9A39C);
+  static const line = Color(0xFFEBE6E0);
+
+  /// The page: warm off-white at the top into cream.
+  static const canvasTop = Color(0xFFFBFAF7);
+  static const canvas = Color(0xFFF2EEE8);
   static const surface = Color(0xFFFFFFFF);
   static const danger = Color(0xFFD92D20);
 }
@@ -19,6 +25,6 @@ abstract final class AppRadii {
 }
 
 abstract final class AppShadows {
-  static const card = [BoxShadow(color: Color(0x0F101828), blurRadius: 24, offset: Offset(0, 8))];
-  static const raised = [BoxShadow(color: Color(0x1F101828), blurRadius: 20, offset: Offset(0, 8))];
+  static const card = [BoxShadow(color: Color(0x101E1A16), blurRadius: 24, offset: Offset(0, 8))];
+  static const raised = [BoxShadow(color: Color(0x241E1A16), blurRadius: 20, offset: Offset(0, 8))];
 }

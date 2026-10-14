@@ -101,6 +101,43 @@ class AppLocalizationsAm extends AppLocalizations {
   String get useAnotherNumber => 'ሌላ ቁጥር ተጠቀም';
 
   @override
+  String get onboardingTrainTitle => 'ጂምዎ\nበኪስዎ ውስጥ';
+
+  @override
+  String get onboardingTrainBody => 'አባልነትዎ፣ መግቢያዎችዎ እና ክፍያዎችዎ በአንድ መተግበሪያ።';
+
+  @override
+  String get onboardingCheckInTitle => 'በአንድ ስካን\nይግቡ';
+
+  @override
+  String get onboardingCheckInBody => 'QR ኮድዎን በእንግዳ መቀበያው ያሳዩ። የሚረሳ ካርድ የለም።';
+
+  @override
+  String get onboardingRenewTitle => 'ያለ ሰልፍ\nያድሱ';
+
+  @override
+  String get onboardingRenewBody =>
+      'ያለብዎትን ይመልከቱ፣ በስልክዎ ይክፈሉ እና ዕቅድዎ ከማለቁ በፊት ማስታወሻ ያግኙ።';
+
+  @override
+  String get onboardingPinDaysLeft => '18 ቀናት ቀርተዋል';
+
+  @override
+  String get onboardingPinCheckedIn => 'ገብተዋል · 06:42';
+
+  @override
+  String get onboardingPinPaid => 'ተከፍሏል · 1,500 ብር';
+
+  @override
+  String get next => 'ቀጣይ';
+
+  @override
+  String get getStarted => 'እንጀምር';
+
+  @override
+  String get skip => 'ዝለል';
+
+  @override
   String get navHome => 'መነሻ';
 
   @override

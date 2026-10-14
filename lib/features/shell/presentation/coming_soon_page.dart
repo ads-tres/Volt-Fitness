@@ -7,12 +7,14 @@ import '../../../core/localization/l10n.dart';
 import '../../../core/localization/language_menu.dart';
 
 /// A tab whose feature arrives in a later phase (membership, QR and
-/// payments in Phase 3 and 4).
+/// payments in Phases 3 and 4).
 class ComingSoonPage extends StatelessWidget {
-  const ComingSoonPage({super.key, required this.title, required this.icon, required this.message});
+  const ComingSoonPage({super.key, required this.title, required this.photo, required this.message});
 
   final String title;
-  final IconData icon;
+
+  /// An asset path under `assets/photos/`.
+  final String photo;
   final String message;
 
   @override
@@ -22,22 +24,28 @@ class ComingSoonPage extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: ListView(
-          padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.paddingOf(context).bottom + 24),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
           children: [
             ScreenHeader(title: title, trailing: const LanguageMenu()),
             const SizedBox(height: 28),
             AppCard(
-              padding: const EdgeInsets.fromLTRB(24, 32, 24, 32),
+              padding: EdgeInsets.zero,
               child: Column(
                 children: [
-                  IconTile(icon: icon, size: 64),
-                  const SizedBox(height: 20),
-                  Text(context.l10n.comingSoonTitle, textAlign: TextAlign.center, style: textTheme.titleMedium),
-                  const SizedBox(height: 6),
-                  Text(
-                    message,
-                    textAlign: TextAlign.center,
-                    style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                  Image.asset(photo, height: 220, width: double.infinity, fit: BoxFit.cover),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
+                    child: Column(
+                      children: [
+                        Text(context.l10n.comingSoonTitle, textAlign: TextAlign.center, style: textTheme.titleMedium),
+                        const SizedBox(height: 6),
+                        Text(
+                          message,
+                          textAlign: TextAlign.center,
+                          style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

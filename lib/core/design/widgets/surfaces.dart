@@ -3,52 +3,23 @@ import 'package:material_ui/material_ui.dart';
 import '../brand.dart';
 import '../tokens.dart';
 
-/// The page backdrop: a wash of the brand colour at the top that fades into
-/// the page, with two soft glows.
+/// The page backdrop: warm off-white at the top into cream.
 class SoftBackground extends StatelessWidget {
   const SoftBackground({super.key, required this.child});
 
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    final brand = context.brand;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: const [0, 0.45],
-          colors: [brand.mist, AppColors.canvas],
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned(top: -140, right: -90, child: _Glow(size: 320, color: brand.primary.withValues(alpha: 0.12))),
-          Positioned(top: 120, left: -120, child: _Glow(size: 260, color: Colors.white.withValues(alpha: 0.85))),
-          Positioned.fill(child: child),
-        ],
-      ),
-    );
-  }
-}
-
-class _Glow extends StatelessWidget {
-  const _Glow({required this.size, required this.color});
-
-  final double size;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) => IgnorePointer(
-    child: Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(colors: [color, color.withValues(alpha: 0)]),
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: const BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        stops: [0, 0.6],
+        colors: [AppColors.canvasTop, AppColors.canvas],
       ),
     ),
+    child: child,
   );
 }
 
@@ -67,7 +38,7 @@ class AppCard extends StatelessWidget {
       decoration: const BoxDecoration(borderRadius: radius, boxShadow: AppShadows.card),
       child: Material(
         color: AppColors.surface,
-        shape: const RoundedRectangleBorder(borderRadius: radius, side: BorderSide(color: AppColors.line)),
+        shape: const RoundedRectangleBorder(borderRadius: radius),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
@@ -102,9 +73,9 @@ class IconTile extends StatelessWidget {
   }
 }
 
-/// A white circle for header actions such as back or language.
-class CircleButton extends StatelessWidget {
-  const CircleButton({super.key, required this.tooltip, required this.onPressed, required this.child, this.size = 46});
+/// A white rounded square for header actions such as back or language.
+class HeaderButton extends StatelessWidget {
+  const HeaderButton({super.key, required this.tooltip, required this.onPressed, required this.child, this.size = 46});
 
   final String tooltip;
   final VoidCallback? onPressed;
@@ -112,30 +83,34 @@ class CircleButton extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) => Tooltip(
-    message: tooltip,
-    child: DecoratedBox(
-      decoration: const BoxDecoration(shape: BoxShape.circle, boxShadow: AppShadows.card),
-      child: Material(
-        color: AppColors.surface,
-        shape: const CircleBorder(side: BorderSide(color: AppColors.line)),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onPressed,
-          child: SizedBox.square(dimension: size, child: Center(child: child)),
+  Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(AppRadii.tile);
+    return Tooltip(
+      message: tooltip,
+      child: DecoratedBox(
+        decoration: BoxDecoration(borderRadius: radius, boxShadow: AppShadows.card),
+        child: Material(
+          color: AppColors.surface,
+          shape: RoundedRectangleBorder(borderRadius: radius),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onPressed,
+            child: SizedBox.square(dimension: size, child: Center(child: child)),
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
-/// A gym's logo in a white circle: Volt's own mark before sign-in, and the
-/// gym's initials on its colour when it has no logo.
+/// A gym's logo: Volt's own mark before sign-in, and the gym's initials on
+/// its colour when it has no logo. Square in headers, round in lists.
 class GymAvatar extends StatelessWidget {
-  const GymAvatar({super.key, required this.brand, this.size = 46});
+  const GymAvatar({super.key, required this.brand, this.size = 46, this.round = false});
 
   final Brand brand;
   final double size;
+  final bool round;
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +133,12 @@ class GymAvatar extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: const BoxDecoration(color: AppColors.surface, shape: BoxShape.circle, boxShadow: AppShadows.card),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        shape: round ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: round ? null : BorderRadius.circular(AppRadii.tile),
+        boxShadow: AppShadows.card,
+      ),
       clipBehavior: Clip.antiAlias,
       child: content,
     );
@@ -194,72 +174,75 @@ class _Initials extends StatelessWidget {
   }
 }
 
-/// The dark card for the screen's main action, with a second card peeking
-/// out underneath.
-class DarkActionCard extends StatelessWidget {
-  const DarkActionCard({super.key, required this.icon, required this.title, required this.subtitle, required this.onTap});
+/// A photo card for a screen's main action: the photo fills the card and
+/// the text sits on a dark fade at the bottom, next to a brand-coloured go
+/// button.
+class PhotoActionCard extends StatelessWidget {
+  const PhotoActionCard({
+    super.key,
+    required this.photo,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    this.height = 190,
+  });
 
-  final IconData icon;
+  /// An asset path under `assets/photos/`.
+  final String photo;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
+    final brand = context.brand;
     final textTheme = Theme.of(context).textTheme;
-    const radius = BorderRadius.all(Radius.circular(AppRadii.card - 2));
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: -10,
-            height: 40,
+    const radius = BorderRadius.all(Radius.circular(AppRadii.card + 4));
+    return DecoratedBox(
+      decoration: const BoxDecoration(borderRadius: radius, boxShadow: AppShadows.raised),
+      child: Material(
+        shape: const RoundedRectangleBorder(borderRadius: radius),
+        clipBehavior: Clip.antiAlias,
+        child: Ink.image(
+          image: AssetImage(photo),
+          fit: BoxFit.cover,
+          height: height,
+          child: InkWell(
+            onTap: onTap,
             child: DecoratedBox(
-              decoration: BoxDecoration(color: AppColors.ink.withValues(alpha: 0.08), borderRadius: radius),
-            ),
-          ),
-          Material(
-            color: AppColors.ink,
-            shape: const RoundedRectangleBorder(borderRadius: radius),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: onTap,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [0.3, 1],
+                  colors: [Color(0x00000000), Color(0xCC000000)],
+                ),
+              ),
               child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    IconTile(icon: icon, size: 48),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(title, style: textTheme.titleMedium?.copyWith(color: Colors.white)),
-                          const SizedBox(height: 2),
-                          Text(subtitle, style: textTheme.bodySmall?.copyWith(color: Colors.white70)),
-                        ],
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: Container(
+                        width: 46,
+                        height: 46,
+                        decoration: BoxDecoration(color: brand.primary, borderRadius: BorderRadius.circular(AppRadii.tile)),
+                        child: Icon(Icons.arrow_forward_rounded, color: brand.onPrimary),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
-                    ),
+                    const Spacer(),
+                    Text(title, style: textTheme.titleLarge?.copyWith(color: Colors.white)),
+                    const SizedBox(height: 2),
+                    Text(subtitle, style: textTheme.bodySmall?.copyWith(color: Colors.white.withValues(alpha: 0.85))),
                   ],
                 ),
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }

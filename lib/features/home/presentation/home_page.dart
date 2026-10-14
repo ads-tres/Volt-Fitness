@@ -13,7 +13,7 @@ import '../../../core/localization/l10n.dart';
 import '../../../core/localization/language_menu.dart';
 
 /// The member's start screen, in their gym's colours. Phase 3 adds the
-/// membership summary, payment status and recent visits.
+/// membership gauge, payment status and recent visits.
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
@@ -31,7 +31,7 @@ class HomePage extends ConsumerWidget {
       child: SafeArea(
         bottom: false,
         child: ListView(
-          padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.paddingOf(context).bottom + 24),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
           children: [
             ScreenHeader(
               leading: GymAvatar(brand: brand),
@@ -46,47 +46,18 @@ class HomePage extends ConsumerWidget {
             const SizedBox(height: 4),
             Text(l10n.welcomeBack(brand.name), style: textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary)),
             const SizedBox(height: 24),
-            DarkActionCard(
-              icon: Icons.qr_code_2_rounded,
+            PhotoActionCard(
+              photo: 'assets/photos/home_check_in.jpg',
               title: l10n.showQrTitle,
               subtitle: l10n.showQrSubtitle,
               onTap: () => context.go(AppRoutes.qr),
-            ),
-            const SizedBox(height: 28),
-            SectionHeader(l10n.quickAccess),
-            Row(
-              children: [
-                Expanded(
-                  child: _QuickTile(
-                    icon: Icons.card_membership_rounded,
-                    label: l10n.navMembership,
-                    onTap: () => context.go(AppRoutes.membership),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _QuickTile(
-                    icon: Icons.account_balance_wallet_rounded,
-                    label: l10n.navPayments,
-                    onTap: () => context.go(AppRoutes.payments),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _QuickTile(
-                    icon: Icons.person_rounded,
-                    label: l10n.navProfile,
-                    onTap: () => context.go(AppRoutes.profile),
-                  ),
-                ),
-              ],
             ),
             const SizedBox(height: 28),
             SectionHeader(l10n.yourGym),
             AppCard(
               child: Row(
                 children: [
-                  GymAvatar(brand: brand, size: 52),
+                  GymAvatar(brand: brand, size: 52, round: true),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
@@ -108,28 +79,4 @@ class HomePage extends ConsumerWidget {
       ),
     );
   }
-}
-
-class _QuickTile extends StatelessWidget {
-  const _QuickTile({required this.icon, required this.label, required this.onTap});
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => AppCard(
-    onTap: onTap,
-    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-    child: Column(
-      children: [
-        IconTile(icon: icon, size: 46),
-        const SizedBox(height: 10),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(label, maxLines: 1, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 13)),
-        ),
-      ],
-    ),
-  );
 }

@@ -41,7 +41,7 @@ class ProfilePage extends ConsumerWidget {
       child: SafeArea(
         bottom: false,
         child: ListView(
-          padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.paddingOf(context).bottom + 24),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
           children: [
             ScreenHeader(title: l10n.navProfile, trailing: const LanguageMenu()),
             const SizedBox(height: 28),
@@ -81,7 +81,7 @@ class ProfilePage extends ConsumerWidget {
             AppCard(
               child: Row(
                 children: [
-                  GymAvatar(brand: brand),
+                  GymAvatar(brand: brand, round: true),
                   const SizedBox(width: 14),
                   Expanded(child: Text(brand.name, style: textTheme.titleMedium)),
                   if (session.profile.organizations.length > 1)

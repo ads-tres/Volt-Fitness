@@ -38,6 +38,14 @@ abstract final class AppTheme {
       splashFactory: InkSparkle.splashFactory,
     );
     final controlShape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.control));
+    // Button text styles replace the ambient one, so each repeats the
+    // Ethiopic fallback; without it Amharic labels render as empty boxes.
+    const buttonText = TextStyle(
+      fontFamily: fontFamily,
+      fontFamilyFallback: [ethiopicFontFamily],
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+    );
     return base.copyWith(
       extensions: [BrandTheme(brand)],
       textTheme: _textTheme(base.textTheme),
@@ -56,7 +64,7 @@ abstract final class AppTheme {
           disabledForegroundColor: Colors.white,
           minimumSize: const Size.fromHeight(56),
           shape: controlShape,
-          textStyle: const TextStyle(fontFamily: fontFamily, fontSize: 16, fontWeight: FontWeight.w600),
+          textStyle: buttonText,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -66,13 +74,13 @@ abstract final class AppTheme {
           minimumSize: const Size.fromHeight(56),
           side: const BorderSide(color: AppColors.line),
           shape: controlShape,
-          textStyle: const TextStyle(fontFamily: fontFamily, fontSize: 16, fontWeight: FontWeight.w600),
+          textStyle: buttonText,
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: brand.primary,
-          textStyle: const TextStyle(fontFamily: fontFamily, fontSize: 14, fontWeight: FontWeight.w600),
+          textStyle: buttonText.copyWith(fontSize: 14),
         ),
       ),
       inputDecorationTheme: InputDecorationThemeData(

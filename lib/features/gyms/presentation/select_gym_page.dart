@@ -33,7 +33,7 @@ class SelectGymPage extends ConsumerWidget {
               Row(
                 children: [
                   if (context.canPop())
-                    CircleButton(
+                    HeaderButton(
                       tooltip: l10n.back,
                       onPressed: () => context.pop(),
                       child: const Icon(Icons.arrow_back_rounded, color: AppColors.ink),
@@ -59,7 +59,7 @@ class SelectGymPage extends ConsumerWidget {
                     },
                     child: Row(
                       children: [
-                        GymAvatar(brand: Brand.of(organization), size: 52),
+                        GymAvatar(brand: Brand.of(organization), size: 52, round: true),
                         const SizedBox(width: 14),
                         Expanded(
                           child: Column(

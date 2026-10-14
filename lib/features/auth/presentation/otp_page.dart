@@ -70,7 +70,7 @@ class _OtpPageState extends ConsumerState<OtpPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CircleButton(
+                  HeaderButton(
                     tooltip: l10n.back,
                     onPressed: () => context.pop(),
                     child: const Icon(Icons.arrow_back_rounded, color: AppColors.ink),

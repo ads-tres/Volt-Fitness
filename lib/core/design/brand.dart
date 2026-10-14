@@ -30,8 +30,15 @@ final class Brand {
   /// Text and icons on [primary]: white unless the gym picked a light colour.
   Color get onPrimary => primary.computeLuminance() > 0.45 ? AppColors.ink : Colors.white;
 
-  /// A faint wash of the brand for backgrounds.
-  Color get mist => Color.alphaBlend(primary.withValues(alpha: 0.09), AppColors.surface);
+  /// The brand on the dark navigation bar, lightened when the gym's colour
+  /// is too dark to stand out there.
+  Color get onNight {
+    var color = primary;
+    for (var i = 0; i < 4 && color.computeLuminance() < 0.18; i++) {
+      color = Color.lerp(color, Colors.white, 0.25)!;
+    }
+    return color;
+  }
 
   /// The two ends of the gradient on icon tiles and the QR button.
   (Color, Color) get gradient => (Color.lerp(primary, Colors.white, 0.22)!, primary);

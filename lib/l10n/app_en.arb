@@ -64,6 +64,22 @@
   },
   "useAnotherNumber": "Use another number",
 
+  "onboardingTrainTitle": "Your gym,\nin your pocket",
+  "onboardingTrainBody": "Your membership, check-ins and payments in one app.",
+  "onboardingCheckInTitle": "Check in with\none scan",
+  "onboardingCheckInBody": "Show your QR code at the front desk. No card to forget.",
+  "onboardingRenewTitle": "Renew without\nthe queue",
+  "onboardingRenewBody": "See what you owe, pay from your phone and get a reminder before your plan ends.",
+  "onboardingPinDaysLeft": "18 days left",
+  "@onboardingPinDaysLeft": {
+    "description": "Sample value on a welcome photo, showing what the app tracks."
+  },
+  "onboardingPinCheckedIn": "Checked in · 06:42",
+  "onboardingPinPaid": "Paid · 1,500 ETB",
+  "next": "Next",
+  "getStarted": "Get started",
+  "skip": "Skip",
+
   "navHome": "Home",
   "navMembership": "Membership",
   "navQr": "My QR",

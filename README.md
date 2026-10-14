@@ -100,10 +100,12 @@ Other rules:
 
 ## Design
 
-Light, soft and rounded, after the Covera reference: a brand-tinted wash at
-the top of each page, white cards with large radii, dark ink cards and buttons
-for the main action, and gradient icon tiles. Montserrat for Latin text, Noto
-Sans Ethiopic for Amharic. Light mode only for V1.
+Warm and photo-led: a cream page, white cards with large radii, charcoal
+buttons and a dark, icon-only navigation bar the pages curve down into, with
+the QR as a brand-coloured square in the middle. Real photos carry the
+welcome pages and the main cards; icons stay for navigation and small
+controls. Montserrat for Latin text, Noto Sans Ethiopic for Amharic. Light
+mode only for V1.
 
 - **Brand colours come from the gym.** Before sign-in the app is Volt red
   (`#C3203A`) with the Volt logo. After sign-in, `brandProvider` switches to
@@ -112,7 +114,21 @@ Sans Ethiopic for Amharic. Light mode only for V1.
 - **Neutrals are shared** (`AppColors` in `core/design/tokens.dart`): ink for
   text and dark surfaces, greys for secondary text and lines.
 - **Reuse the building blocks** in `core/design/widgets/`: `SoftBackground`,
-  `AppCard`, `IconTile`, `DarkActionCard`, `CircleButton`, `GymAvatar`,
+  `AppCard`, `PhotoActionCard`, `IconTile`, `HeaderButton`, `GymAvatar`,
   `PrimaryButton`, `ScreenHeader`, `SectionHeader`.
-- **Navigation:** five tabs with the QR raised in the middle, since members
-  open it at the gym door on every visit.
+- **Navigation:** five tabs with the QR in the middle, since members open it
+  at the gym door on every visit.
+
+### Photos
+
+`assets/photos/` holds stock photos from Pexels, under the Pexels License
+(free to use, attribution not required). They are placeholders: Volt's own
+photos of its gyms and members should replace them before launch. Each was
+cropped and compressed to about 100 KB.
+
+| File | Source |
+| --- | --- |
+| `onboarding_train.jpg` | [Black man training with dumbbells in gym](https://www.pexels.com/photo/black-man-training-with-dumbbells-in-gym-6455963/) |
+| `onboarding_check_in.jpg` | [Person with headphones holding a smartphone](https://www.pexels.com/photo/person-with-headphones-holding-a-smartphone-4162581/) |
+| `onboarding_renew.jpg` | [Woman in black hijab lifting dumbbells](https://www.pexels.com/photo/woman-in-black-hijab-lifting-a-dumbbells-7690849/) |
+| `home_check_in.jpg` | [Man holding black barbell in the gym](https://www.pexels.com/photo/man-holding-black-barbell-in-the-gym-4720813/) |

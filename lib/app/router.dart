@@ -10,6 +10,8 @@ import '../features/auth/presentation/phone_page.dart';
 import '../features/gyms/presentation/no_gym_page.dart';
 import '../features/gyms/presentation/select_gym_page.dart';
 import '../features/home/presentation/home_page.dart';
+import '../features/onboarding/onboarding_controller.dart';
+import '../features/onboarding/presentation/onboarding_page.dart';
 import '../features/profile/presentation/profile_page.dart';
 import '../features/shell/presentation/app_shell.dart';
 import '../features/shell/presentation/coming_soon_page.dart';
@@ -17,11 +19,14 @@ import 'routes.dart';
 
 export 'routes.dart';
 
-/// Where to send someone, given their session. Guards only spare people
-/// screens they can't use; the API authorizes every request on its own.
-String? authRedirect({required Session session, required String location}) {
+/// Where to send someone, given their session and whether they have seen
+/// the welcome pages. Guards only spare people screens they can't use; the
+/// API authorizes every request on its own.
+String? authRedirect({required Session session, required bool onboardingDone, required String location}) {
   final signingIn = location.startsWith(AppRoutes.login);
   switch (session) {
+    case SignedOut() when !onboardingDone:
+      return location == AppRoutes.welcome ? null : AppRoutes.welcome;
     case SignedOut():
       return signingIn ? null : AppRoutes.login;
     case SignedIn(:final profile, :final organization):
@@ -29,20 +34,26 @@ String? authRedirect({required Session session, required String location}) {
       if (organization == null) return location == AppRoutes.selectGym ? null : AppRoutes.selectGym;
       // Signed in with a gym: everything but sign-in is open, including
       // the gym picker for switching.
-      return signingIn || location == AppRoutes.noGym ? AppRoutes.home : null;
+      return signingIn || location == AppRoutes.noGym || location == AppRoutes.welcome ? AppRoutes.home : null;
   }
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final session = ValueNotifier(ref.read(sessionControllerProvider));
-  ref.listen(sessionControllerProvider, (_, next) => session.value = next);
+  final gate = ValueNotifier((session: ref.read(sessionControllerProvider), onboardingDone: ref.read(onboardingDoneProvider)));
+  ref.listen(sessionControllerProvider, (_, next) => gate.value = (session: next, onboardingDone: gate.value.onboardingDone));
+  ref.listen(onboardingDoneProvider, (_, next) => gate.value = (session: gate.value.session, onboardingDone: next));
 
   final router = GoRouter(
     initialLocation: AppRoutes.home,
-    refreshListenable: session,
-    redirect: (context, state) => authRedirect(session: session.value, location: state.matchedLocation),
+    refreshListenable: gate,
+    redirect: (context, state) => authRedirect(
+      session: gate.value.session,
+      onboardingDone: gate.value.onboardingDone,
+      location: state.matchedLocation,
+    ),
     routes: [
       GoRoute(path: '/', redirect: (context, state) => AppRoutes.home),
+      GoRoute(path: AppRoutes.welcome, builder: (context, state) => const OnboardingPage()),
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => const PhonePage(),
@@ -62,7 +73,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: AppRoutes.membership,
                 builder: (context, state) => ComingSoonPage(
                   title: context.l10n.navMembership,
-                  icon: Icons.card_membership_rounded,
+                  photo: 'assets/photos/onboarding_train.jpg',
                   message: context.l10n.comingSoonMembership,
                 ),
               ),
@@ -74,7 +85,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: AppRoutes.qr,
                 builder: (context, state) => ComingSoonPage(
                   title: context.l10n.navQr,
-                  icon: Icons.qr_code_2_rounded,
+                  photo: 'assets/photos/onboarding_check_in.jpg',
                   message: context.l10n.comingSoonQr,
                 ),
               ),
@@ -86,7 +97,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: AppRoutes.payments,
                 builder: (context, state) => ComingSoonPage(
                   title: context.l10n.navPayments,
-                  icon: Icons.account_balance_wallet_rounded,
+                  photo: 'assets/photos/onboarding_renew.jpg',
                   message: context.l10n.comingSoonPayments,
                 ),
               ),
@@ -101,7 +112,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
   ref.onDispose(() {
     router.dispose();
-    session.dispose();
+    gate.dispose();
   });
   return router;
 });

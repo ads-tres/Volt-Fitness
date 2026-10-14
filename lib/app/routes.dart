@@ -1,4 +1,6 @@
 abstract final class AppRoutes {
+  /// The welcome pages, shown once before the first sign-in.
+  static const welcome = '/welcome';
   static const login = '/login';
   static const verify = '/login/verify';
   static const selectGym = '/select-gym';
