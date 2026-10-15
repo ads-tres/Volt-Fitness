@@ -87,13 +87,17 @@ void main() {
     expect(find.text('Welcome to Volt'), findsOneWidget);
   });
 
-  testWidgets('Amharic can be chosen from any screen', (tester) async {
+  testWidgets('Amharic chosen in the profile changes the whole app', (tester) async {
     await startApp(tester);
     await signInWith(tester, phone: '0912345678');
 
+    await tester.tap(find.byTooltip('Profile'));
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Language'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('አማርኛ').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('መነሻ'));
     await tester.pumpAndSettle();
 
     expect(find.text('ሰላም፣ Abebe'), findsOneWidget);

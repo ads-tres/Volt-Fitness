@@ -11,13 +11,15 @@ import '../../../core/design/widgets/controls.dart';
 import '../../../core/design/widgets/feedback.dart';
 import '../../../core/design/widgets/surfaces.dart';
 import '../../../core/localization/l10n.dart';
-import '../../../core/localization/language_menu.dart';
 import '../../../core/time/clock.dart';
 import '../../../core/time/date_text.dart';
 import '../../../core/time/local_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../attendance/presentation/visit_card.dart';
 import '../../membership/domain/membership.dart';
+import '../../notifications/data/inbox_controller.dart';
+import '../../notifications/presentation/notification_bell.dart';
+import '../../notifications/presentation/push_permission_card.dart';
 import '../../payments/presentation/payments_page.dart';
 import '../data/dashboard_repository.dart';
 import 'membership_gauge.dart';
@@ -47,12 +49,17 @@ class HomePage extends ConsumerWidget {
       child: SafeArea(
         bottom: false,
         child: RefreshIndicator(
-          onRefresh: () => ref.read(dashboardProvider.notifier).refresh(),
+          onRefresh: () =>
+              Future.wait([ref.read(dashboardProvider.notifier).refresh(), ref.read(inboxProvider.notifier).refresh()]),
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
             children: [
-              ScreenHeader(leading: GymAvatar(brand: brand), title: brand.name, trailing: const LanguageMenu()),
+              ScreenHeader(
+                leading: GymAvatar(brand: brand),
+                title: brand.name,
+                trailing: const NotificationBell(),
+              ),
               const SizedBox(height: 20),
               Text(firstName == null ? l10n.greetingNoName : l10n.greeting(firstName), style: textTheme.headlineSmall),
               if (loaded.failure != null && dashboard != null) ...[const SizedBox(height: 12), const OfflineNotice()],
@@ -93,6 +100,11 @@ class HomePage extends ConsumerWidget {
                   const SizedBox(height: 16),
                   DueCard(outstanding: outstanding, compact: true),
                 ],
+                if (!ref.watch(pushOfferDismissedProvider))
+                  PushPermissionCard(
+                    padding: const EdgeInsets.only(top: 16),
+                    onNotNow: ref.read(pushOfferDismissedProvider.notifier).dismiss,
+                  ),
                 const SizedBox(height: 28),
                 SectionHeader(
                   l10n.recentVisits,

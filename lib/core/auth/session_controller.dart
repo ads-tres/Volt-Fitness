@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../push/push_service.dart';
 import '../storage/preferences_store.dart';
 import '../storage/secure_store.dart';
 import 'profile.dart';
@@ -54,6 +55,9 @@ final class SessionController extends Notifier<Session> {
   /// 401, meaning the token was revoked. To end it on the server too, call
   /// the logout endpoint first.
   Future<void> signOut() async {
+    // The member's pushes stop here even if the logout call never reached
+    // the API. The next member gets a fresh token.
+    await ref.read(pushServiceProvider).deleteToken();
     await ref.read(tokenStoreProvider).clear();
     await ref.read(profileCacheProvider).clear();
     await ref.read(preferencesStoreProvider).removePrefixed(userDataPrefix);

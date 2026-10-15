@@ -13,6 +13,7 @@ import 'package:gym_mobile/core/config/env.dart';
 import 'package:gym_mobile/core/device/app_info.dart';
 import 'package:gym_mobile/core/network/api_client.dart';
 import 'package:gym_mobile/core/network/fake_backend.dart';
+import 'package:gym_mobile/core/push/push_service.dart';
 import 'package:gym_mobile/core/storage/preferences_store.dart';
 import 'package:gym_mobile/core/storage/secure_store.dart';
 import 'package:gym_mobile/core/tenant/organization.dart';
@@ -77,7 +78,8 @@ Profile memberOf(List<Organization> organizations) => Profile(
 
 /// The overrides bootstrap() makes, with in-memory storage. [signedInAs]
 /// starts the app signed in, the way a restart after sign-in would; the
-/// welcome pages count as seen unless [onboardingDone] is false.
+/// welcome pages count as seen unless [onboardingDone] is false, and the
+/// phone allows notifications unless [pushAllowed] is false (never asked).
 Future<List<Override>> testOverrides({
   Profile? signedInAs,
   String? organizationId,
@@ -85,10 +87,12 @@ Future<List<Override>> testOverrides({
   InMemoryPreferencesStore? preferences,
   bool fakeBackend = false,
   bool onboardingDone = true,
+  bool pushAllowed = true,
 }) async {
   secureStore ??= InMemorySecureStore();
   preferences ??= InMemoryPreferencesStore();
   if (onboardingDone) preferences.values['onboarding.done'] = 'true';
+  if (pushAllowed) preferences.values[FakePushService.permissionKey] = PushPermission.granted.name;
   if (signedInAs != null) {
     // The fake backend only accepts its own tokens.
     secureStore.values['auth.token'] = fakeBackend ? 'fake-token:${signedInAs.user.phone}' : 'token-1';

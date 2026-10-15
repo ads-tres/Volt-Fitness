@@ -54,6 +54,12 @@ when the app restarts. Payments open a built-in test checkout instead of
 Chapa's page; paying there settles the payment as Chapa's webhook would, and
 a bought plan really extends the fake membership.
 
+Each number also starts with a few notifications that fit its plan. Profile →
+Notifications → **Send a test notification** makes a new one and delivers it
+two seconds later through a fake push, so the in-app banner and the deep
+links can be tried without Firebase. It cycles through gym news, a plan
+reminder and an invoice.
+
 ### Payments
 
 Laravel starts each payment with Chapa and returns Chapa's checkout URL.
@@ -62,6 +68,18 @@ Birr) to those apps, and closes it when Chapa redirects to the attempt's
 `return_url`. The result screen then asks the API until it has verified the
 payment: reaching the return URL proves nothing. Amounts are always
 `Money` in minor units.
+
+### Notifications
+
+The API keeps each member's inbox and pushes through Firebase Cloud
+Messaging. A push only carries a type and IDs; tapping it opens that screen,
+which loads fresh data, switching gym first when the push is for another of
+the member's gyms. One arriving while the app is open shows as a banner.
+`PushService` (`lib/core/push/`) is the only code that touches the push
+provider: dev builds use `FakePushService`, and real builds get
+`NoPushService` until the Firebase projects exist (dev, staging and prod,
+one per flavor). The push token goes to the API after sign-in, when it
+changes and when the language changes; signing out deletes it.
 
 ## Test
 
@@ -82,7 +100,9 @@ lib/
     device/       app version, install ID, device name
     errors/       Failure types and their messages
     localization/ language choice
+    money/        amounts in minor units and their formatting
     network/      ApiClient, interceptors, error mapping, fake backend
+    push/         push provider, permission and token sync
     storage/      secure storage (secrets) and preferences (settings)
     tenant/       selected gym
     time/         clocks, server time, dates and the Ethiopian calendar
@@ -93,7 +113,9 @@ lib/
     gyms/         choosing a gym
     home/         the dashboard
     membership/   the plan
+    notifications/ inbox, push handling and notification settings
     onboarding/   welcome pages
+    payments/     plans, invoices, receipts and Chapa checkout
     profile/      account, settings, signed-in devices
     shell/        tabs and navigation bar
   l10n/         English and Amharic strings (ARB) and generated code

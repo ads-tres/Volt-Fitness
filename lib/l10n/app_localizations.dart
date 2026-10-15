@@ -1112,6 +1112,144 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get done;
 
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @markAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get markAllRead;
+
+  /// No description provided for @unread.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get unread;
+
+  /// No description provided for @noNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet'**
+  String get noNotifications;
+
+  /// No description provided for @noNotificationsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll let you know here when your plan is ending, a payment is due, or your gym has news.'**
+  String get noNotificationsBody;
+
+  /// No description provided for @pushPromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on notifications'**
+  String get pushPromptTitle;
+
+  /// No description provided for @pushPromptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a reminder before your plan ends, and know when a payment goes through.'**
+  String get pushPromptBody;
+
+  /// No description provided for @turnOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get turnOn;
+
+  /// No description provided for @notNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get notNow;
+
+  /// No description provided for @pushBlockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off'**
+  String get pushBlockedTitle;
+
+  /// No description provided for @pushBlockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To get reminders, allow notifications for Volt in your phone\'s settings.'**
+  String get pushBlockedBody;
+
+  /// No description provided for @openSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get openSettings;
+
+  /// No description provided for @pushUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This version of the app can\'t send notifications to your phone yet. You can still read them from the bell on the home screen.'**
+  String get pushUnavailable;
+
+  /// No description provided for @notifyMeAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify me about'**
+  String get notifyMeAbout;
+
+  /// No description provided for @topicMembership.
+  ///
+  /// In en, this message translates to:
+  /// **'My plan'**
+  String get topicMembership;
+
+  /// No description provided for @topicMembershipHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ending soon, ended or renewed'**
+  String get topicMembershipHint;
+
+  /// No description provided for @topicPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get topicPayments;
+
+  /// No description provided for @topicPaymentsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'New invoices, due dates and receipts'**
+  String get topicPaymentsHint;
+
+  /// No description provided for @topicVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-ins'**
+  String get topicVisits;
+
+  /// No description provided for @topicVisitsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When a check-in is turned away'**
+  String get topicVisitsHint;
+
+  /// No description provided for @topicAnnouncements.
+  ///
+  /// In en, this message translates to:
+  /// **'News from your gym'**
+  String get topicAnnouncements;
+
+  /// No description provided for @topicAnnouncementsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening hours, closures and events'**
+  String get topicAnnouncementsHint;
+
+  /// No description provided for @inboxKeepsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Turning a topic off only stops the alerts on your phone. You can still read everything from the bell on the home screen.'**
+  String get inboxKeepsAll;
+
   /// No description provided for @retry.
   ///
   /// In en, this message translates to:

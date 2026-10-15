@@ -8,9 +8,11 @@ import '../../../core/auth/session_controller.dart';
 import '../../../core/design/tokens.dart';
 import '../../../core/errors/failure.dart';
 import '../../auth/data/auth_repository.dart';
+import '../../notifications/presentation/push_listener.dart';
 import 'volt_navigation_bar.dart';
 
-/// The signed-in app: five tabs, each keeping its own navigation stack.
+/// The signed-in app: five tabs, each keeping its own navigation stack, and
+/// the push handling that only makes sense with a member and a gym.
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key, required this.navigationShell});
 
@@ -41,17 +43,19 @@ class _AppShellState extends ConsumerState<AppShell> {
   @override
   Widget build(BuildContext context) {
     final shell = widget.navigationShell;
-    return Scaffold(
-      // The page's rounded bottom corners show the bar's colour behind them.
-      backgroundColor: AppColors.night,
-      body: ClipRRect(
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
-        child: ColoredBox(color: AppColors.canvas, child: shell),
-      ),
-      bottomNavigationBar: VoltNavigationBar(
-        currentIndex: shell.currentIndex,
-        // A tap on the current tab goes back to its first screen.
-        onSelect: (index) => shell.goBranch(index, initialLocation: index == shell.currentIndex),
+    return PushListener(
+      child: Scaffold(
+        // The page's rounded bottom corners show the bar's colour behind them.
+        backgroundColor: AppColors.night,
+        body: ClipRRect(
+          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+          child: ColoredBox(color: AppColors.canvas, child: shell),
+        ),
+        bottomNavigationBar: VoltNavigationBar(
+          currentIndex: shell.currentIndex,
+          // A tap on the current tab goes back to its first screen.
+          onSelect: (index) => shell.goBranch(index, initialLocation: index == shell.currentIndex),
+        ),
       ),
     );
   }

@@ -12,6 +12,8 @@ import '../features/gyms/presentation/no_gym_page.dart';
 import '../features/gyms/presentation/select_gym_page.dart';
 import '../features/home/presentation/home_page.dart';
 import '../features/membership/presentation/membership_page.dart';
+import '../features/notifications/presentation/notification_settings_page.dart';
+import '../features/notifications/presentation/notifications_page.dart';
 import '../features/onboarding/onboarding_controller.dart';
 import '../features/onboarding/presentation/onboarding_page.dart';
 import '../features/payments/domain/billing.dart';
@@ -93,7 +95,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.home,
                 builder: (context, state) => const HomePage(),
-                routes: [GoRoute(path: 'visits', builder: (context, state) => const VisitsPage())],
+                routes: [
+                  GoRoute(path: 'visits', builder: (context, state) => const VisitsPage()),
+                  GoRoute(path: 'notifications', builder: (context, state) => const NotificationsPage()),
+                ],
               ),
             ],
           ),
@@ -126,7 +131,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.profile,
                 builder: (context, state) => const ProfilePage(),
-                routes: [GoRoute(path: 'devices', builder: (context, state) => const DevicesPage())],
+                routes: [
+                  GoRoute(path: 'devices', builder: (context, state) => const DevicesPage()),
+                  GoRoute(path: 'notifications', builder: (context, state) => const NotificationSettingsPage()),
+                ],
               ),
             ],
           ),

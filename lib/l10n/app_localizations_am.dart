@@ -589,6 +589,79 @@ class AppLocalizationsAm extends AppLocalizations {
   String get done => 'ጨርስ';
 
   @override
+  String get notificationsTitle => 'ማሳወቂያዎች';
+
+  @override
+  String get markAllRead => 'ሁሉንም እንደተነበቡ ምልክት አድርግ';
+
+  @override
+  String get unread => 'ያልተነበበ';
+
+  @override
+  String get noNotifications => 'እስካሁን ምንም የለም';
+
+  @override
+  String get noNotificationsBody =>
+      'ዕቅድዎ ሊያበቃ ሲቃረብ፣ ክፍያ ሲደርስ ወይም ጂምዎ ዜና ሲኖረው እዚህ እናሳውቅዎታለን።';
+
+  @override
+  String get pushPromptTitle => 'ማሳወቂያዎችን ያብሩ';
+
+  @override
+  String get pushPromptBody => 'ዕቅድዎ ከማለቁ በፊት ማስታወሻ ያግኙ፤ ክፍያዎ ሲፈጸምም ይወቁ።';
+
+  @override
+  String get turnOn => 'አብራ';
+
+  @override
+  String get notNow => 'አሁን አይደለም';
+
+  @override
+  String get pushBlockedTitle => 'ማሳወቂያዎች ጠፍተዋል';
+
+  @override
+  String get pushBlockedBody =>
+      'ማስታወሻዎችን ለማግኘት በስልክዎ ቅንብሮች ውስጥ ለVolt ማሳወቂያዎችን ይፍቀዱ።';
+
+  @override
+  String get openSettings => 'ቅንብሮችን ክፈት';
+
+  @override
+  String get pushUnavailable =>
+      'ይህ የመተግበሪያው ስሪት እስካሁን ወደ ስልክዎ ማሳወቂያ መላክ አይችልም። ሆኖም በመነሻ ገጹ ላይ ካለው ደወል ማንበብ ይችላሉ።';
+
+  @override
+  String get notifyMeAbout => 'ስለሚከተሉት አሳውቀኝ';
+
+  @override
+  String get topicMembership => 'ዕቅዴ';
+
+  @override
+  String get topicMembershipHint => 'ሊያበቃ ሲል፣ ሲያበቃ ወይም ሲታደስ';
+
+  @override
+  String get topicPayments => 'ክፍያዎች';
+
+  @override
+  String get topicPaymentsHint => 'አዲስ የክፍያ መጠየቂያዎች፣ የመክፈያ ቀኖች እና ደረሰኞች';
+
+  @override
+  String get topicVisits => 'መግቢያዎች';
+
+  @override
+  String get topicVisitsHint => 'መግቢያ ተቀባይነት ሳያገኝ ሲቀር';
+
+  @override
+  String get topicAnnouncements => 'የጂምዎ ዜናዎች';
+
+  @override
+  String get topicAnnouncementsHint => 'የስራ ሰዓት፣ የመዘጋት ቀኖች እና ዝግጅቶች';
+
+  @override
+  String get inboxKeepsAll =>
+      'አንድን ርዕስ ማጥፋት በስልክዎ ላይ የሚመጡ ማሳወቂያዎችን ብቻ ያቆማል። ሁሉንም አሁንም በመነሻ ገጹ ላይ ካለው ደወል ማንበብ ይችላሉ።';
+
+  @override
   String get retry => 'እንደገና ሞክር';
 
   @override

@@ -17,8 +17,7 @@ import '../../../core/time/date_text.dart';
 import '../../auth/presentation/sign_out.dart';
 import 'calendar_sheet.dart';
 
-/// The member, their gym and sign-out. Notification and calendar settings
-/// and the device list arrive with Phase 3.
+/// The member, their gym, their settings and sign-out.
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
@@ -102,6 +101,12 @@ class ProfilePage extends ConsumerWidget {
                     label: l10n.calendar,
                     value: calendarName(l10n, ref.watch(calendarProvider)),
                     onTap: () => showCalendarSheet(context),
+                  ),
+                  const Divider(height: 1, indent: 60, color: AppColors.line),
+                  _SettingRow(
+                    icon: Icons.notifications_none_rounded,
+                    label: l10n.notificationsTitle,
+                    onTap: () => context.go(AppRoutes.notificationSettings),
                   ),
                   const Divider(height: 1, indent: 60, color: AppColors.line),
                   _SettingRow(

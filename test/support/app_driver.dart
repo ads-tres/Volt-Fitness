@@ -7,14 +7,14 @@ import 'package:material_ui/material_ui.dart';
 import 'test_doubles.dart';
 
 /// The app on a 360×780 phone, signed out, talking to the fake backend.
-Future<void> startApp(WidgetTester tester, {bool onboardingDone = true}) async {
+Future<void> startApp(WidgetTester tester, {bool onboardingDone = true, bool pushAllowed = true}) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     ProviderScope(
       retry: noAutomaticRetry,
-      overrides: await testOverrides(fakeBackend: true, onboardingDone: onboardingDone),
+      overrides: await testOverrides(fakeBackend: true, onboardingDone: onboardingDone, pushAllowed: pushAllowed),
       child: const VoltApp(),
     ),
   );

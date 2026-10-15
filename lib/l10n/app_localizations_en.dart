@@ -600,6 +600,80 @@ class AppLocalizationsEn extends AppLocalizations {
   String get done => 'Done';
 
   @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get markAllRead => 'Mark all as read';
+
+  @override
+  String get unread => 'Unread';
+
+  @override
+  String get noNotifications => 'Nothing here yet';
+
+  @override
+  String get noNotificationsBody =>
+      'We\'ll let you know here when your plan is ending, a payment is due, or your gym has news.';
+
+  @override
+  String get pushPromptTitle => 'Turn on notifications';
+
+  @override
+  String get pushPromptBody =>
+      'Get a reminder before your plan ends, and know when a payment goes through.';
+
+  @override
+  String get turnOn => 'Turn on';
+
+  @override
+  String get notNow => 'Not now';
+
+  @override
+  String get pushBlockedTitle => 'Notifications are off';
+
+  @override
+  String get pushBlockedBody =>
+      'To get reminders, allow notifications for Volt in your phone\'s settings.';
+
+  @override
+  String get openSettings => 'Open settings';
+
+  @override
+  String get pushUnavailable =>
+      'This version of the app can\'t send notifications to your phone yet. You can still read them from the bell on the home screen.';
+
+  @override
+  String get notifyMeAbout => 'Notify me about';
+
+  @override
+  String get topicMembership => 'My plan';
+
+  @override
+  String get topicMembershipHint => 'Ending soon, ended or renewed';
+
+  @override
+  String get topicPayments => 'Payments';
+
+  @override
+  String get topicPaymentsHint => 'New invoices, due dates and receipts';
+
+  @override
+  String get topicVisits => 'Check-ins';
+
+  @override
+  String get topicVisitsHint => 'When a check-in is turned away';
+
+  @override
+  String get topicAnnouncements => 'News from your gym';
+
+  @override
+  String get topicAnnouncementsHint => 'Opening hours, closures and events';
+
+  @override
+  String get inboxKeepsAll =>
+      'Turning a topic off only stops the alerts on your phone. You can still read everything from the bell on the home screen.';
+
+  @override
   String get retry => 'Try again';
 
   @override

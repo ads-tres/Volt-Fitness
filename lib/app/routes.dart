@@ -15,7 +15,9 @@ abstract final class AppRoutes {
 
   // Pages inside a tab, with the navigation bar still showing.
   static const visits = '/home/visits';
+  static const notifications = '/home/notifications';
   static const devices = '/profile/devices';
+  static const notificationSettings = '/profile/notifications';
   static String invoice(String id) => '/payments/invoices/$id';
 
   // Full-screen, above the tabs.

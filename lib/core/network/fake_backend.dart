@@ -17,7 +17,9 @@ import 'api_headers.dart';
 /// number to one. The membership depends on the number too: see
 /// [endingSoonPhone], [expiredPhone], [frozenPhone] and [noPlanPhone]; any
 /// other number has a monthly plan with 18 days left. Payments made through
-/// the fake checkout succeed, except for [paymentFailsPhone].
+/// the fake checkout succeed, except for [paymentFailsPhone]. Each number
+/// starts with a few notifications that fit its membership, and
+/// `POST /dev/fake-push` makes a new one for the in-app fake push.
 final class FakeBackend implements HttpClientAdapter {
   FakeBackend({this.latency = const Duration(milliseconds: 600), DateTime Function()? now})
     : _now = now ?? DateTime.now;
@@ -53,6 +55,11 @@ final class FakeBackend implements HttpClientAdapter {
 
   /// Idempotency key to the attempt it created.
   final _attemptKeys = <String, String>{};
+
+  /// `phone|gym` to the member's notifications there, newest first.
+  final _notifications = <String, List<Map<String, Object?>>>{};
+  final _notificationPreferences = <String, Map<String, bool>>{};
+  var _testPushes = 0;
 
   @override
   Future<ResponseBody> fetch(
@@ -103,6 +110,27 @@ final class FakeBackend implements HttpClientAdapter {
         request,
         (phone) => _fakeCheckout(request, phone, path.substring('/dev/fake-chapa/'.length)),
       ),
+      ('GET', '/notifications') => _inGym(request, (phone, gym) => _listNotifications(request, phone, gym)),
+      ('POST', '/notifications/read-all') => _inGym(request, (phone, gym) {
+        for (final notification in _notificationsFor(phone, gym)) {
+          notification['read_at'] ??= _now().toUtc().toIso8601String();
+        }
+        return _noContent();
+      }),
+      ('POST', final path) when path.startsWith('/notifications/') && path.endsWith('/read') => _inGym(
+        request,
+        (phone, gym) => _markRead(request, phone, gym, path.split('/')[2]),
+      ),
+      ('GET', '/me/notification-preferences') => _inGym(
+        request,
+        (phone, gym) => _json(200, {'data': _preferencesFor(phone, gym)}),
+      ),
+      ('PATCH', '/me/notification-preferences') => _inGym(
+        request,
+        (phone, gym) => _updatePreferences(request, phone, gym),
+      ),
+      ('PUT', '/devices/current/push-token') => _signedIn(request, (phone) => _savePushToken(request, phone)),
+      ('POST', '/dev/fake-push') => _inGym(request, _fakePush),
       ('DELETE', final path) when path.startsWith('/devices/') => _signedIn(
         request,
         (phone) => _removeDevice(request, phone, path.substring('/devices/'.length)),
@@ -303,6 +331,14 @@ final class FakeBackend implements HttpClientAdapter {
     ];
   });
 
+  String _invoiceId(String number) => '01K7ZAI${number.replaceAll('-', '')}'.padRight(26, '0');
+
+  /// Like the receipts: "4,000.00 ETB".
+  static String _birr(int amountMinor) {
+    final whole = '${amountMinor ~/ 100}'.replaceAllMapped(RegExp(r'\B(?=(\d{3})+$)'), (_) => ',');
+    return '$whole.${(amountMinor % 100).toString().padLeft(2, '0')} ETB';
+  }
+
   Map<String, Object?> _invoice(
     String number,
     String description,
@@ -312,7 +348,7 @@ final class FakeBackend implements HttpClientAdapter {
   }) {
     final total = {'amount_minor': amountMinor, 'currency': 'ETB'};
     return {
-      'id': '01K7ZAI${number.replaceAll('-', '')}'.padRight(26, '0'),
+      'id': _invoiceId(number),
       'number': number,
       'description': description,
       'total': total,
@@ -378,6 +414,14 @@ final class FakeBackend implements HttpClientAdapter {
     } else if (attempt.state == 'verifying') {
       _settle(attempt);
       attempt.state = 'succeeded';
+      _notify(
+        attempt.phone,
+        attempt.gym,
+        'payment_succeeded',
+        'Payment received',
+        '${_birr(attempt.amountMinor)} received. Thank you!',
+        data: {'invoice_id': ?attempt.invoiceId},
+      );
     }
     return _json(200, {'data': attempt.toJson()});
   }
@@ -393,6 +437,14 @@ final class FakeBackend implements HttpClientAdapter {
         attempt
           ..state = 'failed'
           ..failureReason = 'The telebirr account has too little balance.';
+        _notify(
+          phone,
+          attempt.gym,
+          'payment_failed',
+          "Payment didn't go through",
+          'The telebirr account has too little balance.',
+          data: {'invoice_id': ?attempt.invoiceId},
+        );
       } else {
         attempt.state = 'paid';
       }
@@ -427,6 +479,200 @@ final class FakeBackend implements HttpClientAdapter {
       continues ? held.start : 0,
       (continues ? held.end : -1) + days,
     );
+  }
+
+  // Notifications
+
+  List<Map<String, Object?>> _notificationsFor(String phone, String gym) =>
+      _notifications.putIfAbsent('$phone|$gym', () {
+        DateTime at(int daysAgo, int hour, int minute) =>
+            DateTime(_today.year, _today.month, _today.day - daysAgo, hour, minute);
+        final kazanchis = gym == _kazanchisFitClub['id'];
+        final notifications = [
+          if (kazanchis)
+            _notification(
+              'announcement',
+              'Spin classes start Monday',
+              'Spin classes run at 6:30 and 18:00 on weekdays. Book a bike at the front desk.',
+              at(2, 10, 0),
+            )
+          else
+            _notification(
+              'announcement',
+              'Holiday hours on Saturday',
+              'For Meskel, both branches open from 8:00 to 14:00. Happy holiday!',
+              at(1, 18, 30),
+            ),
+          if (phone == endingSoonPhone) ...[
+            _notification(
+              'membership_expiring',
+              'Your plan ends in 3 days',
+              'Renew your Monthly plan to keep checking in.',
+              at(0, 8, 0),
+            ),
+            _notification(
+              'invoice_issued',
+              'New invoice INV-2026-0187',
+              '1,500.00 ETB for your Monthly renewal, due in 3 days.',
+              at(1, 9, 15),
+              data: {'invoice_id': _invoiceId('INV-2026-0187')},
+            ),
+          ],
+          if (phone == expiredPhone)
+            _notification(
+              'membership_expired',
+              'Your plan has ended',
+              'Renew to check in again. Your visit history stays.',
+              at(6, 0, 5),
+            ),
+          if (phone == frozenPhone)
+            _notification(
+              'membership_frozen',
+              'Your plan is on hold',
+              "Your days are kept until it resumes. We'll see you soon.",
+              at(3, 11, 0),
+              read: true,
+            ),
+          if (phone != noPlanPhone && !kazanchis) ...[
+            _notification(
+              'visit_denied',
+              'Check-in turned away',
+              "Megenagna, 22:40: outside your plan's hours.",
+              at(4, 22, 41),
+              read: true,
+            ),
+            _notification(
+              'payment_succeeded',
+              'Payment received',
+              '1,500.00 ETB for your Monthly plan. Thank you!',
+              at(phone == expiredPhone ? 36 : 12, 7, 11),
+              read: true,
+              data: {'invoice_id': _invoiceId('INV-2026-0142')},
+            ),
+          ],
+        ];
+        return notifications..sort((a, b) => (b['created_at']! as String).compareTo(a['created_at']! as String));
+      });
+
+  Map<String, Object?> _notification(
+    String type,
+    String title,
+    String body,
+    DateTime at, {
+    Map<String, String> data = const {},
+    bool read = false,
+  }) => {
+    'id': _ulid(),
+    'type': type,
+    'title': title,
+    'body': body,
+    'data': data,
+    'created_at': at.toUtc().toIso8601String(),
+    'read_at': read ? at.add(const Duration(hours: 1)).toUtc().toIso8601String() : null,
+  };
+
+  Map<String, Object?> _notify(
+    String phone,
+    String gym,
+    String type,
+    String title,
+    String body, {
+    Map<String, String> data = const {},
+  }) {
+    final notification = _notification(type, title, body, _now(), data: data);
+    _notificationsFor(phone, gym).insert(0, notification);
+    return notification;
+  }
+
+  ResponseBody _listNotifications(_Request request, String phone, String gym) {
+    final all = _notificationsFor(phone, gym);
+    final from = int.tryParse(request.query['cursor'] ?? '') ?? 0;
+    final perPage = int.tryParse(request.query['per_page'] ?? '') ?? 20;
+    final to = min(from + perPage, all.length);
+    return _json(200, {
+      'data': all.sublist(min(from, all.length), to),
+      'links': {'next': null, 'prev': null},
+      'meta': {
+        'per_page': perPage,
+        'next_cursor': to < all.length ? '$to' : null,
+        'prev_cursor': null,
+        'unread_count': all.where((notification) => notification['read_at'] == null).length,
+      },
+    });
+  }
+
+  ResponseBody _markRead(_Request request, String phone, String gym, String id) {
+    final notification = _notificationsFor(phone, gym).where((notification) => notification['id'] == id).firstOrNull;
+    if (notification == null) return _error(404, 'NOT_FOUND', 'No such notification.', request);
+    notification['read_at'] ??= _now().toUtc().toIso8601String();
+    return _noContent();
+  }
+
+  Map<String, bool> _preferencesFor(String phone, String gym) => _notificationPreferences.putIfAbsent(
+    '$phone|$gym',
+    () => {'membership': true, 'payments': true, 'visits': true, 'announcements': true},
+  );
+
+  ResponseBody _updatePreferences(_Request request, String phone, String gym) {
+    final preferences = _preferencesFor(phone, gym);
+    final changes = request.body;
+    final valid =
+        changes.isNotEmpty &&
+        changes.entries.every((change) => preferences.containsKey(change.key) && change.value is bool);
+    if (!valid) return _error(422, 'VALIDATION_FAILED', 'Send true or false for known topics.', request);
+    for (final MapEntry(:key, :value) in changes.entries) {
+      preferences[key] = value as bool;
+    }
+    return _json(200, {'data': preferences});
+  }
+
+  ResponseBody _savePushToken(_Request request, String phone) {
+    final token = request.body['token'];
+    if (token is! String || token.isEmpty) {
+      return _error(422, 'VALIDATION_FAILED', 'The token field is required.', request);
+    }
+    final device = _devices[phone]?.where((device) => device.id == request.deviceId).firstOrNull;
+    device
+      ?..pushToken = token
+      ..pushLocale = '${request.body['locale'] ?? 'en'}';
+    return _noContent();
+  }
+
+  /// Makes a notification, as the API would before pushing it, and returns
+  /// the FCM message for the in-app fake push. Cycles through gym news, a
+  /// plan reminder and an invoice, to try each kind of tap.
+  ResponseBody _fakePush(String phone, String gym) {
+    final invoiceId = _invoicesFor(phone, gym).firstOrNull?['id'] as String?;
+    final notification = switch (_testPushes++ % 3) {
+      0 => _notify(
+        phone,
+        gym,
+        'announcement',
+        'Test: news from your gym',
+        'This came from the fake backend. News opens in full in the inbox.',
+      ),
+      1 => _notify(phone, gym, 'membership_expiring', 'Test: your plan', 'Tap to open your membership.'),
+      _ => _notify(
+        phone,
+        gym,
+        'invoice_due',
+        'Test: an invoice',
+        'Tap to open your latest invoice.',
+        data: {'invoice_id': ?invoiceId},
+      ),
+    };
+    return _json(200, {
+      'data': {
+        'title': notification['title'],
+        'body': notification['body'],
+        'data': {
+          'type': notification['type'],
+          'notification_id': notification['id'],
+          'organization_id': gym,
+          ...notification['data']! as Map<String, String>,
+        },
+      },
+    });
   }
 
   // Devices
@@ -629,6 +875,8 @@ final class _Device {
   final String platform;
   final String appVersion;
   final DateTime lastSeenAt;
+  String? pushToken;
+  String? pushLocale;
 }
 
 final class _Credential {
