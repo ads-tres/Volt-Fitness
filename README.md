@@ -43,13 +43,25 @@ API instead. Prod builds never use the fake.
 | Plan expired 6 days ago        | `0933 33 33 33` | `123456`      |
 | Plan frozen for a week         | `0944 44 44 44` | `123456`      |
 | No plan                        | `0955 55 55 55` | `123456`      |
+| Payments always declined       | `0966 66 66 66` | `123456`      |
 | Member of two gyms             | `0911 11 11 11` | `123456`      |
 | Number with no gym             | `0900 00 00 00` | `123456`      |
 | Expired code                   | any             | `000000`      |
 | Wrong code (5× locks out)      | any             | anything else |
 
 Dates in the fake are built around today, and the fake forgets everything
-when the app restarts.
+when the app restarts. Payments open a built-in test checkout instead of
+Chapa's page; paying there settles the payment as Chapa's webhook would, and
+a bought plan really extends the fake membership.
+
+### Payments
+
+Laravel starts each payment with Chapa and returns Chapa's checkout URL.
+The app opens it in a web view, hands payment-app links (telebirr, CBE
+Birr) to those apps, and closes it when Chapa redirects to the attempt's
+`return_url`. The result screen then asks the API until it has verified the
+payment: reaching the return URL proves nothing. Amounts are always
+`Money` in minor units.
 
 ## Test
 

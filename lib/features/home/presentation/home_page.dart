@@ -18,6 +18,7 @@ import '../../../core/time/local_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../attendance/presentation/visit_card.dart';
 import '../../membership/domain/membership.dart';
+import '../../payments/presentation/payments_page.dart';
 import '../data/dashboard_repository.dart';
 import 'membership_gauge.dart';
 
@@ -88,6 +89,10 @@ class HomePage extends ConsumerWidget {
                     ],
                   ],
                 ),
+                if (dashboard?.outstanding case final outstanding?) ...[
+                  const SizedBox(height: 16),
+                  DueCard(outstanding: outstanding, compact: true),
+                ],
                 const SizedBox(height: 28),
                 SectionHeader(
                   l10n.recentVisits,

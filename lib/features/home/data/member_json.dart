@@ -2,6 +2,7 @@ import '../../../core/network/json.dart';
 import '../../../core/time/local_date.dart';
 import '../../attendance/domain/visit.dart';
 import '../../membership/domain/membership.dart';
+import '../../payments/data/billing_json.dart';
 import '../domain/dashboard.dart';
 
 /// Reads the member-core shapes from the API. Unknown enum values become
@@ -12,6 +13,10 @@ Dashboard dashboardFromJson(Map<String, dynamic> json) => Dashboard(
     null => null,
   },
   recentVisits: [for (final visit in json.objects('recent_attendance')) visitFromJson(visit)],
+  outstanding: switch (json.optional<Map<String, dynamic>>('outstanding')) {
+    final outstanding? => outstandingFromJson(outstanding),
+    null => null,
+  },
 );
 
 Membership membershipFromJson(Map<String, dynamic> json) => Membership(

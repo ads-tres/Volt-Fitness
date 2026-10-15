@@ -16,7 +16,8 @@ import 'api_headers.dart';
 /// [twoGymsPhone] belongs to two gyms, [noGymPhone] to none, any other
 /// number to one. The membership depends on the number too: see
 /// [endingSoonPhone], [expiredPhone], [frozenPhone] and [noPlanPhone]; any
-/// other number has a monthly plan with 18 days left.
+/// other number has a monthly plan with 18 days left. Payments made through
+/// the fake checkout succeed, except for [paymentFailsPhone].
 final class FakeBackend implements HttpClientAdapter {
   FakeBackend({this.latency = const Duration(milliseconds: 600), DateTime Function()? now})
     : _now = now ?? DateTime.now;
@@ -29,6 +30,7 @@ final class FakeBackend implements HttpClientAdapter {
   static const expiredPhone = '+251933333333';
   static const frozenPhone = '+251944444444';
   static const noPlanPhone = '+251955555555';
+  static const paymentFailsPhone = '+251966666666';
 
   static const _tokenPrefix = 'fake-token:';
   static const _maxWrongCodes = 5;
@@ -43,6 +45,14 @@ final class FakeBackend implements HttpClientAdapter {
 
   /// `phone|gym|device` to that device's QR credential.
   final _credentials = <String, _Credential>{};
+
+  /// `phone|gym` to what was bought there in this session.
+  final _heldPlans = <String, _HeldPlan>{};
+  final _invoices = <String, List<Map<String, Object?>>>{};
+  final _attempts = <String, _Attempt>{};
+
+  /// Idempotency key to the attempt it created.
+  final _attemptKeys = <String, String>{};
 
   @override
   Future<ResponseBody> fetch(
@@ -73,6 +83,26 @@ final class FakeBackend implements HttpClientAdapter {
       ('POST', '/access/credentials') => _inGym(request, (phone, gym) => _issueCredential(request, phone, gym)),
       ('GET', '/access/credentials/current') => _inGym(request, (phone, gym) => _currentCredential(request, phone, gym)),
       ('GET', '/devices') => _signedIn(request, (phone) => _listDevices(request, phone)),
+      ('GET', '/plans') => _inGym(request, (phone, gym) => _json(200, {'data': _plans(gym)})),
+      ('GET', '/invoices') => _inGym(request, (phone, gym) => _json(200, {
+        'data': _invoicesFor(phone, gym),
+        'links': {'next': null, 'prev': null},
+        'meta': {'per_page': 30, 'next_cursor': null, 'prev_cursor': null},
+      })),
+      ('GET', final path) when path.startsWith('/invoices/') => _inGym(request, (phone, gym) {
+        final id = path.substring('/invoices/'.length);
+        final invoice = _invoicesFor(phone, gym).where((invoice) => invoice['id'] == id).firstOrNull;
+        return invoice == null ? _error(404, 'NOT_FOUND', 'No such invoice.', request) : _json(200, {'data': invoice});
+      }),
+      ('POST', '/payment-attempts') => _inGym(request, (phone, gym) => _startPayment(request, phone, gym)),
+      ('GET', final path) when path.startsWith('/payment-attempts/') => _inGym(
+        request,
+        (phone, gym) => _paymentStatus(request, path.substring('/payment-attempts/'.length)),
+      ),
+      ('POST', final path) when path.startsWith('/dev/fake-chapa/') => _signedIn(
+        request,
+        (phone) => _fakeCheckout(request, phone, path.substring('/dev/fake-chapa/'.length)),
+      ),
       ('DELETE', final path) when path.startsWith('/devices/') => _signedIn(
         request,
         (phone) => _removeDevice(request, phone, path.substring('/devices/'.length)),
@@ -135,7 +165,15 @@ final class FakeBackend implements HttpClientAdapter {
     'data': {
       'membership': _membership(phone, gym),
       'recent_attendance': _visits(phone, gym).take(5).toList(),
-      'outstanding': null,
+      'outstanding': switch (_invoicesFor(phone, gym).where((invoice) => invoice['status'] == 'open').firstOrNull) {
+        final open? => {
+          'invoice_id': open['id'],
+          'number': open['number'],
+          'amount': open['total'],
+          'due_on': open['due_on'],
+        },
+        null => null,
+      },
     },
   });
 
@@ -152,29 +190,33 @@ final class FakeBackend implements HttpClientAdapter {
   }
 
   Map<String, Object?>? _membership(String phone, String gym) {
-    final today = _today;
-    String day(int offset) => _iso(today.add(Duration(days: offset)));
-    final branches = gym == _kazanchisFitClub['id'] ? [_kazanchisBranch] : [_boleBranch, _megenagnaBranch];
-
-    Map<String, Object?> plan(String name, int startOffset, int endOffset, {String status = 'active'}) => {
+    final held = _held(phone, gym);
+    if (held == null) return null;
+    String day(int offset) => _iso(_today.add(Duration(days: offset)));
+    return {
       'id': '01K7Z7M${phone.substring(phone.length - 4)}${gym.substring(gym.length - 4)}'.padRight(26, '0'),
-      'plan_name': name,
-      'status': status,
-      'starts_on': day(startOffset),
-      'ends_on': day(endOffset),
+      'plan_name': held.name,
+      'status': held.status,
+      'starts_on': day(held.start),
+      'ends_on': day(held.end),
       'grace_ends_on': null,
-      'frozen_until': null,
-      'allowed_branches': branches,
+      'frozen_until': held.frozenUntil == null ? null : day(held.frozenUntil!),
+      'allowed_branches': gym == _kazanchisFitClub['id'] ? [_kazanchisBranch] : [_boleBranch, _megenagnaBranch],
       'visits_remaining': null,
     };
+  }
 
-    if (gym == _kazanchisFitClub['id']) return plan('Quarterly', -26, 64);
+  /// The member's plan at [gym], in days from today: what they bought here
+  /// in this session, or what their number starts with.
+  _HeldPlan? _held(String phone, String gym) {
+    if (_heldPlans['$phone|$gym'] case final bought?) return bought;
+    if (gym == _kazanchisFitClub['id']) return const _HeldPlan('Quarterly', -26, 64);
     return switch (phone) {
-      endingSoonPhone => plan('Monthly', -27, 3),
-      expiredPhone => plan('Monthly', -36, -6, status: 'expired'),
-      frozenPhone => {...plan('Monthly', -10, 30, status: 'frozen'), 'frozen_until': day(7)},
+      endingSoonPhone => const _HeldPlan('Monthly', -27, 3),
+      expiredPhone => const _HeldPlan('Monthly', -36, -6, status: 'expired'),
+      frozenPhone => const _HeldPlan('Monthly', -10, 30, status: 'frozen', frozenUntil: 7),
       noPlanPhone => null,
-      _ => plan('Monthly', -12, 18),
+      _ => const _HeldPlan('Monthly', -12, 18),
     };
   }
 
@@ -235,6 +277,156 @@ final class FakeBackend implements HttpClientAdapter {
         'algorithm': 'GQ1',
       },
     });
+  }
+
+  // Billing and Chapa
+
+  List<Map<String, Object?>> _plans(String gym) => gym == _kazanchisFitClub['id']
+      ? [_plan('Monthly', 30, 180000), _plan('Quarterly', 90, 500000)]
+      : [_plan('Monthly', 30, 150000), _plan('Quarterly', 90, 400000), _plan('Annual', 365, 1400000)];
+
+  Map<String, Object?> _plan(String name, int days, int priceMinor) => {
+    'id': '01K7ZAP${name.toUpperCase()}'.padRight(26, '0'),
+    'name': name,
+    'duration_days': days,
+    'price': {'amount_minor': priceMinor, 'currency': 'ETB'},
+    'photo_url': null,
+  };
+
+  List<Map<String, Object?>> _invoicesFor(String phone, String gym) => _invoices.putIfAbsent('$phone|$gym', () {
+    if (phone == noPlanPhone) return [];
+    final paidDaysAgo = phone == expiredPhone ? 36 : 12;
+    return [
+      if (phone == endingSoonPhone) _invoice('INV-2026-0187', 'Monthly renewal', 150000, issuedDaysAgo: 1, dueInDays: 3),
+      _invoice('INV-2026-0142', 'Monthly plan', 150000, issuedDaysAgo: paidDaysAgo)
+        ..addAll(_paid(_today.subtract(Duration(days: paidDaysAgo)).add(const Duration(hours: 7, minutes: 10)))),
+    ];
+  });
+
+  Map<String, Object?> _invoice(
+    String number,
+    String description,
+    int amountMinor, {
+    required int issuedDaysAgo,
+    int? dueInDays,
+  }) {
+    final total = {'amount_minor': amountMinor, 'currency': 'ETB'};
+    return {
+      'id': '01K7ZAI${number.replaceAll('-', '')}'.padRight(26, '0'),
+      'number': number,
+      'description': description,
+      'total': total,
+      'status': 'open',
+      'issued_on': _iso(_today.subtract(Duration(days: issuedDaysAgo))),
+      'due_on': dueInDays == null ? null : _iso(_today.add(Duration(days: dueInDays))),
+      'lines': [
+        {'description': description, 'amount': total},
+      ],
+      'receipt': null,
+    };
+  }
+
+  Map<String, Object?> _paid(DateTime paidAt) => {
+    'status': 'paid',
+    'receipt': {
+      'number': 'RCT-${paidAt.year}-${1000 + _random.nextInt(9000)}',
+      'paid_at': paidAt.toUtc().toIso8601String(),
+      'method': 'telebirr',
+      'reference': 'CH${_ulid().substring(16)}',
+      'url': null,
+    },
+  };
+
+  ResponseBody _startPayment(_Request request, String phone, String gym) {
+    final key = request.headers[ApiHeaders.idempotencyKey];
+    if (key is String && _attemptKeys[key] != null) {
+      return _json(201, {'data': _attempts[_attemptKeys[key]]!.toJson()});
+    }
+
+    final invoiceId = request.body['invoice_id'];
+    final planId = request.body['plan_id'];
+    final Map<String, Object?>? target = switch ((invoiceId, planId)) {
+      (final String id, null) =>
+        _invoicesFor(phone, gym).where((invoice) => invoice['id'] == id && invoice['status'] == 'open').firstOrNull,
+      (null, final String id) => _plans(gym).where((plan) => plan['id'] == id).firstOrNull,
+      _ => null,
+    };
+    if (target == null) return _error(422, 'VALIDATION_FAILED', 'Pay one open invoice or one plan.', request);
+
+    final amount = (invoiceId is String ? target['total'] : target['price'])! as Map<String, Object?>;
+    final attempt = _Attempt(
+      id: _ulid(),
+      phone: phone,
+      gym: gym,
+      amountMinor: amount['amount_minor']! as int,
+      invoiceId: invoiceId is String ? invoiceId : null,
+      plan: invoiceId is String ? null : target,
+      expiresAt: _now().add(const Duration(minutes: 30)),
+    );
+    _attempts[attempt.id] = attempt;
+    if (key is String) _attemptKeys[key] = attempt.id;
+    return _json(201, {'data': attempt.toJson()});
+  }
+
+  ResponseBody _paymentStatus(_Request request, String id) {
+    final attempt = _attempts[id];
+    if (attempt == null) return _error(404, 'NOT_FOUND', 'No such payment.', request);
+    // Like the real flow: a paid attempt shows as processing once, then
+    // succeeds when the API has verified it with Chapa.
+    if (attempt.state == 'paid') {
+      attempt.state = 'verifying';
+    } else if (attempt.state == 'verifying') {
+      _settle(attempt);
+      attempt.state = 'succeeded';
+    }
+    return _json(200, {'data': attempt.toJson()});
+  }
+
+  /// Stands in for the member paying on Chapa's page and Chapa telling the
+  /// API. Only the in-app fake checkout calls it.
+  ResponseBody _fakeCheckout(_Request request, String phone, String path) {
+    final parts = path.split('/');
+    final attempt = _attempts[parts.first];
+    if (attempt == null || attempt.phone != phone) return _error(404, 'NOT_FOUND', 'No such payment.', request);
+    if (parts.last == 'pay' && attempt.state == 'pending') {
+      if (phone == paymentFailsPhone) {
+        attempt
+          ..state = 'failed'
+          ..failureReason = 'The telebirr account has too little balance.';
+      } else {
+        attempt.state = 'paid';
+      }
+    }
+    return _noContent();
+  }
+
+  /// What the API does once Chapa's payment is verified: mark the invoice
+  /// paid, or invoice the plan as paid, and extend the membership.
+  void _settle(_Attempt attempt) {
+    final invoices = _invoicesFor(attempt.phone, attempt.gym);
+    final held = _held(attempt.phone, attempt.gym);
+    final paidAt = _now();
+    final String name;
+    final int days;
+    if (attempt.invoiceId case final invoiceId?) {
+      invoices.firstWhere((invoice) => invoice['id'] == invoiceId).addAll(_paid(paidAt));
+      name = held?.name ?? 'Monthly';
+      days = 30;
+    } else {
+      final plan = attempt.plan!;
+      name = plan['name']! as String;
+      days = plan['duration_days']! as int;
+      final invoice = _invoice('INV-${paidAt.year}-${2000 + invoices.length}', '$name plan', attempt.amountMinor, issuedDaysAgo: 0)
+        ..addAll(_paid(paidAt));
+      invoices.insert(0, invoice);
+      attempt.invoiceId = invoice['id']! as String;
+    }
+    final continues = held != null && held.status != 'expired' && held.end >= 0;
+    _heldPlans['${attempt.phone}|${attempt.gym}'] = _HeldPlan(
+      name,
+      continues ? held.start : 0,
+      (continues ? held.end : -1) + days,
+    );
   }
 
   // Devices
@@ -446,4 +638,58 @@ final class _Credential {
   final String secret;
   String status = 'active';
   String? reason;
+}
+
+final class _HeldPlan {
+  const _HeldPlan(this.name, this.start, this.end, {this.status = 'active', this.frozenUntil});
+
+  final String name;
+
+  /// Days from today; negative is in the past.
+  final int start;
+  final int end;
+  final String status;
+  final int? frozenUntil;
+}
+
+final class _Attempt {
+  _Attempt({
+    required this.id,
+    required this.phone,
+    required this.gym,
+    required this.amountMinor,
+    required this.expiresAt,
+    this.invoiceId,
+    this.plan,
+  });
+
+  final String id;
+  final String phone;
+  final String gym;
+  final int amountMinor;
+  final DateTime expiresAt;
+  final Map<String, Object?>? plan;
+
+  /// The invoice paid; for a plan, the one created when the payment is
+  /// verified.
+  String? invoiceId;
+
+  /// pending, paid, verifying, succeeded or failed.
+  String state = 'pending';
+  String? failureReason;
+
+  Map<String, Object?> toJson() => {
+    'id': id,
+    'status': switch (state) {
+      'paid' || 'verifying' => 'processing',
+      final other => other,
+    },
+    'provider': 'chapa',
+    'amount': {'amount_minor': amountMinor, 'currency': 'ETB'},
+    'invoice_id': invoiceId,
+    'checkout_url': 'https://checkout.chapa.co/checkout/payment/$id',
+    'return_url': 'https://api.volt.example/api/v1/payments/return/$id',
+    'expires_at': expiresAt.toUtc().toIso8601String(),
+    'failure_reason': failureReason,
+  };
 }

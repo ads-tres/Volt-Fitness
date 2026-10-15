@@ -176,12 +176,6 @@ class AppLocalizationsAm extends AppLocalizations {
   String get frontDesk => 'እንግዳ መቀበያ';
 
   @override
-  String get comingSoonTitle => 'በሚቀጥለው ዝማኔ ይመጣል';
-
-  @override
-  String get comingSoonPayments => 'ደረሰኞችዎ፣ ክፍያዎችዎ እና ማስረጃዎችዎ እዚህ ይታያሉ።';
-
-  @override
   String get switchGym => 'ቀይር';
 
   @override
@@ -455,6 +449,144 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get cancel => 'ይቅር';
+
+  @override
+  String get amountDue => 'የሚከፈል መጠን';
+
+  @override
+  String dueOn(String date) {
+    return 'እስከ $date';
+  }
+
+  @override
+  String get dueDate => 'የመክፈያ ቀን';
+
+  @override
+  String get paymentDue => 'ያልተከፈለ ክፍያ';
+
+  @override
+  String get payNow => 'አሁን ክፈል';
+
+  @override
+  String get pay => 'ክፈል';
+
+  @override
+  String payAmount(String amount) {
+    return '$amount ክፈል';
+  }
+
+  @override
+  String get plansTitle => 'ዕቅድዎን ያድሱ ወይም ይቀይሩ';
+
+  @override
+  String get choosePlan => 'ምረጥ';
+
+  @override
+  String get historyTitle => 'ታሪክ';
+
+  @override
+  String get noInvoices => 'እስካሁን ክፍያ የለም።';
+
+  @override
+  String get invoiceStatusOpen => 'ያልተከፈለ';
+
+  @override
+  String get invoiceStatusPaid => 'የተከፈለ';
+
+  @override
+  String get invoiceStatusVoid => 'የተሰረዘ';
+
+  @override
+  String invoiceTitle(String number) {
+    return 'የክፍያ መጠየቂያ $number';
+  }
+
+  @override
+  String get issuedOn => 'የወጣበት';
+
+  @override
+  String get total => 'ጠቅላላ';
+
+  @override
+  String get receiptTitle => 'ደረሰኝ';
+
+  @override
+  String get paidOn => 'የተከፈለበት';
+
+  @override
+  String get paymentMethod => 'የክፍያ መንገድ';
+
+  @override
+  String get paymentReference => 'መለያ ቁጥር';
+
+  @override
+  String get openReceipt => 'ደረሰኙን ክፈት';
+
+  @override
+  String get confirmPlanBody => 'ቻፓ ክፍያውን እንዳረጋገጠ አባልነትዎ ይራዘማል።';
+
+  @override
+  String get securedByChapa => 'ደህንነቱ የተጠበቀ ክፍያ በቻፓ፦ ቴሌብር፣ ሲቢኢ ብር እና ካርዶች';
+
+  @override
+  String get checkoutTitle => 'በቻፓ ይክፈሉ';
+
+  @override
+  String get leaveCheckoutTitle => 'ክፍያውን ትተው ይወጣሉ?';
+
+  @override
+  String get leaveCheckoutBody => 'ቀድመው ከፍለው ከሆነ አሁንም እናረጋግጠዋለን።';
+
+  @override
+  String get leave => 'ውጣ';
+
+  @override
+  String get stay => 'ቆይ';
+
+  @override
+  String get resultConfirming => 'ክፍያዎን እያረጋገጥን ነው';
+
+  @override
+  String get resultConfirmingBody => 'ብዙውን ጊዜ ጥቂት ሰከንዶች ይወስዳል።';
+
+  @override
+  String get resultSucceeded => 'ክፍያው ደርሷል';
+
+  @override
+  String resultSucceededUntil(String date) {
+    return 'አባልነትዎ እስከ $date ድረስ ንቁ ነው።';
+  }
+
+  @override
+  String get resultSucceededBody => 'እናመሰግናለን። ደረሰኝዎ ዝግጁ ነው።';
+
+  @override
+  String get resultFailed => 'ክፍያው አልተሳካም';
+
+  @override
+  String get resultFailedBody => 'ቻፓ ክፍያውን ማጠናቀቅ አልቻለም። እንደገና መሞከር ይችላሉ።';
+
+  @override
+  String get resultNotFinished => 'ክፍያው አልተጠናቀቀም';
+
+  @override
+  String get resultNotFinishedBody => 'ከመክፈልዎ በፊት ስለወጡ ዕቅድዎ አልተቀየረም።';
+
+  @override
+  String get resultStillConfirming => 'አሁንም እያረጋገጥን ነው';
+
+  @override
+  String get resultStillConfirmingBody =>
+      'ቻፓ ክፍያውን እስካሁን አላረጋገጠም። ይህን ገጽ መተው ይችላሉ፤ እንዳረጋገጠ አባልነትዎ ይዘመናል።';
+
+  @override
+  String get viewReceipt => 'ደረሰኝ ይመልከቱ';
+
+  @override
+  String get backToPayments => 'ወደ ክፍያዎች ተመለስ';
+
+  @override
+  String get done => 'ጨርስ';
 
   @override
   String get retry => 'እንደገና ሞክር';

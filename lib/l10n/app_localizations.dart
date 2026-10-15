@@ -404,18 +404,6 @@ abstract class AppLocalizations {
   /// **'Front desk'**
   String get frontDesk;
 
-  /// No description provided for @comingSoonTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Coming in the next update'**
-  String get comingSoonTitle;
-
-  /// No description provided for @comingSoonPayments.
-  ///
-  /// In en, this message translates to:
-  /// **'Your invoices, payments and receipts will show here.'**
-  String get comingSoonPayments;
-
   /// No description provided for @switchGym.
   ///
   /// In en, this message translates to:
@@ -865,6 +853,264 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get cancel;
+
+  /// No description provided for @amountDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount due'**
+  String get amountDue;
+
+  /// No description provided for @dueOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String dueOn(String date);
+
+  /// No description provided for @dueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date'**
+  String get dueDate;
+
+  /// No description provided for @paymentDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment due'**
+  String get paymentDue;
+
+  /// No description provided for @payNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay now'**
+  String get payNow;
+
+  /// No description provided for @pay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay'**
+  String get pay;
+
+  /// No description provided for @payAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {amount}'**
+  String payAmount(String amount);
+
+  /// No description provided for @plansTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Renew or change your plan'**
+  String get plansTitle;
+
+  /// No description provided for @choosePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get choosePlan;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get historyTitle;
+
+  /// No description provided for @noInvoices.
+  ///
+  /// In en, this message translates to:
+  /// **'No payments yet.'**
+  String get noInvoices;
+
+  /// No description provided for @invoiceStatusOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpaid'**
+  String get invoiceStatusOpen;
+
+  /// No description provided for @invoiceStatusPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get invoiceStatusPaid;
+
+  /// No description provided for @invoiceStatusVoid.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get invoiceStatusVoid;
+
+  /// No description provided for @invoiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice {number}'**
+  String invoiceTitle(String number);
+
+  /// No description provided for @issuedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Issued'**
+  String get issuedOn;
+
+  /// No description provided for @total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get total;
+
+  /// No description provided for @receiptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt'**
+  String get receiptTitle;
+
+  /// No description provided for @paidOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get paidOn;
+
+  /// No description provided for @paymentMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get paymentMethod;
+
+  /// No description provided for @paymentReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference'**
+  String get paymentReference;
+
+  /// No description provided for @openReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Open receipt'**
+  String get openReceipt;
+
+  /// No description provided for @confirmPlanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your membership is extended as soon as Chapa confirms the payment.'**
+  String get confirmPlanBody;
+
+  /// No description provided for @securedByChapa.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure checkout by Chapa: telebirr, CBE Birr and cards'**
+  String get securedByChapa;
+
+  /// No description provided for @checkoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay with Chapa'**
+  String get checkoutTitle;
+
+  /// No description provided for @leaveCheckoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the payment?'**
+  String get leaveCheckoutTitle;
+
+  /// No description provided for @leaveCheckoutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'If you already paid, we\'ll still confirm it.'**
+  String get leaveCheckoutBody;
+
+  /// No description provided for @leave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get leave;
+
+  /// No description provided for @stay.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay'**
+  String get stay;
+
+  /// No description provided for @resultConfirming.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming your payment'**
+  String get resultConfirming;
+
+  /// No description provided for @resultConfirmingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This usually takes a few seconds.'**
+  String get resultConfirmingBody;
+
+  /// No description provided for @resultSucceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment received'**
+  String get resultSucceeded;
+
+  /// No description provided for @resultSucceededUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Your membership is active until {date}.'**
+  String resultSucceededUntil(String date);
+
+  /// No description provided for @resultSucceededBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you. Your receipt is ready.'**
+  String get resultSucceededBody;
+
+  /// No description provided for @resultFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment didn\'t go through'**
+  String get resultFailed;
+
+  /// No description provided for @resultFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapa couldn\'t complete the payment. You can try again.'**
+  String get resultFailedBody;
+
+  /// No description provided for @resultNotFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment not finished'**
+  String get resultNotFinished;
+
+  /// No description provided for @resultNotFinishedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You left before paying, so your plan hasn\'t changed.'**
+  String get resultNotFinishedBody;
+
+  /// No description provided for @resultStillConfirming.
+  ///
+  /// In en, this message translates to:
+  /// **'Still confirming'**
+  String get resultStillConfirming;
+
+  /// No description provided for @resultStillConfirmingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapa hasn\'t confirmed the payment yet. You can leave this screen: your membership updates as soon as it does.'**
+  String get resultStillConfirmingBody;
+
+  /// No description provided for @viewReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'View receipt'**
+  String get viewReceipt;
+
+  /// No description provided for @backToPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to payments'**
+  String get backToPayments;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
 
   /// No description provided for @retry.
   ///

@@ -4,7 +4,6 @@ import 'package:material_ui/material_ui.dart';
 
 import '../core/auth/session.dart';
 import '../core/auth/session_controller.dart';
-import '../core/localization/l10n.dart';
 import '../features/access/presentation/qr_page.dart';
 import '../features/attendance/presentation/visits_page.dart';
 import '../features/auth/presentation/otp_page.dart';
@@ -15,10 +14,14 @@ import '../features/home/presentation/home_page.dart';
 import '../features/membership/presentation/membership_page.dart';
 import '../features/onboarding/onboarding_controller.dart';
 import '../features/onboarding/presentation/onboarding_page.dart';
+import '../features/payments/domain/billing.dart';
+import '../features/payments/presentation/checkout_page.dart';
+import '../features/payments/presentation/invoice_page.dart';
+import '../features/payments/presentation/payment_result_page.dart';
+import '../features/payments/presentation/payments_page.dart';
 import '../features/profile/presentation/devices_page.dart';
 import '../features/profile/presentation/profile_page.dart';
 import '../features/shell/presentation/app_shell.dart';
-import '../features/shell/presentation/coming_soon_page.dart';
 import 'routes.dart';
 
 export 'routes.dart';
@@ -65,6 +68,23 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: AppRoutes.selectGym, builder: (context, state) => const SelectGymPage()),
       GoRoute(path: AppRoutes.noGym, builder: (context, state) => const NoGymPage()),
+      GoRoute(
+        path: '/checkout/:attemptId',
+        builder: (context, state) => CheckoutPage(
+          attemptId: state.pathParameters['attemptId']!,
+          attempt: switch (state.extra) {
+            final PaymentAttempt attempt => attempt,
+            _ => null,
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/payment-result/:attemptId',
+        builder: (context, state) => PaymentResultPage(
+          attemptId: state.pathParameters['attemptId']!,
+          left: state.uri.queryParameters['left'] == '1',
+        ),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
         branches: [
@@ -91,11 +111,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.payments,
-                builder: (context, state) => ComingSoonPage(
-                  title: context.l10n.navPayments,
-                  photo: 'assets/photos/onboarding_renew.jpg',
-                  message: context.l10n.comingSoonPayments,
-                ),
+                builder: (context, state) => const PaymentsPage(),
+                routes: [
+                  GoRoute(
+                    path: 'invoices/:id',
+                    builder: (context, state) => InvoicePage(invoiceId: state.pathParameters['id']!),
+                  ),
+                ],
               ),
             ],
           ),

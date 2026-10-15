@@ -181,13 +181,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get frontDesk => 'Front desk';
 
   @override
-  String get comingSoonTitle => 'Coming in the next update';
-
-  @override
-  String get comingSoonPayments =>
-      'Your invoices, payments and receipts will show here.';
-
-  @override
   String get switchGym => 'Switch';
 
   @override
@@ -462,6 +455,149 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cancel => 'Cancel';
+
+  @override
+  String get amountDue => 'Amount due';
+
+  @override
+  String dueOn(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String get dueDate => 'Due date';
+
+  @override
+  String get paymentDue => 'Payment due';
+
+  @override
+  String get payNow => 'Pay now';
+
+  @override
+  String get pay => 'Pay';
+
+  @override
+  String payAmount(String amount) {
+    return 'Pay $amount';
+  }
+
+  @override
+  String get plansTitle => 'Renew or change your plan';
+
+  @override
+  String get choosePlan => 'Choose';
+
+  @override
+  String get historyTitle => 'History';
+
+  @override
+  String get noInvoices => 'No payments yet.';
+
+  @override
+  String get invoiceStatusOpen => 'Unpaid';
+
+  @override
+  String get invoiceStatusPaid => 'Paid';
+
+  @override
+  String get invoiceStatusVoid => 'Cancelled';
+
+  @override
+  String invoiceTitle(String number) {
+    return 'Invoice $number';
+  }
+
+  @override
+  String get issuedOn => 'Issued';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get receiptTitle => 'Receipt';
+
+  @override
+  String get paidOn => 'Paid';
+
+  @override
+  String get paymentMethod => 'Method';
+
+  @override
+  String get paymentReference => 'Reference';
+
+  @override
+  String get openReceipt => 'Open receipt';
+
+  @override
+  String get confirmPlanBody =>
+      'Your membership is extended as soon as Chapa confirms the payment.';
+
+  @override
+  String get securedByChapa =>
+      'Secure checkout by Chapa: telebirr, CBE Birr and cards';
+
+  @override
+  String get checkoutTitle => 'Pay with Chapa';
+
+  @override
+  String get leaveCheckoutTitle => 'Leave the payment?';
+
+  @override
+  String get leaveCheckoutBody =>
+      'If you already paid, we\'ll still confirm it.';
+
+  @override
+  String get leave => 'Leave';
+
+  @override
+  String get stay => 'Stay';
+
+  @override
+  String get resultConfirming => 'Confirming your payment';
+
+  @override
+  String get resultConfirmingBody => 'This usually takes a few seconds.';
+
+  @override
+  String get resultSucceeded => 'Payment received';
+
+  @override
+  String resultSucceededUntil(String date) {
+    return 'Your membership is active until $date.';
+  }
+
+  @override
+  String get resultSucceededBody => 'Thank you. Your receipt is ready.';
+
+  @override
+  String get resultFailed => 'Payment didn\'t go through';
+
+  @override
+  String get resultFailedBody =>
+      'Chapa couldn\'t complete the payment. You can try again.';
+
+  @override
+  String get resultNotFinished => 'Payment not finished';
+
+  @override
+  String get resultNotFinishedBody =>
+      'You left before paying, so your plan hasn\'t changed.';
+
+  @override
+  String get resultStillConfirming => 'Still confirming';
+
+  @override
+  String get resultStillConfirmingBody =>
+      'Chapa hasn\'t confirmed the payment yet. You can leave this screen: your membership updates as soon as it does.';
+
+  @override
+  String get viewReceipt => 'View receipt';
+
+  @override
+  String get backToPayments => 'Back to payments';
+
+  @override
+  String get done => 'Done';
 
   @override
   String get retry => 'Try again';
