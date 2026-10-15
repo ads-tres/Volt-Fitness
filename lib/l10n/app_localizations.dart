@@ -374,12 +374,6 @@ abstract class AppLocalizations {
   /// **'Hello'**
   String get greetingNoName;
 
-  /// No description provided for @welcomeBack.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome back to {gym}.'**
-  String welcomeBack(String gym);
-
   /// No description provided for @showQrTitle.
   ///
   /// In en, this message translates to:
@@ -416,18 +410,6 @@ abstract class AppLocalizations {
   /// **'Coming in the next update'**
   String get comingSoonTitle;
 
-  /// No description provided for @comingSoonMembership.
-  ///
-  /// In en, this message translates to:
-  /// **'Your plan, its dates and renewal will show here.'**
-  String get comingSoonMembership;
-
-  /// No description provided for @comingSoonQr.
-  ///
-  /// In en, this message translates to:
-  /// **'Your check-in QR code will show here.'**
-  String get comingSoonQr;
-
   /// No description provided for @comingSoonPayments.
   ///
   /// In en, this message translates to:
@@ -451,6 +433,438 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Volt {version} ({build})'**
   String appVersion(String version, String build);
+
+  /// The big number in the membership gauge: days left in the plan.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String gaugeDays(int count);
+
+  /// No description provided for @gaugeEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends {date}'**
+  String gaugeEnds(String date);
+
+  /// No description provided for @gaugeEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended {date}'**
+  String gaugeEnded(String date);
+
+  /// No description provided for @gaugeStarts.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts {date}'**
+  String gaugeStarts(String date);
+
+  /// No description provided for @gaugeUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Until {date}'**
+  String gaugeUntil(String date);
+
+  /// No description provided for @gaugeLastDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Last day'**
+  String get gaugeLastDay;
+
+  /// No description provided for @gaugeEndsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends today'**
+  String get gaugeEndsToday;
+
+  /// No description provided for @gaugeExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get gaugeExpired;
+
+  /// No description provided for @gaugeFrozen.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen'**
+  String get gaugeFrozen;
+
+  /// No description provided for @gaugeCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get gaugeCancelled;
+
+  /// No description provided for @gaugeStartsSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts soon'**
+  String get gaugeStartsSoon;
+
+  /// No description provided for @gaugeNoPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'No plan'**
+  String get gaugeNoPlan;
+
+  /// No description provided for @gaugeNoPlanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask your gym to start one'**
+  String get gaugeNoPlanHint;
+
+  /// No description provided for @gaugeRenewSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Renew soon'**
+  String get gaugeRenewSoon;
+
+  /// No description provided for @renew.
+  ///
+  /// In en, this message translates to:
+  /// **'Renew'**
+  String get renew;
+
+  /// No description provided for @recentVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent visits'**
+  String get recentVisits;
+
+  /// No description provided for @seeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get seeAll;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get yesterday;
+
+  /// No description provided for @visitCheckedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked in'**
+  String get visitCheckedIn;
+
+  /// No description provided for @visitDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Not let in'**
+  String get visitDenied;
+
+  /// No description provided for @noVisitsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No visits yet. Your check-ins will show here.'**
+  String get noVisitsYet;
+
+  /// No description provided for @offlineNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. This is what we saw last.'**
+  String get offlineNotice;
+
+  /// No description provided for @loadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load this.'**
+  String get loadFailed;
+
+  /// No description provided for @reasonMembershipExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership expired'**
+  String get reasonMembershipExpired;
+
+  /// No description provided for @reasonMembershipFrozen.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership frozen'**
+  String get reasonMembershipFrozen;
+
+  /// No description provided for @reasonOutsideHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Outside your plan\'s hours'**
+  String get reasonOutsideHours;
+
+  /// No description provided for @reasonBranchNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'This branch isn\'t in your plan'**
+  String get reasonBranchNotAllowed;
+
+  /// No description provided for @reasonNoVisitsRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'No visits left'**
+  String get reasonNoVisitsRemaining;
+
+  /// No description provided for @reasonAlreadyCheckedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Already checked in'**
+  String get reasonAlreadyCheckedIn;
+
+  /// No description provided for @reasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Not allowed in'**
+  String get reasonOther;
+
+  /// No description provided for @visitsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Visits'**
+  String get visitsTitle;
+
+  /// No description provided for @statusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get statusActive;
+
+  /// No description provided for @statusFrozen.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen'**
+  String get statusFrozen;
+
+  /// No description provided for @statusExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get statusExpired;
+
+  /// No description provided for @statusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts soon'**
+  String get statusPending;
+
+  /// No description provided for @statusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get statusCancelled;
+
+  /// No description provided for @statusUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get statusUnknown;
+
+  /// No description provided for @startDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date'**
+  String get startDate;
+
+  /// No description provided for @endDate.
+  ///
+  /// In en, this message translates to:
+  /// **'End date'**
+  String get endDate;
+
+  /// No description provided for @daysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day left} other{{count} days left}}'**
+  String daysLeft(int count);
+
+  /// No description provided for @visitsLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 visit left} other{{count} visits left}}'**
+  String visitsLeft(int count);
+
+  /// No description provided for @allowedBranches.
+  ///
+  /// In en, this message translates to:
+  /// **'Branches you can use'**
+  String get allowedBranches;
+
+  /// No description provided for @frozenNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your membership is frozen until {date}.'**
+  String frozenNotice(String date);
+
+  /// No description provided for @graceNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan has ended, but the gym lets you in until {date}.'**
+  String graceNotice(String date);
+
+  /// No description provided for @noPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No active plan'**
+  String get noPlanTitle;
+
+  /// No description provided for @noPlanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask your gym\'s front desk to start a plan for you.'**
+  String get noPlanBody;
+
+  /// No description provided for @renewPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Renew plan'**
+  String get renewPlan;
+
+  /// No description provided for @qrMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member · {name}'**
+  String qrMember(String name);
+
+  /// No description provided for @qrNewCodeIn.
+  ///
+  /// In en, this message translates to:
+  /// **'New code in {seconds} s'**
+  String qrNewCodeIn(int seconds);
+
+  /// No description provided for @qrHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this at the front desk. The code changes every 30 seconds, so a screenshot won\'t work.'**
+  String get qrHint;
+
+  /// No description provided for @qrWorksOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Works without internet'**
+  String get qrWorksOffline;
+
+  /// No description provided for @qrImageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code for check-in'**
+  String get qrImageLabel;
+
+  /// No description provided for @qrSetupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to set up your QR'**
+  String get qrSetupTitle;
+
+  /// No description provided for @qrSetupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your QR is created online the first time. After that it works without internet.'**
+  String get qrSetupBody;
+
+  /// No description provided for @qrReplacedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your QR is on another phone'**
+  String get qrReplacedTitle;
+
+  /// No description provided for @qrReplacedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You set it up on another phone, so the code here stopped working. Move it back to this phone?'**
+  String get qrReplacedBody;
+
+  /// No description provided for @qrUseThisPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this phone'**
+  String get qrUseThisPhone;
+
+  /// No description provided for @qrRevokedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your QR was turned off'**
+  String get qrRevokedTitle;
+
+  /// No description provided for @qrRevokedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask your gym\'s front desk to turn it back on.'**
+  String get qrRevokedBody;
+
+  /// No description provided for @settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// No description provided for @calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get calendar;
+
+  /// No description provided for @calendarAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as language'**
+  String get calendarAuto;
+
+  /// No description provided for @calendarGregorian.
+  ///
+  /// In en, this message translates to:
+  /// **'Gregorian'**
+  String get calendarGregorian;
+
+  /// No description provided for @calendarEthiopian.
+  ///
+  /// In en, this message translates to:
+  /// **'Ethiopian'**
+  String get calendarEthiopian;
+
+  /// No description provided for @calendarBoth.
+  ///
+  /// In en, this message translates to:
+  /// **'Both'**
+  String get calendarBoth;
+
+  /// No description provided for @devices.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed-in devices'**
+  String get devices;
+
+  /// No description provided for @thisPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone'**
+  String get thisPhone;
+
+  /// No description provided for @lastActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Last active {date}'**
+  String lastActive(String date);
+
+  /// No description provided for @signOutDeviceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out {device}?'**
+  String signOutDeviceTitle(String device);
+
+  /// No description provided for @signOutDeviceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It will need a new SMS code to sign in, and its QR code stops working.'**
+  String get signOutDeviceBody;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
 
   /// No description provided for @retry.
   ///

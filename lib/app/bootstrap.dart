@@ -12,6 +12,8 @@ import '../core/storage/preferences_store.dart';
 import '../core/storage/secure_store.dart';
 import 'app.dart';
 
+Duration? noAutomaticRetry(int retryCount, Object error) => null;
+
 /// Loads what the first frame needs, then starts the app. The native splash
 /// screen stays up meanwhile.
 Future<void> bootstrap() async {
@@ -34,15 +36,20 @@ Future<void> bootstrap() async {
   final preferences = SharedPreferencesStore(
     await SharedPreferencesWithCache.create(cacheOptions: const SharedPreferencesWithCacheOptions()),
   );
-  final tokenStore = TokenStore(FlutterSecureStore());
+  final secureStore = FlutterSecureStore();
+  final tokenStore = TokenStore(secureStore);
   await tokenStore.load();
   final appInfo = await AppInfo.load(preferences);
 
   runApp(
     ProviderScope(
+      // Failed loads wait for the member to retry or pull to refresh,
+      // instead of retrying on their own in the background.
+      retry: noAutomaticRetry,
       overrides: [
         envProvider.overrideWithValue(env),
         preferencesStoreProvider.overrideWithValue(preferences),
+        secureStoreProvider.overrideWithValue(secureStore),
         tokenStoreProvider.overrideWithValue(tokenStore),
         appInfoProvider.overrideWithValue(appInfo),
       ],

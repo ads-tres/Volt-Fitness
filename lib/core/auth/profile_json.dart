@@ -1,14 +1,15 @@
 import 'dart:ui' show Color;
 
+import '../network/json.dart';
 import '../tenant/organization.dart';
 import 'profile.dart';
 
 /// Reads the `{user, organizations}` object that both OTP verify and `/me`
 /// return. Throws a [FormatException] when required fields are missing.
 Profile profileFromJson(Map<String, dynamic> json) => Profile(
-  user: _user(_field<Map<String, dynamic>>(json, 'user')),
+  user: _user(json.field<Map<String, dynamic>>('user')),
   organizations: [
-    for (final organization in _field<List<dynamic>>(json, 'organizations'))
+    for (final organization in json.field<List<dynamic>>('organizations'))
       if (organization is Map<String, dynamic>) _organization(organization),
   ],
 );
@@ -34,39 +35,29 @@ Map<String, Object?> profileToJson(Profile profile) => {
 };
 
 User _user(Map<String, dynamic> json) => User(
-  id: _field<String>(json, 'id'),
-  phone: _field<String>(json, 'phone'),
-  name: _optional<String>(json, 'name'),
+  id: json.field<String>('id'),
+  phone: json.field<String>('phone'),
+  name: json.optional<String>('name'),
 );
 
 Organization _organization(Map<String, dynamic> json) {
-  final branding = _optional<Map<String, dynamic>>(json, 'branding') ?? const <String, dynamic>{};
+  final branding = json.optional<Map<String, dynamic>>('branding') ?? const <String, dynamic>{};
   return Organization(
-    id: _field<String>(json, 'id'),
-    name: _field<String>(json, 'name'),
-    role: _optional<String>(json, 'role') ?? 'member',
+    id: json.field<String>('id'),
+    name: json.field<String>('name'),
+    role: json.optional<String>('role') ?? 'member',
     branding: Branding(
-      logoUrl: _optional<String>(branding, 'logo_url'),
-      primaryColor: _color(_optional<String>(branding, 'primary_color')),
-      accentColor: _color(_optional<String>(branding, 'accent_color')),
-      contactPhone: _optional<String>(branding, 'contact_phone'),
+      logoUrl: branding.optional<String>('logo_url'),
+      primaryColor: _color(branding.optional<String>('primary_color')),
+      accentColor: _color(branding.optional<String>('accent_color')),
+      contactPhone: branding.optional<String>('contact_phone'),
     ),
     features: {
-      for (final feature in _optional<List<dynamic>>(json, 'features') ?? const <dynamic>[])
+      for (final feature in json.optional<List<dynamic>>('features') ?? const <dynamic>[])
         if (feature is String) feature,
     },
   );
 }
-
-T _field<T>(Map<String, dynamic> json, String key) => switch (json[key]) {
-  final T value => value,
-  _ => throw FormatException('Missing or invalid "$key"'),
-};
-
-T? _optional<T>(Map<String, dynamic> json, String key) => switch (json[key]) {
-  final T value => value,
-  _ => null,
-};
 
 /// `#RRGGBB` to an opaque colour; anything else counts as unset.
 Color? _color(String? hex) {

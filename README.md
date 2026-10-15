@@ -36,13 +36,20 @@ Until the Laravel API runs, dev builds answer every call from an in-app fake
 backend contract doc. Pass `--dart-define=FAKE_BACKEND=false` to use the real
 API instead. Prod builds never use the fake.
 
-| To try                    | Phone number    | Code     |
-| ------------------------- | --------------- | -------- |
-| Member of one gym         | any other       | `123456` |
-| Member of two gyms        | `0911 11 11 11` | `123456` |
-| Number with no gym        | `0900 00 00 00` | `123456` |
-| Expired code              | any             | `000000` |
-| Wrong code (5× locks out) | any             | anything else |
+| To try                         | Phone number    | Code          |
+| ------------------------------ | --------------- | ------------- |
+| Monthly plan, 18 days left     | any other       | `123456`      |
+| Plan ending in 3 days          | `0922 22 22 22` | `123456`      |
+| Plan expired 6 days ago        | `0933 33 33 33` | `123456`      |
+| Plan frozen for a week         | `0944 44 44 44` | `123456`      |
+| No plan                        | `0955 55 55 55` | `123456`      |
+| Member of two gyms             | `0911 11 11 11` | `123456`      |
+| Number with no gym             | `0900 00 00 00` | `123456`      |
+| Expired code                   | any             | `000000`      |
+| Wrong code (5× locks out)      | any             | anything else |
+
+Dates in the fake are built around today, and the fake forgets everything
+when the app restarts.
 
 ## Test
 
@@ -57,16 +64,26 @@ flutter test
 lib/
   app/          app widget, router, startup
   core/         shared by all features; never imports from features/
-    auth/         session token and session state
+    auth/         session token, profile and session state
     config/       environment per flavor
-    design/       theme (placeholder until the design is set)
-    device/       app version, install ID
+    design/       theme, brand colours and shared widgets
+    device/       app version, install ID, device name
     errors/       Failure types and their messages
     localization/ language choice
-    network/      ApiClient, interceptors, error mapping
+    network/      ApiClient, interceptors, error mapping, fake backend
     storage/      secure storage (secrets) and preferences (settings)
     tenant/       selected gym
+    time/         clocks, server time, dates and the Ethiopian calendar
   features/     one folder per business feature: presentation/, domain/, data/
+    access/       the rotating QR (GQ1) and its credential
+    attendance/   visit history
+    auth/         phone and SMS code sign-in
+    gyms/         choosing a gym
+    home/         the dashboard
+    membership/   the plan
+    onboarding/   welcome pages
+    profile/      account, settings, signed-in devices
+    shell/        tabs and navigation bar
   l10n/         English and Amharic strings (ARB) and generated code
 ```
 
@@ -96,6 +113,14 @@ Other rules:
   algorithm) is in the backend doc shared with the API developer.
 - **Secrets go in `SecureStore`**: tokens and QR secrets. Everything else goes
   in `PreferencesStore`. Never log tokens, OTP codes or QR payloads.
+- **Per-member data uses keys starting with `user.`** (`userDataPrefix`), in
+  either store. Signing out deletes every such key, so a new feature's cache
+  or secret is cleaned up without touching the sign-out code.
+- **Business dates are `LocalDate`**, never `DateTime`: a membership's end date
+  is a calendar day in the gym's timezone. Show dates through `DateText`, which
+  follows the member's calendar setting (Gregorian, Ethiopian or both).
+- **Time-dependent code reads `clockProvider`** (or `serverClockProvider` for
+  QR codes), so tests can fix the date.
 - **User-facing text goes in `lib/l10n/*.arb`**, in English and Amharic.
 
 ## Design

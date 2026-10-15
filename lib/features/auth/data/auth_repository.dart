@@ -5,6 +5,7 @@ import '../../../core/auth/profile_json.dart';
 import '../../../core/device/app_info.dart';
 import '../../../core/errors/failure.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/json.dart';
 
 /// A code was sent. The member may ask for another after [resendIn].
 final class OtpChallenge {
@@ -30,18 +31,18 @@ final class AuthRepository {
   final AppInfo _appInfo;
 
   Future<OtpChallenge> requestCode(String phone) async {
-    final data = _data(await _api.post('/auth/otp/request', body: {'phone': phone}));
-    return _read(
+    final data = dataObject(await _api.post('/auth/otp/request', body: {'phone': phone}));
+    return readResponse(
       () => OtpChallenge(
-        expiresIn: Duration(seconds: data['expires_in'] as int),
-        resendIn: Duration(seconds: data['resend_in'] as int),
+        expiresIn: Duration(seconds: data.field<int>('expires_in')),
+        resendIn: Duration(seconds: data.field<int>('resend_in')),
       ),
     );
   }
 
   /// Also registers this phone in the member's device list.
   Future<SignInResult> verifyCode({required String phone, required String code}) async {
-    final data = _data(
+    final data = dataObject(
       await _api.post(
         '/auth/otp/verify',
         body: {
@@ -57,33 +58,17 @@ final class AuthRepository {
         },
       ),
     );
-    return _read(() => SignInResult(token: data['token'] as String, profile: profileFromJson(data)));
+    return readResponse(() => SignInResult(token: data.field<String>('token'), profile: profileFromJson(data)));
   }
 
   Future<Profile> fetchProfile() async {
-    final data = _data(await _api.get('/me'));
-    return _read(() => profileFromJson(data));
+    final data = dataObject(await _api.get('/me'));
+    return readResponse(() => profileFromJson(data));
   }
 
   /// Revokes this phone's token and QR credentials on the server.
   Future<void> signOut() => _api.post('/auth/logout');
 
-  static Map<String, dynamic> _data(Object? json) => switch (json) {
-    {'data': final Map<String, dynamic> data} => data,
-    _ => throw const UnexpectedFailure(cause: FormatException('Response has no "data" object')),
-  };
-
-  /// A response the app can't read is the API breaking the contract, not
-  /// something the member can fix; it surfaces as an unexpected failure.
-  static T _read<T>(T Function() parse) {
-    try {
-      return parse();
-    } on FormatException catch (error) {
-      throw UnexpectedFailure(cause: error);
-    } on TypeError catch (error) {
-      throw UnexpectedFailure(cause: error);
-    }
-  }
 }
 
 final authRepositoryProvider = Provider<AuthRepository>(

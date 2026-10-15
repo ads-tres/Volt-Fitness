@@ -10,6 +10,7 @@ import '../device/app_info.dart';
 import '../errors/failure.dart';
 import '../localization/locale_controller.dart';
 import '../tenant/selected_organization.dart';
+import '../time/clock.dart';
 import 'api_headers.dart';
 import 'error_mapper.dart';
 import 'fake_backend.dart';
@@ -71,6 +72,7 @@ final dioProvider = Provider<Dio>((ref) {
       tokenStore: ref.watch(tokenStoreProvider),
       onUnauthorized: () => unawaited(ref.read(sessionControllerProvider.notifier).signOut()),
     ),
+    ServerClockInterceptor(ref.watch(serverClockProvider)),
     if (env.logsNetwork) NetworkLogInterceptor(),
   ]);
   if (env.usesFakeBackend) dio.httpClientAdapter = ref.watch(fakeBackendProvider);
@@ -79,6 +81,6 @@ final dioProvider = Provider<Dio>((ref) {
 });
 
 /// Only read when `Env.usesFakeBackend` is on.
-final fakeBackendProvider = Provider<FakeBackend>((ref) => FakeBackend());
+final fakeBackendProvider = Provider<FakeBackend>((ref) => FakeBackend(now: ref.watch(clockProvider)));
 
 final apiClientProvider = Provider<ApiClient>((ref) => ApiClient(ref.watch(dioProvider)));

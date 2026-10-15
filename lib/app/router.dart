@@ -5,13 +5,17 @@ import 'package:material_ui/material_ui.dart';
 import '../core/auth/session.dart';
 import '../core/auth/session_controller.dart';
 import '../core/localization/l10n.dart';
+import '../features/access/presentation/qr_page.dart';
+import '../features/attendance/presentation/visits_page.dart';
 import '../features/auth/presentation/otp_page.dart';
 import '../features/auth/presentation/phone_page.dart';
 import '../features/gyms/presentation/no_gym_page.dart';
 import '../features/gyms/presentation/select_gym_page.dart';
 import '../features/home/presentation/home_page.dart';
+import '../features/membership/presentation/membership_page.dart';
 import '../features/onboarding/onboarding_controller.dart';
 import '../features/onboarding/presentation/onboarding_page.dart';
+import '../features/profile/presentation/devices_page.dart';
 import '../features/profile/presentation/profile_page.dart';
 import '../features/shell/presentation/app_shell.dart';
 import '../features/shell/presentation/coming_soon_page.dart';
@@ -65,30 +69,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(
-            routes: [GoRoute(path: AppRoutes.home, builder: (context, state) => const HomePage())],
-          ),
-          StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.membership,
-                builder: (context, state) => ComingSoonPage(
-                  title: context.l10n.navMembership,
-                  photo: 'assets/photos/onboarding_train.jpg',
-                  message: context.l10n.comingSoonMembership,
-                ),
+                path: AppRoutes.home,
+                builder: (context, state) => const HomePage(),
+                routes: [GoRoute(path: 'visits', builder: (context, state) => const VisitsPage())],
               ),
             ],
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(
-                path: AppRoutes.qr,
-                builder: (context, state) => ComingSoonPage(
-                  title: context.l10n.navQr,
-                  photo: 'assets/photos/onboarding_check_in.jpg',
-                  message: context.l10n.comingSoonQr,
-                ),
-              ),
+              GoRoute(path: AppRoutes.membership, builder: (context, state) => const MembershipPage()),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(path: AppRoutes.qr, builder: (context, state) => const QrPage()),
             ],
           ),
           StatefulShellBranch(
@@ -104,7 +100,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: AppRoutes.profile, builder: (context, state) => const ProfilePage())],
+            routes: [
+              GoRoute(
+                path: AppRoutes.profile,
+                builder: (context, state) => const ProfilePage(),
+                routes: [GoRoute(path: 'devices', builder: (context, state) => const DevicesPage())],
+              ),
+            ],
           ),
         ],
       ),

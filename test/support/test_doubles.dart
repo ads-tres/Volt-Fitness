@@ -16,6 +16,7 @@ import 'package:gym_mobile/core/network/fake_backend.dart';
 import 'package:gym_mobile/core/storage/preferences_store.dart';
 import 'package:gym_mobile/core/storage/secure_store.dart';
 import 'package:gym_mobile/core/tenant/organization.dart';
+import 'package:gym_mobile/core/time/clock.dart';
 
 final class InMemorySecureStore implements SecureStore {
   final values = <String, String>{};
@@ -28,6 +29,9 @@ final class InMemorySecureStore implements SecureStore {
 
   @override
   Future<void> delete(String key) async => values.remove(key);
+
+  @override
+  Future<void> deletePrefixed(String prefix) async => values.removeWhere((key, _) => key.startsWith(prefix));
 }
 
 final class InMemoryPreferencesStore implements PreferencesStore {
@@ -41,7 +45,13 @@ final class InMemoryPreferencesStore implements PreferencesStore {
 
   @override
   Future<void> remove(String key) async => values.remove(key);
+
+  @override
+  Future<void> removePrefixed(String prefix) async => values.removeWhere((key, _) => key.startsWith(prefix));
 }
+
+/// The phone's clock in every test: Tuesday 14 October 2026, 09:30.
+final testNow = DateTime(2026, 10, 14, 9, 30);
 
 const testAppInfo = AppInfo(
   version: '1.0.0',
@@ -80,7 +90,8 @@ Future<List<Override>> testOverrides({
   preferences ??= InMemoryPreferencesStore();
   if (onboardingDone) preferences.values['onboarding.done'] = 'true';
   if (signedInAs != null) {
-    secureStore.values['auth.token'] = 'token-1';
+    // The fake backend only accepts its own tokens.
+    secureStore.values['auth.token'] = fakeBackend ? 'fake-token:${signedInAs.user.phone}' : 'token-1';
     await ProfileCache(preferences).save(
       signedInAs,
       organizationId: organizationId ?? (signedInAs.organizations.length == 1 ? signedInAs.organizations.single.id : null),
@@ -93,9 +104,11 @@ Future<List<Override>> testOverrides({
       const Env(environment: AppEnvironment.dev, apiBaseUrl: 'https://api.test/api/v1').withFakeBackend(fakeBackend),
     ),
     preferencesStoreProvider.overrideWithValue(preferences),
+    secureStoreProvider.overrideWithValue(secureStore),
     tokenStoreProvider.overrideWithValue(tokenStore),
     appInfoProvider.overrideWithValue(testAppInfo),
-    fakeBackendProvider.overrideWithValue(FakeBackend(latency: Duration.zero)),
+    clockProvider.overrideWithValue(() => testNow),
+    fakeBackendProvider.overrideWithValue(FakeBackend(latency: Duration.zero, now: () => testNow)),
   ];
 }
 

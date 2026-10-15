@@ -1,12 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../storage/preferences_store.dart';
+import '../storage/secure_store.dart';
 import 'profile.dart';
 import 'profile_cache.dart';
 import 'session.dart';
 import 'token_store.dart';
 
 final profileCacheProvider = Provider<ProfileCache>((ref) => ProfileCache(ref.watch(preferencesStoreProvider)));
+
+/// Keys of data that belongs to the signed-in member, in preferences and in
+/// secure storage. Signing out deletes all of them, so features only need to
+/// follow the naming: `user.dashboard`, `user.access_credentials`, ...
+const userDataPrefix = 'user.';
 
 /// Who is signed in on this phone, and in which gym. Restored at startup
 /// from the stored token and the cached profile; both are needed.
@@ -50,6 +56,8 @@ final class SessionController extends Notifier<Session> {
   Future<void> signOut() async {
     await ref.read(tokenStoreProvider).clear();
     await ref.read(profileCacheProvider).clear();
+    await ref.read(preferencesStoreProvider).removePrefixed(userDataPrefix);
+    await ref.read(secureStoreProvider).deletePrefixed(userDataPrefix);
     state = const SignedOut();
   }
 

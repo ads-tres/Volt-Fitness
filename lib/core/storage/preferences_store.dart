@@ -7,6 +7,9 @@ abstract interface class PreferencesStore {
   String? getString(String key);
   Future<void> setString(String key, String value);
   Future<void> remove(String key);
+
+  /// Removes every key starting with [prefix].
+  Future<void> removePrefixed(String prefix);
 }
 
 final class SharedPreferencesStore implements PreferencesStore {
@@ -22,6 +25,13 @@ final class SharedPreferencesStore implements PreferencesStore {
 
   @override
   Future<void> remove(String key) => _preferences.remove(key);
+
+  @override
+  Future<void> removePrefixed(String prefix) async {
+    for (final key in _preferences.keys.where((key) => key.startsWith(prefix)).toList()) {
+      await _preferences.remove(key);
+    }
+  }
 }
 
 final preferencesStoreProvider = Provider<PreferencesStore>(

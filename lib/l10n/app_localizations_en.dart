@@ -166,11 +166,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get greetingNoName => 'Hello';
 
   @override
-  String welcomeBack(String gym) {
-    return 'Welcome back to $gym.';
-  }
-
-  @override
   String get showQrTitle => 'Show my QR';
 
   @override
@@ -189,13 +184,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get comingSoonTitle => 'Coming in the next update';
 
   @override
-  String get comingSoonMembership =>
-      'Your plan, its dates and renewal will show here.';
-
-  @override
-  String get comingSoonQr => 'Your check-in QR code will show here.';
-
-  @override
   String get comingSoonPayments =>
       'Your invoices, payments and receipts will show here.';
 
@@ -209,6 +197,271 @@ class AppLocalizationsEn extends AppLocalizations {
   String appVersion(String version, String build) {
     return 'Volt $version ($build)';
   }
+
+  @override
+  String gaugeDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String gaugeEnds(String date) {
+    return 'Ends $date';
+  }
+
+  @override
+  String gaugeEnded(String date) {
+    return 'Ended $date';
+  }
+
+  @override
+  String gaugeStarts(String date) {
+    return 'Starts $date';
+  }
+
+  @override
+  String gaugeUntil(String date) {
+    return 'Until $date';
+  }
+
+  @override
+  String get gaugeLastDay => 'Last day';
+
+  @override
+  String get gaugeEndsToday => 'Ends today';
+
+  @override
+  String get gaugeExpired => 'Expired';
+
+  @override
+  String get gaugeFrozen => 'Frozen';
+
+  @override
+  String get gaugeCancelled => 'Cancelled';
+
+  @override
+  String get gaugeStartsSoon => 'Starts soon';
+
+  @override
+  String get gaugeNoPlan => 'No plan';
+
+  @override
+  String get gaugeNoPlanHint => 'Ask your gym to start one';
+
+  @override
+  String get gaugeRenewSoon => 'Renew soon';
+
+  @override
+  String get renew => 'Renew';
+
+  @override
+  String get recentVisits => 'Recent visits';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get yesterday => 'Yesterday';
+
+  @override
+  String get visitCheckedIn => 'Checked in';
+
+  @override
+  String get visitDenied => 'Not let in';
+
+  @override
+  String get noVisitsYet => 'No visits yet. Your check-ins will show here.';
+
+  @override
+  String get offlineNotice => 'You\'re offline. This is what we saw last.';
+
+  @override
+  String get loadFailed => 'We couldn\'t load this.';
+
+  @override
+  String get reasonMembershipExpired => 'Membership expired';
+
+  @override
+  String get reasonMembershipFrozen => 'Membership frozen';
+
+  @override
+  String get reasonOutsideHours => 'Outside your plan\'s hours';
+
+  @override
+  String get reasonBranchNotAllowed => 'This branch isn\'t in your plan';
+
+  @override
+  String get reasonNoVisitsRemaining => 'No visits left';
+
+  @override
+  String get reasonAlreadyCheckedIn => 'Already checked in';
+
+  @override
+  String get reasonOther => 'Not allowed in';
+
+  @override
+  String get visitsTitle => 'Visits';
+
+  @override
+  String get statusActive => 'Active';
+
+  @override
+  String get statusFrozen => 'Frozen';
+
+  @override
+  String get statusExpired => 'Expired';
+
+  @override
+  String get statusPending => 'Starts soon';
+
+  @override
+  String get statusCancelled => 'Cancelled';
+
+  @override
+  String get statusUnknown => 'Unknown';
+
+  @override
+  String get startDate => 'Start date';
+
+  @override
+  String get endDate => 'End date';
+
+  @override
+  String daysLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days left',
+      one: '1 day left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String visitsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count visits left',
+      one: '1 visit left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get allowedBranches => 'Branches you can use';
+
+  @override
+  String frozenNotice(String date) {
+    return 'Your membership is frozen until $date.';
+  }
+
+  @override
+  String graceNotice(String date) {
+    return 'Your plan has ended, but the gym lets you in until $date.';
+  }
+
+  @override
+  String get noPlanTitle => 'No active plan';
+
+  @override
+  String get noPlanBody =>
+      'Ask your gym\'s front desk to start a plan for you.';
+
+  @override
+  String get renewPlan => 'Renew plan';
+
+  @override
+  String qrMember(String name) {
+    return 'Member · $name';
+  }
+
+  @override
+  String qrNewCodeIn(int seconds) {
+    return 'New code in $seconds s';
+  }
+
+  @override
+  String get qrHint =>
+      'Show this at the front desk. The code changes every 30 seconds, so a screenshot won\'t work.';
+
+  @override
+  String get qrWorksOffline => 'Works without internet';
+
+  @override
+  String get qrImageLabel => 'QR code for check-in';
+
+  @override
+  String get qrSetupTitle => 'Connect to set up your QR';
+
+  @override
+  String get qrSetupBody =>
+      'Your QR is created online the first time. After that it works without internet.';
+
+  @override
+  String get qrReplacedTitle => 'Your QR is on another phone';
+
+  @override
+  String get qrReplacedBody =>
+      'You set it up on another phone, so the code here stopped working. Move it back to this phone?';
+
+  @override
+  String get qrUseThisPhone => 'Use this phone';
+
+  @override
+  String get qrRevokedTitle => 'Your QR was turned off';
+
+  @override
+  String get qrRevokedBody => 'Ask your gym\'s front desk to turn it back on.';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get calendar => 'Calendar';
+
+  @override
+  String get calendarAuto => 'Same as language';
+
+  @override
+  String get calendarGregorian => 'Gregorian';
+
+  @override
+  String get calendarEthiopian => 'Ethiopian';
+
+  @override
+  String get calendarBoth => 'Both';
+
+  @override
+  String get devices => 'Signed-in devices';
+
+  @override
+  String get thisPhone => 'This phone';
+
+  @override
+  String lastActive(String date) {
+    return 'Last active $date';
+  }
+
+  @override
+  String signOutDeviceTitle(String device) {
+    return 'Sign out $device?';
+  }
+
+  @override
+  String get signOutDeviceBody =>
+      'It will need a new SMS code to sign in, and its QR code stops working.';
+
+  @override
+  String get cancel => 'Cancel';
 
   @override
   String get retry => 'Try again';

@@ -161,11 +161,6 @@ class AppLocalizationsAm extends AppLocalizations {
   String get greetingNoName => 'ሰላም';
 
   @override
-  String welcomeBack(String gym) {
-    return 'ወደ $gym እንኳን በደህና ተመለሱ።';
-  }
-
-  @override
   String get showQrTitle => 'QR ኮዴን አሳይ';
 
   @override
@@ -184,12 +179,6 @@ class AppLocalizationsAm extends AppLocalizations {
   String get comingSoonTitle => 'በሚቀጥለው ዝማኔ ይመጣል';
 
   @override
-  String get comingSoonMembership => 'ዕቅድዎ፣ ቀናቱ እና እድሳቱ እዚህ ይታያሉ።';
-
-  @override
-  String get comingSoonQr => 'የመግቢያ QR ኮድዎ እዚህ ይታያል።';
-
-  @override
   String get comingSoonPayments => 'ደረሰኞችዎ፣ ክፍያዎችዎ እና ማስረጃዎችዎ እዚህ ይታያሉ።';
 
   @override
@@ -202,6 +191,270 @@ class AppLocalizationsAm extends AppLocalizations {
   String appVersion(String version, String build) {
     return 'Volt $version ($build)';
   }
+
+  @override
+  String gaugeDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ቀናት',
+      one: '1 ቀን',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String gaugeEnds(String date) {
+    return '$date ያበቃል';
+  }
+
+  @override
+  String gaugeEnded(String date) {
+    return '$date አብቅቷል';
+  }
+
+  @override
+  String gaugeStarts(String date) {
+    return '$date ይጀምራል';
+  }
+
+  @override
+  String gaugeUntil(String date) {
+    return 'እስከ $date';
+  }
+
+  @override
+  String get gaugeLastDay => 'የመጨረሻ ቀን';
+
+  @override
+  String get gaugeEndsToday => 'ዛሬ ያበቃል';
+
+  @override
+  String get gaugeExpired => 'አብቅቷል';
+
+  @override
+  String get gaugeFrozen => 'ለጊዜው ቆሟል';
+
+  @override
+  String get gaugeCancelled => 'ተሰርዟል';
+
+  @override
+  String get gaugeStartsSoon => 'በቅርቡ ይጀምራል';
+
+  @override
+  String get gaugeNoPlan => 'ዕቅድ የለም';
+
+  @override
+  String get gaugeNoPlanHint => 'ጂምዎ ዕቅድ እንዲጀምርልዎ ይጠይቁ';
+
+  @override
+  String get gaugeRenewSoon => 'በቅርቡ ያድሱ';
+
+  @override
+  String get renew => 'አድስ';
+
+  @override
+  String get recentVisits => 'የቅርብ ጊዜ ጉብኝቶች';
+
+  @override
+  String get seeAll => 'ሁሉንም ይመልከቱ';
+
+  @override
+  String get today => 'ዛሬ';
+
+  @override
+  String get yesterday => 'ትናንት';
+
+  @override
+  String get visitCheckedIn => 'ገብተዋል';
+
+  @override
+  String get visitDenied => 'አልገቡም';
+
+  @override
+  String get noVisitsYet => 'እስካሁን ጉብኝት የለም። መግቢያዎችዎ እዚህ ይታያሉ።';
+
+  @override
+  String get offlineNotice => 'ከኢንተርኔት ውጭ ነዎት። ይህ ለመጨረሻ ጊዜ ያየነው ነው።';
+
+  @override
+  String get loadFailed => 'ይህንን መጫን አልቻልንም።';
+
+  @override
+  String get reasonMembershipExpired => 'አባልነቱ አብቅቷል';
+
+  @override
+  String get reasonMembershipFrozen => 'አባልነቱ ለጊዜው ቆሟል';
+
+  @override
+  String get reasonOutsideHours => 'ከዕቅድዎ ሰዓት ውጭ';
+
+  @override
+  String get reasonBranchNotAllowed => 'ይህ ቅርንጫፍ በዕቅድዎ ውስጥ የለም';
+
+  @override
+  String get reasonNoVisitsRemaining => 'የቀረ ጉብኝት የለም';
+
+  @override
+  String get reasonAlreadyCheckedIn => 'ቀድመው ገብተዋል';
+
+  @override
+  String get reasonOther => 'መግባት አልተፈቀደም';
+
+  @override
+  String get visitsTitle => 'ጉብኝቶች';
+
+  @override
+  String get statusActive => 'ንቁ';
+
+  @override
+  String get statusFrozen => 'ለጊዜው የቆመ';
+
+  @override
+  String get statusExpired => 'ያበቃ';
+
+  @override
+  String get statusPending => 'በቅርቡ የሚጀምር';
+
+  @override
+  String get statusCancelled => 'የተሰረዘ';
+
+  @override
+  String get statusUnknown => 'ያልታወቀ';
+
+  @override
+  String get startDate => 'የሚጀምርበት ቀን';
+
+  @override
+  String get endDate => 'የሚያበቃበት ቀን';
+
+  @override
+  String daysLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ቀናት ቀርተዋል',
+      one: '1 ቀን ቀርቷል',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String visitsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ጉብኝቶች ቀርተዋል',
+      one: '1 ጉብኝት ቀርቷል',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get allowedBranches => 'መጠቀም የሚችሏቸው ቅርንጫፎች';
+
+  @override
+  String frozenNotice(String date) {
+    return 'አባልነትዎ እስከ $date ድረስ ለጊዜው ቆሟል።';
+  }
+
+  @override
+  String graceNotice(String date) {
+    return 'ዕቅድዎ አብቅቷል፤ ሆኖም ጂሙ እስከ $date ድረስ ያስገባዎታል።';
+  }
+
+  @override
+  String get noPlanTitle => 'ንቁ ዕቅድ የለም';
+
+  @override
+  String get noPlanBody => 'ዕቅድ እንዲጀምሩልዎ የጂምዎን እንግዳ መቀበያ ይጠይቁ።';
+
+  @override
+  String get renewPlan => 'ዕቅድ አድስ';
+
+  @override
+  String qrMember(String name) {
+    return 'አባል · $name';
+  }
+
+  @override
+  String qrNewCodeIn(int seconds) {
+    return 'አዲስ ኮድ በ$seconds ሰከንድ';
+  }
+
+  @override
+  String get qrHint =>
+      'ይህንን በእንግዳ መቀበያው ያሳዩ። ኮዱ በየ30 ሰከንዱ ስለሚቀየር ስክሪንሾት አይሰራም።';
+
+  @override
+  String get qrWorksOffline => 'ያለ ኢንተርኔት ይሰራል';
+
+  @override
+  String get qrImageLabel => 'ለመግቢያ የሚሆን QR ኮድ';
+
+  @override
+  String get qrSetupTitle => 'QR ኮድዎን ለማዘጋጀት ከኢንተርኔት ጋር ይገናኙ';
+
+  @override
+  String get qrSetupBody =>
+      'QR ኮድዎ ለመጀመሪያ ጊዜ የሚዘጋጀው በኢንተርኔት ነው። ከዚያ በኋላ ያለ ኢንተርኔት ይሰራል።';
+
+  @override
+  String get qrReplacedTitle => 'QR ኮድዎ በሌላ ስልክ ላይ ነው';
+
+  @override
+  String get qrReplacedBody =>
+      'በሌላ ስልክ ስላዘጋጁት እዚህ ያለው ኮድ መስራት አቁሟል። ወደዚህ ስልክ ይመልሱት?';
+
+  @override
+  String get qrUseThisPhone => 'ይህን ስልክ ተጠቀም';
+
+  @override
+  String get qrRevokedTitle => 'QR ኮድዎ ጠፍቷል';
+
+  @override
+  String get qrRevokedBody => 'እንደገና እንዲያበሩት የጂምዎን እንግዳ መቀበያ ይጠይቁ።';
+
+  @override
+  String get settings => 'ቅንብሮች';
+
+  @override
+  String get calendar => 'የቀን አቆጣጠር';
+
+  @override
+  String get calendarAuto => 'እንደ ቋንቋው';
+
+  @override
+  String get calendarGregorian => 'ጎርጎርዮሳዊ';
+
+  @override
+  String get calendarEthiopian => 'ኢትዮጵያዊ';
+
+  @override
+  String get calendarBoth => 'ሁለቱም';
+
+  @override
+  String get devices => 'የገቡባቸው መሣሪያዎች';
+
+  @override
+  String get thisPhone => 'ይህ ስልክ';
+
+  @override
+  String lastActive(String date) {
+    return 'ለመጨረሻ ጊዜ የታየው $date';
+  }
+
+  @override
+  String signOutDeviceTitle(String device) {
+    return 'ከ$device ይውጡ?';
+  }
+
+  @override
+  String get signOutDeviceBody =>
+      'እንደገና ለመግባት አዲስ የኤስኤምኤስ ኮድ ያስፈልገዋል፤ የሱ QR ኮድም መስራት ያቆማል።';
+
+  @override
+  String get cancel => 'ይቅር';
 
   @override
   String get retry => 'እንደገና ሞክር';

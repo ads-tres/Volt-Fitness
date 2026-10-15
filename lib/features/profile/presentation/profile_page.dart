@@ -13,7 +13,9 @@ import '../../../core/device/app_info.dart';
 import '../../../core/localization/l10n.dart';
 import '../../../core/localization/language_menu.dart';
 import '../../../core/utils/ethiopian_phone.dart';
+import '../../../core/time/date_text.dart';
 import '../../auth/presentation/sign_out.dart';
+import 'calendar_sheet.dart';
 
 /// The member, their gym and sign-out. Notification and calendar settings
 /// and the device list arrive with Phase 3.
@@ -90,6 +92,27 @@ class ProfilePage extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 28),
+            SectionHeader(l10n.settings),
+            AppCard(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Column(
+                children: [
+                  _SettingRow(
+                    icon: Icons.calendar_month_rounded,
+                    label: l10n.calendar,
+                    value: calendarName(l10n, ref.watch(calendarProvider)),
+                    onTap: () => showCalendarSheet(context),
+                  ),
+                  const Divider(height: 1, indent: 60, color: AppColors.line),
+                  _SettingRow(
+                    icon: Icons.devices_rounded,
+                    label: l10n.devices,
+                    onTap: () => context.go(AppRoutes.devices),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 28),
             OutlinedButton.icon(
               onPressed: () => signOut(ref),
               icon: const Icon(Icons.logout_rounded, color: AppColors.danger),
@@ -101,6 +124,42 @@ class ProfilePage extends ConsumerWidget {
               textAlign: TextAlign.center,
               style: textTheme.bodySmall?.copyWith(color: AppColors.textTertiary),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SettingRow extends StatelessWidget {
+  const _SettingRow({required this.icon, required this.label, required this.onTap, this.value});
+
+  final IconData icon;
+  final String label;
+  final String? value;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(color: const Color(0xFFF2EEE8), borderRadius: BorderRadius.circular(10)),
+              child: Icon(icon, size: 18, color: AppColors.ink),
+            ),
+            const SizedBox(width: 12),
+            Expanded(child: Text(label, style: textTheme.titleSmall)),
+            if (value case final value?)
+              Text(value, style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
+            const SizedBox(width: 4),
+            const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
           ],
         ),
       ),

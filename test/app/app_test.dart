@@ -1,32 +1,8 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gym_mobile/app/app.dart';
+import 'package:gym_mobile/features/access/presentation/qr_code_view.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../support/test_doubles.dart';
-
-/// The app on a 360×780 phone, signed out, talking to the fake backend.
-Future<void> startApp(WidgetTester tester, {bool onboardingDone = true}) async {
-  tester.view.physicalSize = const Size(1080, 2340);
-  tester.view.devicePixelRatio = 3;
-  addTearDown(tester.view.reset);
-  await tester.pumpWidget(
-    ProviderScope(
-      overrides: await testOverrides(fakeBackend: true, onboardingDone: onboardingDone),
-      child: const VoltApp(),
-    ),
-  );
-  await tester.pumpAndSettle();
-}
-
-Future<void> signInWith(WidgetTester tester, {required String phone, String code = '123456'}) async {
-  await tester.enterText(find.byType(TextField), phone);
-  await tester.tap(find.text('Continue'));
-  await tester.pumpAndSettle();
-  expect(find.text('Enter the code'), findsOneWidget);
-  await tester.enterText(find.byType(TextField), code);
-  await tester.pumpAndSettle();
-}
+import '../support/app_driver.dart';
 
 void main() {
   testWidgets('a first launch walks through the welcome pages to sign-in', (tester) async {
@@ -66,8 +42,8 @@ void main() {
     expect(find.text('Show my QR'), findsOneWidget);
 
     await tester.tap(find.text('Show my QR'));
-    await tester.pumpAndSettle();
-    expect(find.text('Your check-in QR code will show here.'), findsOneWidget);
+    await pumpFor(tester);
+    expect(find.byType(QrCodeView), findsOneWidget);
   });
 
   testWidgets('a wrong number or code is explained, and the code can be retyped', (tester) async {
@@ -96,7 +72,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Hello, Abebe'), findsOneWidget);
-    expect(find.text('Welcome back to Kazanchis Fit Club.'), findsOneWidget);
+    expect(find.text('Kazanchis Fit Club'), findsWidgets);
+    expect(find.text('Bole Iron Gym'), findsNothing);
   });
 
   testWidgets('a number with no gym is told so and can try another', (tester) async {

@@ -12,4 +12,8 @@ abstract final class AppRoutes {
   static const qr = '/qr';
   static const payments = '/payments';
   static const profile = '/profile';
+
+  // Pages inside a tab, with the navigation bar still showing.
+  static const visits = '/home/visits';
+  static const devices = '/profile/devices';
 }
