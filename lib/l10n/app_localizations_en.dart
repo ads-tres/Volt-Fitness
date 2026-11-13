@@ -715,4 +715,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskTitle => 'Volt Desk';
+
+  @override
+  String get deskSignInTitle => 'Sign in to the front desk';
+
+  @override
+  String get deskSignInBody =>
+      'Use the phone number and the password you chose from the gym\'s SMS.';
+
+  @override
+  String get deskPassword => 'Password';
+
+  @override
+  String get deskSignIn => 'Sign in';
+
+  @override
+  String get deskNoGym => 'This number isn\'t staff at any gym.';
+
+  @override
+  String get deskChooseGym => 'Choose the gym';
+
+  @override
+  String get deskChooseBranch => 'Which branch is this desk at?';
+
+  @override
+  String get deskNoBranches =>
+      'You don\'t work at any branch of this gym yet. Ask the gym\'s owner.';
+
+  @override
+  String get deskChangeBranch => 'Change branch';
+
+  @override
+  String get deskMenu => 'Menu';
 }

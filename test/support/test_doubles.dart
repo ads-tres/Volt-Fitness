@@ -86,6 +86,7 @@ Future<List<Override>> testOverrides({
   InMemorySecureStore? secureStore,
   InMemoryPreferencesStore? preferences,
   bool fakeBackend = false,
+  HttpClientAdapter? fakeAdapter,
   bool onboardingDone = true,
   bool pushAllowed = true,
 }) async {
@@ -112,7 +113,7 @@ Future<List<Override>> testOverrides({
     tokenStoreProvider.overrideWithValue(tokenStore),
     appInfoProvider.overrideWithValue(testAppInfo),
     clockProvider.overrideWithValue(() => testNow),
-    fakeBackendProvider.overrideWithValue(FakeBackend(latency: Duration.zero, now: () => testNow)),
+    fakeBackendProvider.overrideWithValue(fakeAdapter ?? FakeBackend(latency: Duration.zero, now: () => testNow)),
   ];
 }
 

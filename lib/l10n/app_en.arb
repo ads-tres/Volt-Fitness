@@ -286,5 +286,15 @@
   "errorServer": "Something went wrong on our side. Please try again later.",
   "errorUnexpected": "Something went wrong. Please try again.",
   "deskTitle": "Volt Desk",
-  "@deskTitle": {"description": "The front desk app's name."}
+  "@deskTitle": {"description": "The front desk app's name."},
+  "deskSignInTitle": "Sign in to the front desk",
+  "deskSignInBody": "Use the phone number and the password you chose from the gym's SMS.",
+  "deskPassword": "Password",
+  "deskSignIn": "Sign in",
+  "deskNoGym": "This number isn't staff at any gym.",
+  "deskChooseGym": "Choose the gym",
+  "deskChooseBranch": "Which branch is this desk at?",
+  "deskNoBranches": "You don't work at any branch of this gym yet. Ask the gym's owner.",
+  "deskChangeBranch": "Change branch",
+  "deskMenu": "Menu"
 }

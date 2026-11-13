@@ -698,4 +698,35 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get deskTitle => 'ቮልት ዴስክ';
+
+  @override
+  String get deskSignInTitle => 'ወደ መቀበያ ዴስክ ይግቡ';
+
+  @override
+  String get deskSignInBody => 'ከጂሙ በመጣው ኤስኤምኤስ ያዘጋጁትን ስልክ ቁጥርና የይለፍ ቃል ይጠቀሙ።';
+
+  @override
+  String get deskPassword => 'የይለፍ ቃል';
+
+  @override
+  String get deskSignIn => 'ግባ';
+
+  @override
+  String get deskNoGym => 'ይህ ቁጥር በየትኛውም ጂም ሠራተኛ አይደለም።';
+
+  @override
+  String get deskChooseGym => 'ጂሙን ይምረጡ';
+
+  @override
+  String get deskChooseBranch => 'ይህ ዴስክ በየትኛው ቅርንጫፍ ነው?';
+
+  @override
+  String get deskNoBranches =>
+      'በዚህ ጂም በየትኛውም ቅርንጫፍ ገና አልተመደቡም። የጂሙን ባለቤት ይጠይቁ።';
+
+  @override
+  String get deskChangeBranch => 'ቅርንጫፍ ቀይር';
+
+  @override
+  String get deskMenu => 'ምናሌ';
 }

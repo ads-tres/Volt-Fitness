@@ -1,14 +1,12 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gym_mobile/staff/app/staff_app.dart';
 
-import '../support/test_doubles.dart';
+import '../support/desk_driver.dart';
 
 void main() {
-  testWidgets('the front desk app starts', (tester) async {
-    await tester.pumpWidget(ProviderScope(overrides: await testOverrides(), child: const StaffApp()));
-    await tester.pumpAndSettle();
+  testWidgets('the front desk app starts on sign-in', (tester) async {
+    await startDesk(tester);
 
     expect(find.text('Volt Desk'), findsOneWidget);
+    expect(find.text('Sign in to the front desk'), findsOneWidget);
   });
 }

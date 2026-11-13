@@ -218,5 +218,15 @@
   "errorUpdateRequired": "ይህ የመተግበሪያው ስሪት ከአሁን በኋላ አይደገፍም። ለመቀጠል እባክዎ ያዘምኑ።",
   "errorServer": "በእኛ በኩል ችግር ተፈጥሯል። እባክዎ ቆይተው እንደገና ይሞክሩ።",
   "errorUnexpected": "የሆነ ችግር ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።",
-  "deskTitle": "ቮልት ዴስክ"
+  "deskTitle": "ቮልት ዴስክ",
+  "deskSignInTitle": "ወደ መቀበያ ዴስክ ይግቡ",
+  "deskSignInBody": "ከጂሙ በመጣው ኤስኤምኤስ ያዘጋጁትን ስልክ ቁጥርና የይለፍ ቃል ይጠቀሙ።",
+  "deskPassword": "የይለፍ ቃል",
+  "deskSignIn": "ግባ",
+  "deskNoGym": "ይህ ቁጥር በየትኛውም ጂም ሠራተኛ አይደለም።",
+  "deskChooseGym": "ጂሙን ይምረጡ",
+  "deskChooseBranch": "ይህ ዴስክ በየትኛው ቅርንጫፍ ነው?",
+  "deskNoBranches": "በዚህ ጂም በየትኛውም ቅርንጫፍ ገና አልተመደቡም። የጂሙን ባለቤት ይጠይቁ።",
+  "deskChangeBranch": "ቅርንጫፍ ቀይር",
+  "deskMenu": "ምናሌ"
 }

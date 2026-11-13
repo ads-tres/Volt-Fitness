@@ -1321,6 +1321,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Volt Desk'**
   String get deskTitle;
+
+  /// No description provided for @deskSignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to the front desk'**
+  String get deskSignInTitle;
+
+  /// No description provided for @deskSignInBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the phone number and the password you chose from the gym\'s SMS.'**
+  String get deskSignInBody;
+
+  /// No description provided for @deskPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get deskPassword;
+
+  /// No description provided for @deskSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get deskSignIn;
+
+  /// No description provided for @deskNoGym.
+  ///
+  /// In en, this message translates to:
+  /// **'This number isn\'t staff at any gym.'**
+  String get deskNoGym;
+
+  /// No description provided for @deskChooseGym.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the gym'**
+  String get deskChooseGym;
+
+  /// No description provided for @deskChooseBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Which branch is this desk at?'**
+  String get deskChooseBranch;
+
+  /// No description provided for @deskNoBranches.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t work at any branch of this gym yet. Ask the gym\'s owner.'**
+  String get deskNoBranches;
+
+  /// No description provided for @deskChangeBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Change branch'**
+  String get deskChangeBranch;
+
+  /// No description provided for @deskMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get deskMenu;
 }
 
 class _AppLocalizationsDelegate
