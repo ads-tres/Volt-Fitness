@@ -31,7 +31,7 @@ void main() {
 
   List<Object?> sent() => [
     for (final request in adapter.requests)
-      if (request.path == '/devices/current/push-token') request.data,
+      if (request.path == '/me/push-token') request.data,
   ];
 
   test('the push token goes to the API once, and again when it or the language changes', () async {
@@ -70,7 +70,7 @@ void main() {
     container.read(dioProvider).httpClientAdapter = online;
     container.listen(pushTokenSyncProvider, (_, _) {});
     await pumpEventQueue();
-    expect(online.requests.where((request) => request.path == '/devices/current/push-token'), hasLength(1));
+    expect(online.requests.where((request) => request.path == '/me/push-token'), hasLength(1));
   });
 
   test('signing out stops pushes to this phone', () async {

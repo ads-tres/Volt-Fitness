@@ -141,15 +141,15 @@ final class FakeBackend implements HttpClientAdapter {
         request,
         (phone, gym) => _markRead(request, phone, gym, path.split('/')[2]),
       ),
-      ('GET', '/me/notification-preferences') => _inGym(
+      ('GET', '/notification-preferences') => _inGym(
         request,
         (phone, gym) => _json(200, {'data': _preferencesFor(phone, gym)}),
       ),
-      ('PATCH', '/me/notification-preferences') => _inGym(
+      ('PATCH', '/notification-preferences') => _inGym(
         request,
         (phone, gym) => _updatePreferences(request, phone, gym),
       ),
-      ('PUT', '/devices/current/push-token') => _signedIn(request, (phone) => _savePushToken(request, phone)),
+      ('PUT', '/me/push-token') => _signedIn(request, (phone) => _savePushToken(request, phone)),
       ('POST', '/dev/fake-push') => _inGym(request, _fakePush),
       ('DELETE', final path) when path.startsWith('/devices/') => _signedIn(
         request,
@@ -512,7 +512,7 @@ final class FakeBackend implements HttpClientAdapter {
         'payment_succeeded',
         'Payment received',
         '${_birr(link.amountMinor)} received. Thank you!',
-        data: {'invoice_id': '${link.payment!['id']}'},
+        data: {'payment_id': '${link.payment!['id']}', 'membership_id': '${_membershipId(gym)}'},
       );
     }
     return _json(200, {'data': link.toJson()});
@@ -582,7 +582,7 @@ final class FakeBackend implements HttpClientAdapter {
               at(0, 8, 0),
             ),
             _notification(
-              'invoice_issued',
+              'payment_due',
               'Payment due',
               '1,500.00 ETB is due on your Monthly plan.',
               at(1, 9, 15),
@@ -617,7 +617,7 @@ final class FakeBackend implements HttpClientAdapter {
               '1,500.00 ETB for your Monthly plan. Thank you!',
               at(phone == expiredPhone ? 36 : 12, 7, 11),
               read: true,
-              data: {'invoice_id': '${_receiptsFor(phone, gym).last['id']}'},
+              data: {'payment_id': '${_receiptsFor(phone, gym).last['id']}'},
             ),
           ],
         ];
@@ -654,18 +654,21 @@ final class FakeBackend implements HttpClientAdapter {
     return notification;
   }
 
+  /// The inbox, newest first, 25 a page, with the unread count across all.
   ResponseBody _listNotifications(_Request request, String phone, String gym) {
+    const perPage = 25;
     final all = _notificationsFor(phone, gym);
-    final from = int.tryParse(request.query['cursor'] ?? '') ?? 0;
-    final perPage = int.tryParse(request.query['per_page'] ?? '') ?? 20;
+    final page = max(1, int.tryParse(request.query['page'] ?? '') ?? 1);
+    final from = min((page - 1) * perPage, all.length);
     final to = min(from + perPage, all.length);
+    final lastPage = max(1, (all.length / perPage).ceil());
     return _json(200, {
-      'data': all.sublist(min(from, all.length), to),
-      'links': {'next': null, 'prev': null},
+      'data': all.sublist(from, to),
+      'links': {'next': page < lastPage ? '?page=${page + 1}' : null, 'prev': page > 1 ? '?page=${page - 1}' : null},
       'meta': {
+        'current_page': page,
+        'last_page': lastPage,
         'per_page': perPage,
-        'next_cursor': to < all.length ? '$to' : null,
-        'prev_cursor': null,
         'unread_count': all.where((notification) => notification['read_at'] == null).length,
       },
     });
@@ -710,7 +713,7 @@ final class FakeBackend implements HttpClientAdapter {
 
   /// Makes a notification, as the API would before pushing it, and returns
   /// the FCM message for the in-app fake push. Cycles through gym news, a
-  /// plan reminder and an invoice, to try each kind of tap.
+  /// plan reminder and a receipt, to try each kind of tap.
   ResponseBody _fakePush(String phone, String gym) {
     final invoiceId = switch (_receiptsFor(phone, gym).firstOrNull?['id']) {
       final Object id => '$id',
@@ -728,10 +731,10 @@ final class FakeBackend implements HttpClientAdapter {
       _ => _notify(
         phone,
         gym,
-        'invoice_due',
-        'Test: an invoice',
-        'Tap to open your latest invoice.',
-        data: {'invoice_id': ?invoiceId},
+        'payment_succeeded',
+        'Test: a receipt',
+        'Tap to open your latest receipt.',
+        data: {'payment_id': ?invoiceId},
       ),
     };
     return _json(200, {
@@ -742,6 +745,7 @@ final class FakeBackend implements HttpClientAdapter {
           'type': notification['type'],
           'notification_id': notification['id'],
           'organization_id': gym,
+          'gym': gym,
           ...notification['data']! as Map<String, String>,
         },
       },
