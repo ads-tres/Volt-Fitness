@@ -21,6 +21,27 @@
       "type": "dart",
       "program": "lib/main.dart",
       "args": ["--flavor", "prod"]
+    },
+    {
+      "name": "Volt Desk (dev)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_staff.dart",
+      "args": ["--flavor", "staffDev"]
+    },
+    {
+      "name": "Volt Desk (staging)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_staff.dart",
+      "args": ["--flavor", "staffStaging"]
+    },
+    {
+      "name": "Volt Desk (prod)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_staff.dart",
+      "args": ["--flavor", "staffProd"]
     }
   ]
 }

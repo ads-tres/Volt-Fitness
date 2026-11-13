@@ -1,13 +1,17 @@
-# Volt member app
+# Volt apps
 
-Flutter client for the Gym Management System. The Laravel API
+Flutter clients for the Gym Management System, two apps from one codebase:
+the **member app** (`lib/main.dart`) and the **front desk app**, Volt Desk
+(`lib/main_staff.dart`), which staff use to let members in. Both share
+`lib/core/`. The Laravel API
 ([azabla/gym-platform](https://github.com/azabla/gym-platform)) is the source
-of truth for memberships, prices, payments and access; this app presents,
-requests, caches and syncs. Android first. It follows the API's members-app
+of truth for memberships, prices, payments and access; the apps present,
+request, cache and sync. Android first. It follows the API's members-app
 contract, `docs/api/members-app.md` in that repository: every gym call has the
-gym's slug in its path (`/me/gyms/{slug}/…`).
+gym's slug in its path (`/me/gyms/{slug}/…` for members,
+`/organizations/{slug}/…` for staff).
 
-## Run
+## Run the member app
 
 Every build needs a flavor. Each one installs as its own app, so all three can
 sit on one phone side by side:
@@ -97,6 +101,72 @@ provider: dev builds use `FakePushService`, and real builds get
 one per flavor). The push token goes to the API after sign-in, when it
 changes and when the language changes; signing out deletes it.
 
+## Run the front desk app
+
+The front desk app has its own flavors, so it installs next to the member
+app. It talks to the same API per flavor:
+
+| Flavor         | App ID               | Name              |
+| -------------- | -------------------- | ----------------- |
+| `staffDev`     | `com.volt.staff.dev` | Volt Desk Dev     |
+| `staffStaging` | `com.volt.staff.stg` | Volt Desk Staging |
+| `staffProd`    | `com.volt.staff`     | Volt Desk         |
+
+```sh
+flutter run --flavor staffDev -t lib/main_staff.dart
+```
+
+Without `-t` the member app is built into the staff flavor, so always pass
+both. VS Code has run configurations for all six.
+
+Staff sign in with their phone and password (`POST /auth/tokens`). The app
+picks the gym and branch when there is only one and asks otherwise, then
+opens on the scanner. Three tabs:
+
+- **Scan** reads a member's QR code (only `GQ1:` codes; others are ignored)
+  and sends it once to `check-ins/scan` with a new `Idempotency-Key`. The
+  answer fills the screen, green to let in and red with the reason to turn
+  away, with what the member owes either way, and goes back to the camera
+  after five seconds or a tap.
+- **Desk** finds a member who came without their phone by name or phone
+  number and checks them in at the branch, with the same answer.
+- **Today** lists the branch's check-ins for the day, newest first.
+
+The menu at the top changes the branch or signs out.
+
+**The camera.** Scanning needs a phone or tablet with a back camera; the
+app asks for the camera permission the first time and says so if it was
+refused (allow it in the phone's settings). An emulator's virtual camera
+works for trying it. Only the staff flavors ask for the camera: the member
+flavors' manifests remove the permission, and CI checks both APKs for it.
+On iOS, `Info.plist` has the camera description.
+
+### Fake front desk
+
+Dev builds answer the staff calls from `lib/staff/fake_front_desk.dart`, in
+the API's shapes, as the member app's fake does
+(`--dart-define=FAKE_BACKEND=false` uses the real API).
+
+| To try                          | Phone           | Password   |
+| ------------------------------- | --------------- | ---------- |
+| Demo Gym, both branches         | `0911 00 00 01` | `password` |
+| Two gyms (Demo Gym, Bole Fitness) | `0911 00 00 02` | `password` |
+| Wrong password                  | either          | anything else |
+
+| Scanned code                    | Answer                                  |
+| ------------------------------- | --------------------------------------- |
+| any `GQ1:` code                 | Hana Girma let in                       |
+| a `GQ1:` code containing `EXPIRED` | Tigist Haile turned away, plan ended |
+| a `GQ1:` code containing `OWES` | Abebe Kebede let in, owing 1,000 ETB    |
+| the same code twice             | turned away, code already used          |
+
+At the desk, search finds Abebe (owes 1,000 ETB), Tigist (turned away, plan
+ended) and Hana. Today starts with two earlier check-ins at Main Branch and
+lists every one made since; the fake forgets them when the app restarts.
+
+To scan for real, run a staging build of each app and point the desk at the
+member app's QR, signed in as a staff member of the demo gym.
+
 ## Test
 
 ```sh
@@ -108,7 +178,9 @@ flutter test
 
 ```
 lib/
-  app/          app widget, router, startup
+  main.dart     the member app
+  main_staff.dart the front desk app
+  app/          the member app's widget, router, startup
   core/         shared by all features; never imports from features/
     auth/         session token, profile and session state
     config/       environment per flavor
@@ -134,6 +206,11 @@ lib/
     payments/     plans, invoices, receipts and Chapa checkout
     profile/      account, settings, signed-in devices
     shell/        tabs and navigation bar
+  staff/        the front desk app, laid out the same way
+    app/          app widget, router, tabs
+    core/         the desk's session: who is signed in, at which gym and branch
+    features/     auth, gym (gym and branch), scan, desk (search), today
+    fake_front_desk.dart
   l10n/         English and Amharic strings (ARB) and generated code
 ```
 
@@ -141,9 +218,10 @@ lib/
 
 These follow the team's mobile architecture doc, with three deliberate changes:
 
-- **One app for now.** The staff app becomes a separate app at Phase 6, and
-  `core/` moves into shared packages then. Keep `core/` free of feature
-  imports so that move stays mechanical.
+- **Two apps, one package.** The front desk app lives in `lib/staff/` with its
+  own entry point and flavors, and shares `core/` with the member app. Keep
+  `core/` free of feature and staff imports, so it can move into a shared
+  package later without changes.
 - **No use-case class per action.** Controllers call repositories directly.
   Add a use case only when an action coordinates several repositories.
 - **No Drift yet.** SQLite arrives with the scanner's offline outbox
