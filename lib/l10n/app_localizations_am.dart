@@ -798,4 +798,34 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get deskReasonOther => 'አልገባም';
+
+  @override
+  String get deskTabScan => 'ቃኝ';
+
+  @override
+  String get deskTabDesk => 'ዴስክ';
+
+  @override
+  String get deskTabToday => 'ዛሬ';
+
+  @override
+  String get deskSearchMembers => 'ስም ወይም ስልክ ቁጥር';
+
+  @override
+  String get deskSearchHint => 'ያለ ስልካቸው የመጡ አባልን ይፈልጉና ያስገቡ።';
+
+  @override
+  String get deskNoMembersFound => 'የሚመሳሰል የዚህ ጂም አባል የለም።';
+
+  @override
+  String get deskCheckIn => 'አስገባ';
+
+  @override
+  String get deskTodayTitle => 'ዛሬ በዚህ ቅርንጫፍ';
+
+  @override
+  String get deskTodayEmpty => 'ዛሬ እዚህ እስካሁን የገባ የለም።';
+
+  @override
+  String get deskUnknownMember => 'ያልታወቀ ኮድ';
 }

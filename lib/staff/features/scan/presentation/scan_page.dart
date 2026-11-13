@@ -6,12 +6,11 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_messages.dart';
 import '../../../../core/localization/l10n.dart';
-import '../../../core/desk_session.dart';
 import '../data/check_in_repository.dart';
 import '../domain/desk_check_in.dart';
 import 'check_in_result.dart';
 import 'code_camera.dart';
-import 'desk_menu.dart';
+import 'desk_app_bar.dart';
 
 /// Where the front desk scans members' QR codes. Each GQ1 code goes to the
 /// API once; the answer fills the screen, then the camera is back.
@@ -70,19 +69,9 @@ class _ScanPageState extends ConsumerState<ScanPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final textTheme = Theme.of(context).textTheme;
     final result = _result;
     return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.deskTitle),
-            Text(deskPlace(ref.watch(deskSessionProvider)), style: textTheme.bodySmall),
-          ],
-        ),
-        actions: const [DeskMenu()],
-      ),
+      appBar: const DeskAppBar(),
       body: Stack(
         fit: StackFit.expand,
         children: [

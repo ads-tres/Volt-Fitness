@@ -248,5 +248,15 @@
   "deskReasonBranchNotAllowed": "አባልነቱ በዚህ ቅርንጫፍ አይሰራም",
   "deskReasonVisitsUsedUp": "የጥቅሉ ጉብኝቶች በሙሉ ተጠቅመዋል",
   "deskReasonAlreadyCheckedIn": "ከ5 ደቂቃ በፊት ገብቷል",
-  "deskReasonOther": "አልገባም"
+  "deskReasonOther": "አልገባም",
+  "deskTabScan": "ቃኝ",
+  "deskTabDesk": "ዴስክ",
+  "deskTabToday": "ዛሬ",
+  "deskSearchMembers": "ስም ወይም ስልክ ቁጥር",
+  "deskSearchHint": "ያለ ስልካቸው የመጡ አባልን ይፈልጉና ያስገቡ።",
+  "deskNoMembersFound": "የሚመሳሰል የዚህ ጂም አባል የለም።",
+  "deskCheckIn": "አስገባ",
+  "deskTodayTitle": "ዛሬ በዚህ ቅርንጫፍ",
+  "deskTodayEmpty": "ዛሬ እዚህ እስካሁን የገባ የለም።",
+  "deskUnknownMember": "ያልታወቀ ኮድ"
 }

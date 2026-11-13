@@ -318,5 +318,15 @@
   "deskReasonBranchNotAllowed": "The membership isn't valid at this branch",
   "deskReasonVisitsUsedUp": "Every visit of the pack is used",
   "deskReasonAlreadyCheckedIn": "Let in less than 5 minutes ago",
-  "deskReasonOther": "Not let in"
+  "deskReasonOther": "Not let in",
+  "deskTabScan": "Scan",
+  "deskTabDesk": "Desk",
+  "deskTabToday": "Today",
+  "deskSearchMembers": "Name or phone number",
+  "deskSearchHint": "Find a member who came without their phone, then check them in.",
+  "deskNoMembersFound": "No member of this gym matches.",
+  "deskCheckIn": "Check in",
+  "deskTodayTitle": "Today at this branch",
+  "deskTodayEmpty": "No one has checked in here yet today.",
+  "deskUnknownMember": "Unknown code"
 }

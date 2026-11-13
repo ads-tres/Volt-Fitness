@@ -818,4 +818,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskReasonOther => 'Not let in';
+
+  @override
+  String get deskTabScan => 'Scan';
+
+  @override
+  String get deskTabDesk => 'Desk';
+
+  @override
+  String get deskTabToday => 'Today';
+
+  @override
+  String get deskSearchMembers => 'Name or phone number';
+
+  @override
+  String get deskSearchHint =>
+      'Find a member who came without their phone, then check them in.';
+
+  @override
+  String get deskNoMembersFound => 'No member of this gym matches.';
+
+  @override
+  String get deskCheckIn => 'Check in';
+
+  @override
+  String get deskTodayTitle => 'Today at this branch';
+
+  @override
+  String get deskTodayEmpty => 'No one has checked in here yet today.';
+
+  @override
+  String get deskUnknownMember => 'Unknown code';
 }

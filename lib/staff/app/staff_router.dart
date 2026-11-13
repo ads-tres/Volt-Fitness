@@ -6,7 +6,10 @@ import '../core/desk_session.dart';
 import '../features/auth/presentation/desk_sign_in_page.dart';
 import '../features/gym/presentation/choose_branch_page.dart';
 import '../features/gym/presentation/choose_gym_page.dart';
+import '../features/desk/presentation/desk_page.dart';
 import '../features/scan/presentation/scan_page.dart';
+import '../features/today/presentation/today_page.dart';
+import 'desk_shell.dart';
 import 'staff_routes.dart';
 
 export 'staff_routes.dart';
@@ -38,7 +41,14 @@ final staffRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: StaffRoutes.signIn, builder: (context, state) => const DeskSignInPage()),
       GoRoute(path: StaffRoutes.chooseGym, builder: (context, state) => const ChooseGymPage()),
       GoRoute(path: StaffRoutes.chooseBranch, builder: (context, state) => const ChooseBranchPage()),
-      GoRoute(path: StaffRoutes.scan, builder: (context, state) => const ScanPage()),
+      ShellRoute(
+        builder: (context, state, child) => DeskShell(location: state.matchedLocation, child: child),
+        routes: [
+          GoRoute(path: StaffRoutes.scan, builder: (context, state) => const ScanPage()),
+          GoRoute(path: StaffRoutes.desk, builder: (context, state) => const DeskPage()),
+          GoRoute(path: StaffRoutes.today, builder: (context, state) => const TodayPage()),
+        ],
+      ),
     ],
   );
   ref.onDispose(() {

@@ -15,6 +15,8 @@ import '../core/network/api_headers.dart';
 /// Any GQ1 code lets Hana Girma in; one with `EXPIRED` in it is Tigist
 /// Haile's ended membership, and one with `OWES` lets Abebe Kebede in with
 /// 1,000.00 ETB still to pay. A code scanned twice is `CODE_ALREADY_USED`.
+/// At the desk, Tigist is turned away and anyone else let in. Today's list
+/// holds every check-in made here, newest first, after two from earlier.
 final class FakeFrontDesk implements HttpClientAdapter {
   FakeFrontDesk({this.latency = const Duration(milliseconds: 400), DateTime Function()? now})
     : _now = now ?? DateTime.now;
@@ -29,6 +31,12 @@ final class FakeFrontDesk implements HttpClientAdapter {
   final DateTime Function() _now;
   final _scanned = <String>{};
   var _checkIns = 0;
+
+  /// Every check-in made, oldest first, with its branch id.
+  late final _history = <Map<String, Object?>>[
+    _checkIn(_branch(1, 'MAIN', 'Main Branch'), member: _abebe, owedMinor: 0, endsOn: '2026-11-01', minutesAgo: 90),
+    _checkIn(_branch(1, 'MAIN', 'Main Branch'), deny: 'OUTSIDE_HOURS', member: _hana, owedMinor: 0, endsOn: '2026-11-01', minutesAgo: 60),
+  ];
 
   @override
   Future<ResponseBody> fetch(RequestOptions options, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async {
@@ -92,6 +100,14 @@ final class FakeFrontDesk implements HttpClientAdapter {
     return switch ((options.method, path)) {
       ('GET', '/branches') => _json(200, {'data': _branches(phone, gym)}),
       ('POST', '/check-ins/scan') => _scan(options, phone, gym),
+      ('GET', '/members') => _json(200, {'data': _search('${options.queryParameters['search'] ?? ''}')}),
+      ('POST', final path) when RegExp(r'^/members/\d+/check-ins$').hasMatch(path) => _atDesk(
+        options,
+        phone,
+        gym,
+        int.parse(path.split('/')[2]),
+      ),
+      ('GET', '/check-ins') => _today(options),
       _ => _json(404, {'message': 'Not found.'}),
     };
   }
@@ -114,15 +130,72 @@ final class FakeFrontDesk implements HttpClientAdapter {
         },
       });
     }
-    if (!payload.startsWith('GQ1:')) return _json(200, {'data': _checkIn(branch, deny: 'CREDENTIAL_INVALID')});
-    if (!_scanned.add(payload)) return _json(200, {'data': _checkIn(branch, deny: 'CODE_ALREADY_USED')});
+    if (!payload.startsWith('GQ1:')) return _record(_checkIn(branch, deny: 'CREDENTIAL_INVALID'));
+    if (!_scanned.add(payload)) return _record(_checkIn(branch, deny: 'CODE_ALREADY_USED'));
     if (payload.contains('EXPIRED')) {
-      return _json(200, {'data': _checkIn(branch, deny: 'MEMBERSHIP_EXPIRED', member: _tigist, owedMinor: 0, endsOn: '2026-10-08')});
+      return _record(_checkIn(branch, deny: 'MEMBERSHIP_EXPIRED', member: _tigist, owedMinor: 0, endsOn: '2026-10-08'));
     }
     if (payload.contains('OWES')) {
-      return _json(200, {'data': _checkIn(branch, member: _abebe, owedMinor: 100000, endsOn: '2026-11-01')});
+      return _record(_checkIn(branch, member: _abebe, owedMinor: 100000, endsOn: '2026-11-01'));
     }
-    return _json(200, {'data': _checkIn(branch, member: _hana, owedMinor: 0, endsOn: '2026-11-01')});
+    return _record(_checkIn(branch, member: _hana, owedMinor: 0, endsOn: '2026-11-01'));
+  }
+
+  ResponseBody _record(Map<String, Object?> checkIn) {
+    _history.add(checkIn);
+    return _json(200, {'data': checkIn});
+  }
+
+  /// Members whose name contains, or whose phone has the digits of, [typed].
+  List<Map<String, Object?>> _search(String typed) {
+    final text = typed.trim().toLowerCase();
+    final digits = text.replaceAll(RegExp(r'\D'), '');
+    return [
+      for (final member in [_abebe, _tigist, _hana])
+        if ((member['full_name']! as String).toLowerCase().contains(text) ||
+            (digits.length >= 3 && (member['phone']! as String).replaceAll('+251', '0').contains(digits)))
+          {
+            ...member,
+            'membership': {
+              'id': 100 + (member['id']! as int),
+              'plan': {'id': 2, 'name': 'Monthly'},
+              'status': member == _tigist ? 'expired' : 'active',
+              'starts_on': '2026-10-02',
+              'ends_on': member == _tigist ? '2026-10-08' : '2026-11-01',
+            },
+            'balance_due': _money(member == _abebe ? 100000 : 0),
+          },
+    ];
+  }
+
+  ResponseBody _atDesk(RequestOptions options, String phone, String gym, int memberId) {
+    final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
+    final branch = _branches(phone, gym).where((branch) => branch['id'] == body['branch_id']).firstOrNull;
+    final member = [_abebe, _tigist, _hana].where((member) => member['id'] == memberId).firstOrNull;
+    if (branch == null || member == null) return _json(404, {'message': 'Not found.'});
+    if (member == _tigist) {
+      return _record(_checkIn(branch, deny: 'MEMBERSHIP_EXPIRED', member: member, owedMinor: 0, endsOn: '2026-10-08', method: 'desk'));
+    }
+    return _record(
+      _checkIn(branch, member: member, owedMinor: member == _abebe ? 100000 : 0, endsOn: '2026-11-01', method: 'desk'),
+    );
+  }
+
+  /// Today's check-ins at a branch, newest first, 25 a page.
+  ResponseBody _today(RequestOptions options) {
+    final branchId = int.tryParse('${options.queryParameters['branch_id'] ?? ''}');
+    final all = [
+      for (final checkIn in _history.reversed)
+        if (branchId == null || (checkIn['branch']! as Map)['id'] == branchId) checkIn,
+    ];
+    final page = int.tryParse('${options.queryParameters['page'] ?? ''}') ?? 1;
+    final from = ((page - 1) * 25).clamp(0, all.length);
+    final to = (from + 25).clamp(0, all.length);
+    return _json(200, {
+      'data': all.sublist(from, to),
+      'links': {'next': to < all.length ? '?page=${page + 1}' : null},
+      'meta': {'current_page': page},
+    });
   }
 
   static const _hana = {'id': 3, 'full_name': 'Hana Girma', 'phone': '+251933456789'};
@@ -136,12 +209,13 @@ final class FakeFrontDesk implements HttpClientAdapter {
     int? owedMinor,
     String? endsOn,
     String method = 'qr',
+    int minutesAgo = 0,
   }) => {
     'id': 800 + _checkIns++,
     'decision': deny == null ? 'allow' : 'deny',
     'reason_code': deny,
     'method': method,
-    'checked_in_at': _now().toUtc().toIso8601String(),
+    'checked_in_at': _now().subtract(Duration(minutes: minutesAgo)).toUtc().toIso8601String(),
     'branch': branch,
     'member': member,
     'membership': member == null

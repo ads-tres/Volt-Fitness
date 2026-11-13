@@ -1501,6 +1501,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not let in'**
   String get deskReasonOther;
+
+  /// No description provided for @deskTabScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get deskTabScan;
+
+  /// No description provided for @deskTabDesk.
+  ///
+  /// In en, this message translates to:
+  /// **'Desk'**
+  String get deskTabDesk;
+
+  /// No description provided for @deskTabToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get deskTabToday;
+
+  /// No description provided for @deskSearchMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Name or phone number'**
+  String get deskSearchMembers;
+
+  /// No description provided for @deskSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a member who came without their phone, then check them in.'**
+  String get deskSearchHint;
+
+  /// No description provided for @deskNoMembersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No member of this gym matches.'**
+  String get deskNoMembersFound;
+
+  /// No description provided for @deskCheckIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Check in'**
+  String get deskCheckIn;
+
+  /// No description provided for @deskTodayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today at this branch'**
+  String get deskTodayTitle;
+
+  /// No description provided for @deskTodayEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one has checked in here yet today.'**
+  String get deskTodayEmpty;
+
+  /// No description provided for @deskUnknownMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown code'**
+  String get deskUnknownMember;
 }
 
 class _AppLocalizationsDelegate
