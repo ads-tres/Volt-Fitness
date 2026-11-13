@@ -747,4 +747,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskMenu => 'Menu';
+
+  @override
+  String get deskPointCamera => 'Point the camera at the member\'s QR code';
+
+  @override
+  String get deskCameraDenied =>
+      'The camera is off for Volt Desk. Allow it in the phone\'s settings to scan.';
+
+  @override
+  String get deskCameraFailed =>
+      'The camera couldn\'t start. Close other apps using it, then try again.';
+
+  @override
+  String get deskLetIn => 'Let in';
+
+  @override
+  String get deskTurnedAway => 'Turned away';
+
+  @override
+  String deskPlanUntil(String plan, String date) {
+    return '$plan · until $date';
+  }
+
+  @override
+  String deskOwes(String amount) {
+    return 'Owes $amount';
+  }
+
+  @override
+  String get deskTapToContinue => 'Tap to scan the next member';
+
+  @override
+  String get deskReasonCredentialInvalid =>
+      'Not a member\'s code, or a code for another gym';
+
+  @override
+  String get deskReasonCredentialRevoked =>
+      'This phone\'s code was replaced. Ask the member to open the app.';
+
+  @override
+  String get deskReasonCodeExpired =>
+      'The code has expired. The member\'s phone clock may be wrong.';
+
+  @override
+  String get deskReasonCodeAlreadyUsed =>
+      'This code was already scanned. Ask for the code the app shows now.';
+
+  @override
+  String get deskReasonOutsideHours => 'The branch is closed now';
+
+  @override
+  String get deskReasonMembershipNone => 'No membership for today';
+
+  @override
+  String get deskReasonMembershipExpired => 'The membership has ended';
+
+  @override
+  String get deskReasonMembershipFrozen => 'The membership is frozen today';
+
+  @override
+  String get deskReasonBranchNotAllowed =>
+      'The membership isn\'t valid at this branch';
+
+  @override
+  String get deskReasonVisitsUsedUp => 'Every visit of the pack is used';
+
+  @override
+  String get deskReasonAlreadyCheckedIn => 'Let in less than 5 minutes ago';
+
+  @override
+  String get deskReasonOther => 'Not let in';
 }

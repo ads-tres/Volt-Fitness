@@ -11,6 +11,10 @@ import '../core/network/api_headers.dart';
 ///
 /// Sign in with [staffPhone] (Demo Gym, both branches) or [twoGymsPhone]
 /// (Demo Gym's Main Branch, and Bole Fitness), password [password].
+///
+/// Any GQ1 code lets Hana Girma in; one with `EXPIRED` in it is Tigist
+/// Haile's ended membership, and one with `OWES` lets Abebe Kebede in with
+/// 1,000.00 ETB still to pay. A code scanned twice is `CODE_ALREADY_USED`.
 final class FakeFrontDesk implements HttpClientAdapter {
   FakeFrontDesk({this.latency = const Duration(milliseconds: 400), DateTime Function()? now})
     : _now = now ?? DateTime.now;
@@ -23,6 +27,8 @@ final class FakeFrontDesk implements HttpClientAdapter {
 
   final Duration latency;
   final DateTime Function() _now;
+  final _scanned = <String>{};
+  var _checkIns = 0;
 
   @override
   Future<ResponseBody> fetch(RequestOptions options, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async {
@@ -85,6 +91,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
     if (!gyms.contains(gym)) return _json(404, {'message': 'Not found.'});
     return switch ((options.method, path)) {
       ('GET', '/branches') => _json(200, {'data': _branches(phone, gym)}),
+      ('POST', '/check-ins/scan') => _scan(options, phone, gym),
       _ => _json(404, {'message': 'Not found.'}),
     };
   }
@@ -94,6 +101,65 @@ final class FakeFrontDesk implements HttpClientAdapter {
     _ when phone == twoGymsPhone => [_branch(1, 'MAIN', 'Main Branch')],
     _ => [_branch(2, 'BOLE', 'Bole Branch'), _branch(1, 'MAIN', 'Main Branch')],
   };
+
+  ResponseBody _scan(RequestOptions options, String phone, String gym) {
+    final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
+    final payload = '${body['payload'] ?? ''}';
+    final branch = _branches(phone, gym).where((branch) => branch['id'] == body['branch_id']).firstOrNull;
+    if (branch == null) {
+      return _json(422, {
+        'message': 'Choose a branch of this gym that you work at.',
+        'errors': {
+          'branch_id': ['Choose a branch of this gym that you work at.'],
+        },
+      });
+    }
+    if (!payload.startsWith('GQ1:')) return _json(200, {'data': _checkIn(branch, deny: 'CREDENTIAL_INVALID')});
+    if (!_scanned.add(payload)) return _json(200, {'data': _checkIn(branch, deny: 'CODE_ALREADY_USED')});
+    if (payload.contains('EXPIRED')) {
+      return _json(200, {'data': _checkIn(branch, deny: 'MEMBERSHIP_EXPIRED', member: _tigist, owedMinor: 0, endsOn: '2026-10-08')});
+    }
+    if (payload.contains('OWES')) {
+      return _json(200, {'data': _checkIn(branch, member: _abebe, owedMinor: 100000, endsOn: '2026-11-01')});
+    }
+    return _json(200, {'data': _checkIn(branch, member: _hana, owedMinor: 0, endsOn: '2026-11-01')});
+  }
+
+  static const _hana = {'id': 3, 'full_name': 'Hana Girma', 'phone': '+251933456789'};
+  static const _tigist = {'id': 2, 'full_name': 'Tigist Haile', 'phone': '+251922345678'};
+  static const _abebe = {'id': 1, 'full_name': 'Abebe Kebede', 'phone': '+251911234567'};
+
+  Map<String, Object?> _checkIn(
+    Map<String, Object?> branch, {
+    String? deny,
+    Map<String, Object?>? member,
+    int? owedMinor,
+    String? endsOn,
+    String method = 'qr',
+  }) => {
+    'id': 800 + _checkIns++,
+    'decision': deny == null ? 'allow' : 'deny',
+    'reason_code': deny,
+    'method': method,
+    'checked_in_at': _now().toUtc().toIso8601String(),
+    'branch': branch,
+    'member': member,
+    'membership': member == null
+        ? null
+        : {
+            'id': 100 + (member['id']! as int),
+            'plan': {'id': 2, 'name': 'Monthly'},
+            'starts_on': '2026-10-02',
+            'ends_on': endsOn,
+            'balance_due': _money(owedMinor ?? 0),
+          },
+    'checked_in_by': {'id': 1, 'name': 'Demo Owner'},
+  };
+
+  static Map<String, Object?> _money(int minor) {
+    final whole = '${minor ~/ 100}'.replaceAllMapped(RegExp(r'\B(?=(\d{3})+$)'), (_) => ',');
+    return {'amount_minor': minor, 'currency': 'ETB', 'formatted': '$whole.${(minor % 100).toString().padLeft(2, '0')} ETB'};
+  }
 
   static Map<String, Object?> _branch(int id, String code, String name) => {
     'id': id,

@@ -729,4 +729,73 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get deskMenu => 'ምናሌ';
+
+  @override
+  String get deskPointCamera => 'ካሜራውን ወደ አባሉ QR ኮድ ያዙሩ';
+
+  @override
+  String get deskCameraDenied =>
+      'ለቮልት ዴስክ ካሜራ ጠፍቷል። ለመቃኘት በስልኩ ቅንብሮች ውስጥ ይፍቀዱ።';
+
+  @override
+  String get deskCameraFailed =>
+      'ካሜራው መጀመር አልቻለም። ካሜራውን የሚጠቀሙ ሌሎች መተግበሪያዎችን ዝግተው እንደገና ይሞክሩ።';
+
+  @override
+  String get deskLetIn => 'ገብቷል';
+
+  @override
+  String get deskTurnedAway => 'አልገባም';
+
+  @override
+  String deskPlanUntil(String plan, String date) {
+    return '$plan · እስከ $date';
+  }
+
+  @override
+  String deskOwes(String amount) {
+    return 'ዕዳ $amount';
+  }
+
+  @override
+  String get deskTapToContinue => 'ቀጣዩን አባል ለመቃኘት ይንኩ';
+
+  @override
+  String get deskReasonCredentialInvalid => 'የአባል ኮድ አይደለም፣ ወይም የሌላ ጂም ኮድ ነው';
+
+  @override
+  String get deskReasonCredentialRevoked =>
+      'የዚህ ስልክ ኮድ ተተክቷል። አባሉ መተግበሪያውን እንዲከፍት ይጠይቁ።';
+
+  @override
+  String get deskReasonCodeExpired =>
+      'ኮዱ ጊዜው አልፎበታል። የአባሉ ስልክ ሰዓት ትክክል ላይሆን ይችላል።';
+
+  @override
+  String get deskReasonCodeAlreadyUsed =>
+      'ይህ ኮድ ቀድሞ ተቃኝቷል። መተግበሪያው አሁን የሚያሳየውን ኮድ ይጠይቁ።';
+
+  @override
+  String get deskReasonOutsideHours => 'ቅርንጫፉ አሁን ዝግ ነው';
+
+  @override
+  String get deskReasonMembershipNone => 'ለዛሬ አባልነት የለም';
+
+  @override
+  String get deskReasonMembershipExpired => 'አባልነቱ አልቋል';
+
+  @override
+  String get deskReasonMembershipFrozen => 'አባልነቱ ዛሬ ታግዷል';
+
+  @override
+  String get deskReasonBranchNotAllowed => 'አባልነቱ በዚህ ቅርንጫፍ አይሰራም';
+
+  @override
+  String get deskReasonVisitsUsedUp => 'የጥቅሉ ጉብኝቶች በሙሉ ተጠቅመዋል';
+
+  @override
+  String get deskReasonAlreadyCheckedIn => 'ከ5 ደቂቃ በፊት ገብቷል';
+
+  @override
+  String get deskReasonOther => 'አልገባም';
 }
