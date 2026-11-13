@@ -65,7 +65,9 @@ final class Invoice {
   final Receipt? receipt;
 }
 
-/// The unpaid invoice the home screen points at.
+/// What the member still owes, for the home screen to point at. The API
+/// keeps the balance on the membership, so [invoiceId] is the membership to
+/// pay towards, and [number] names its plan.
 final class OutstandingInvoice {
   const OutstandingInvoice({required this.invoiceId, required this.amount, this.number, this.dueOn});
 
@@ -96,7 +98,7 @@ final class PaymentAttempt {
     required this.status,
     required this.amount,
     required this.checkoutUrl,
-    required this.returnUrl,
+    this.returnUrl,
     this.invoiceId,
     this.failureReason,
   });
@@ -108,9 +110,12 @@ final class PaymentAttempt {
   /// Chapa's hosted checkout page.
   final String checkoutUrl;
 
-  /// Where Chapa sends the member after paying. The app watches for it to
-  /// close the checkout; reaching it proves nothing about the payment.
-  final String returnUrl;
+  /// Where Chapa sends the member after paying, when the API names one. The
+  /// app watches for it to close the checkout; reaching it proves nothing
+  /// about the payment. Without one, the member closes the checkout.
+  final String? returnUrl;
+
+  /// The receipt, once the payment is in.
   final String? invoiceId;
   final String? failureReason;
 }

@@ -20,8 +20,6 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  final endingSoonInvoiceId = '01K7ZAIINV20260187'.padRight(26, '0');
-
   testWidgets('the bell counts unread notifications, and one opens what it is about', (tester) async {
     await startApp(tester);
     await signInWith(tester, phone: '0922222222');
@@ -31,9 +29,9 @@ void main() {
     expect(find.text('Your plan ends in 3 days'), findsOneWidget);
     expect(find.text('Holiday hours on Saturday'), findsOneWidget);
 
-    await tester.tap(find.text('New invoice INV-2026-0187'));
+    await tester.tap(find.text('Payment due'));
     await tester.pumpAndSettle();
-    expect(find.text('Invoice INV-2026-0187'), findsOneWidget);
+    expect(find.text('Renew or change your plan'), findsOneWidget);
 
     // The home tab kept its place: the inbox, one read now.
     await tester.tap(find.byTooltip('Home'));
@@ -97,8 +95,8 @@ void main() {
     final push = fakePush(tester);
     final message = PushMessage(
       title: 'Payment due in 3 days',
-      body: '1,500.00 ETB for INV-2026-0187.',
-      data: {'type': 'invoice_due', 'organization_id': boleGym.id, 'invoice_id': endingSoonInvoiceId},
+      body: '1,500.00 ETB is due on your Monthly plan.',
+      data: {'type': 'invoice_due', 'organization_id': boleGym.id},
     );
 
     push.deliver(message);
@@ -112,7 +110,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Payment due in 3 days'));
     await tester.pumpAndSettle();
-    expect(find.text('Invoice INV-2026-0187'), findsOneWidget);
+    expect(find.text('Renew or change your plan'), findsOneWidget);
     expect(find.text('Payment due in 3 days'), findsNothing);
   });
 

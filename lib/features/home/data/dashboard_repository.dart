@@ -9,6 +9,7 @@ import '../../../core/network/api_client.dart';
 import '../../../core/network/json.dart';
 import '../../../core/network/loaded.dart';
 import '../../../core/storage/preferences_store.dart';
+import '../../../core/tenant/gym_path.dart';
 import '../../../core/tenant/selected_organization.dart';
 import '../domain/dashboard.dart';
 import 'member_json.dart';
@@ -31,7 +32,7 @@ final class DashboardController extends Notifier<Loaded<Dashboard>> {
     if (!ref.mounted || organizationId == null) return;
     state = state.loading();
     try {
-      final json = dataObject(await ref.read(apiClientProvider).get('/me/dashboard'));
+      final json = dataObject(await ref.read(apiClientProvider).get(gymPath(organizationId, '/dashboard')));
       final dashboard = readResponse(() => dashboardFromJson(json));
       await ref.read(preferencesStoreProvider).setString('$_cacheKey$organizationId', jsonEncode(json));
       if (ref.mounted) state = Loaded(value: dashboard);
