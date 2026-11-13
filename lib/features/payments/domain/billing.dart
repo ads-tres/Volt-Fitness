@@ -110,7 +110,7 @@ final class PaymentAttempt {
   /// Chapa's hosted checkout page.
   final String checkoutUrl;
 
-  /// Where Chapa sends the member after paying, when the API names one. The
+  /// Where Chapa sends the member after paying (the API's return page). The
   /// app watches for it to close the checkout; reaching it proves nothing
   /// about the payment. Without one, the member closes the checkout.
   final String? returnUrl;
