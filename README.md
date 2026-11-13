@@ -78,9 +78,9 @@ What a member owes is the balance on their membership; they pay it through a
 payment link (`POST /me/gyms/{gym}/memberships/{id}/payment-link`), and buy a
 plan with `POST /me/gyms/{gym}/plans/{id}/purchase`. The API starts each
 payment with Chapa and returns its checkout URL. The app opens it in a web
-view and hands payment-app links (telebirr, CBE Birr) to those apps. The API
-gives Chapa no return address yet, so the member closes the checkout when
-done; the result screen then has the API ask Chapa
+view and hands payment-app links (telebirr, CBE Birr) to those apps, and
+closes it when Chapa sends the member to the link's `return_url`. Reaching it
+proves nothing, so the result screen then has the API ask Chapa
 (`POST …/payment-links/{id}/check`, ten a minute) until the payment is in.
 Paid receipts come from `GET /me/gyms/{gym}/payments`. Amounts are always
 `Money` in minor units.

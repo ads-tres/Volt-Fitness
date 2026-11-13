@@ -13,6 +13,7 @@ void main() {
       'status': 'pending',
       'amount': money(250000),
       'checkout_url': 'https://checkout.chapa.co/checkout/payment/abc',
+      'return_url': 'https://gym.test/payments/returned',
       'membership_id': null,
       'payment': null,
     };
@@ -32,7 +33,7 @@ void main() {
     expect(bought.id, '31');
     expect(bought.status, PaymentStatus.pending);
     expect(bought.checkoutUrl, 'https://checkout.chapa.co/checkout/payment/abc');
-    expect(bought.returnUrl, isNull);
+    expect(bought.returnUrl, 'https://gym.test/payments/returned');
   });
 
   test('a paid link points at its receipt; one paid too late is a failure', () async {

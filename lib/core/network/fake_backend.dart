@@ -1023,6 +1023,7 @@ final class _Link {
     },
     'amount': FakeBackend._money(amountMinor),
     'checkout_url': state == 'paid' || state == 'cancelled' ? null : 'https://checkout.chapa.co/checkout/payment/fake-$id',
+    'return_url': state == 'paid' || state == 'cancelled' ? null : 'https://api.test/payments/returned',
     'membership_id': membershipId,
     'plan': plan == null ? null : {'id': plan!['id'], 'name': plan!['name']},
     'created_at': createdAt.toUtc().toIso8601String(),

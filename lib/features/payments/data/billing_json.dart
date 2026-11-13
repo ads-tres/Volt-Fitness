@@ -71,6 +71,7 @@ PaymentAttempt paymentAttemptFromJson(Map<String, dynamic> json) => PaymentAttem
   },
   amount: Money.fromJson(json.field<Map<String, dynamic>>('amount')),
   checkoutUrl: json.optional<String>('checkout_url') ?? '',
+  returnUrl: json.optional<String>('return_url'),
   invoiceId: switch (json.optional<Map<String, dynamic>>('payment')?['id']) {
     final Object id => '$id',
     null => null,
