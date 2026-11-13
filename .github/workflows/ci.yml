@@ -37,3 +37,44 @@ jobs:
 
       - name: Test
         run: flutter test
+
+  android:
+    name: Build ${{ matrix.app }} for Android
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - app: the member app
+            flavor: dev
+            target: lib/main.dart
+          - app: the front desk app
+            flavor: staffDev
+            target: lib/main_staff.dart
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          cache: true
+
+      - name: Build a debug APK
+        run: flutter build apk --debug --flavor ${{ matrix.flavor }} -t ${{ matrix.target }}
+
+      # The member app never asks for the camera; the front desk app does.
+      - name: Check the camera permission
+        run: |
+          apk=build/app/outputs/flutter-apk/app-${{ matrix.flavor }}-debug.apk
+          aapt=$(ls "$ANDROID_HOME"/build-tools/*/aapt | sort | tail -1)
+          if [ "${{ matrix.flavor }}" = staffDev ]; then
+            "$aapt" dump permissions "$apk" | grep -q 'android.permission.CAMERA'
+          else
+            ! "$aapt" dump permissions "$apk" | grep -q 'android.permission.CAMERA'
+          fi

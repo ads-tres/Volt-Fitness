@@ -73,10 +73,7 @@ final dioProvider = Provider<Dio>((ref) {
       appInfo: ref.watch(appInfoProvider),
       languageCode: () => ref.read(languageCodeProvider),
     ),
-    AuthInterceptor(
-      tokenStore: ref.watch(tokenStoreProvider),
-      onUnauthorized: () => unawaited(ref.read(sessionControllerProvider.notifier).signOut()),
-    ),
+    AuthInterceptor(tokenStore: ref.watch(tokenStoreProvider), onUnauthorized: () => ref.read(onUnauthorizedProvider)()),
     ServerClockInterceptor(ref.watch(serverClockProvider)),
     if (env.logsNetwork) NetworkLogInterceptor(),
   ]);
@@ -85,7 +82,15 @@ final dioProvider = Provider<Dio>((ref) {
   return dio;
 });
 
-/// Only read when `Env.usesFakeBackend` is on.
-final fakeBackendProvider = Provider<FakeBackend>((ref) => FakeBackend(now: ref.watch(clockProvider)));
+/// Only read when `Env.usesFakeBackend` is on. The front desk app puts its
+/// own fake here.
+final fakeBackendProvider = Provider<HttpClientAdapter>((ref) => FakeBackend(now: ref.watch(clockProvider)));
+
+/// What a 401 for the token in use does: ends the member's session. The
+/// front desk app ends its own instead.
+final onUnauthorizedProvider = Provider<void Function()>(
+  (ref) =>
+      () => unawaited(ref.read(sessionControllerProvider.notifier).signOut()),
+);
 
 final apiClientProvider = Provider<ApiClient>((ref) => ApiClient(ref.watch(dioProvider)));

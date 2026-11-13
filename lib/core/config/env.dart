@@ -15,9 +15,11 @@ final class Env {
   /// Dev answers from the in-app fake backend until the API runs; pass
   /// `--dart-define=FAKE_BACKEND=false` to use the real one. Prod never fakes.
   factory Env.fromFlavor(String? flavor) {
+    // The front desk app's flavors (staffDev, staffStaging, staffProd)
+    // talk to the same backends.
     final environment = switch (flavor) {
-      'prod' => AppEnvironment.prod,
-      'staging' => AppEnvironment.staging,
+      'prod' || 'staffProd' => AppEnvironment.prod,
+      'staging' || 'staffStaging' => AppEnvironment.staging,
       _ => AppEnvironment.dev,
     };
     const override = String.fromEnvironment('API_BASE_URL');

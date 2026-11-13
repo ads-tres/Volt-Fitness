@@ -1315,6 +1315,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Please try again.'**
   String get errorUnexpected;
+
+  /// The front desk app's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Volt Desk'**
+  String get deskTitle;
 }
 
 class _AppLocalizationsDelegate

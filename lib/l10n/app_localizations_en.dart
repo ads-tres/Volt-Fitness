@@ -712,4 +712,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorUnexpected => 'Something went wrong. Please try again.';
+
+  @override
+  String get deskTitle => 'Volt Desk';
 }

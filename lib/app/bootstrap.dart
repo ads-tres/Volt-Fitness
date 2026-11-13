@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/auth/token_store.dart';
@@ -14,9 +15,10 @@ import 'app.dart';
 
 Duration? noAutomaticRetry(int retryCount, Object error) => null;
 
-/// Loads what the first frame needs, then starts the app. The native splash
-/// screen stays up meanwhile.
-Future<void> bootstrap() async {
+/// Loads what the first frame needs, then starts [app]: the member app, or
+/// the front desk app with its own [overrides]. The native splash screen
+/// stays up meanwhile.
+Future<void> bootstrap({Widget app = const VoltApp(), List<Override> overrides = const []}) async {
   WidgetsFlutterBinding.ensureInitialized();
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
@@ -52,8 +54,9 @@ Future<void> bootstrap() async {
         secureStoreProvider.overrideWithValue(secureStore),
         tokenStoreProvider.overrideWithValue(tokenStore),
         appInfoProvider.overrideWithValue(appInfo),
+        ...overrides,
       ],
-      child: const VoltApp(),
+      child: app,
     ),
   );
 }

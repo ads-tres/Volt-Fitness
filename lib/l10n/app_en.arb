@@ -284,5 +284,7 @@
   "errorRateLimited": "Too many attempts. Please wait a moment and try again.",
   "errorUpdateRequired": "This version of the app is no longer supported. Please update to continue.",
   "errorServer": "Something went wrong on our side. Please try again later.",
-  "errorUnexpected": "Something went wrong. Please try again."
+  "errorUnexpected": "Something went wrong. Please try again.",
+  "deskTitle": "Volt Desk",
+  "@deskTitle": {"description": "The front desk app's name."}
 }

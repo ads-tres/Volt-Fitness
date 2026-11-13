@@ -695,4 +695,7 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get errorUnexpected => 'የሆነ ችግር ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።';
+
+  @override
+  String get deskTitle => 'ቮልት ዴስክ';
 }
