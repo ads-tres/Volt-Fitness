@@ -51,6 +51,7 @@ final class FakeBackend implements HttpClientAdapter {
 
   /// `phone|gym` to what was bought there in this session.
   final _heldPlans = <String, _HeldPlan>{};
+  var _nextFreezeId = 100;
 
   /// `phone|gym` to what is owed on the membership there, in minor units.
   /// [endingSoonPhone] owes for its renewal until it pays.
@@ -108,6 +109,14 @@ final class FakeBackend implements HttpClientAdapter {
         request,
         (phone, gym) => _payWhatIsOwed(request, phone, gym, _payMembership.firstMatch(path)!.group(1)!),
       ),
+      ('POST', final path) when _freezeMembership.hasMatch(path) => _inGym(
+        request,
+        (phone, gym) => _freeze(request, phone, gym, _freezeMembership.firstMatch(path)!.group(1)!),
+      ),
+      ('POST', final path) when _endFreeze.hasMatch(path) => _inGym(request, (phone, gym) {
+        final match = _endFreeze.firstMatch(path)!;
+        return _endFreezeEarly(request, phone, gym, match.group(1)!, int.parse(match.group(2)!));
+      }),
       ('GET', final path) when _paymentLink.hasMatch(path) => _inGym(
         request,
         (phone, gym) => _linkAsItStands(request, phone, gym, _paymentLink.firstMatch(path)!.group(1)!),
@@ -374,6 +383,8 @@ final class FakeBackend implements HttpClientAdapter {
 
   static final _purchase = RegExp(r'^/plans/(\d+)/purchase$');
   static final _payMembership = RegExp(r'^/memberships/(\d+)/payment-link$');
+  static final _freezeMembership = RegExp(r'^/memberships/(\d+)/freezes$');
+  static final _endFreeze = RegExp(r'^/memberships/(\d+)/freezes/(\d+)/end$');
   static final _paymentLink = RegExp(r'^/payment-links/(\d+)$');
   static final _checkLink = RegExp(r'^/payment-links/(\d+)/check$');
   static final _receipt = RegExp(r'^/payments/(\d+)$');
@@ -466,6 +477,66 @@ final class FakeBackend implements HttpClientAdapter {
     );
     _links[link.id] = link;
     return _json(201, {'data': link.toJson()});
+  }
+
+  /// Freezes the member's own membership, with the API's rules: from today
+  /// or later, inside the membership, not over another freeze, and within
+  /// the freeze days left. The end date moves later by the frozen days.
+  ResponseBody _freeze(_Request request, String phone, String gym, String membershipId) {
+    final held = _held(phone, gym);
+    if ('${_membershipId(gym)}' != membershipId || held == null) {
+      return _error(404, 'NOT_FOUND', 'Not found.', request);
+    }
+    ResponseBody refuse(String field, String message) =>
+        _error(422, 'VALIDATION_FAILED', message, request, errors: {field: [message]});
+    int? offset(Object? iso) => iso is String ? DateTime.tryParse(iso)?.difference(_today).inDays : null;
+
+    final start = request.body['starts_on'] == null ? 0 : offset(request.body['starts_on']);
+    final end = offset(request.body['ends_on']);
+    if (start == null) return refuse('starts_on', 'The starts on field must match the format Y-m-d.');
+    if (end == null) return refuse('ends_on', 'The ends on field is required.');
+    if (held.status != 'active') return refuse('membership', 'This membership has already ended.');
+    if (start < 0) return refuse('starts_on', 'A freeze can\'t start in the past.');
+    if (end < start) return refuse('ends_on', 'The last day of the freeze can\'t be before its first day.');
+    if (start < held.start || start > held.end) {
+      return refuse('starts_on', 'The freeze must start between ${_iso(_today.add(Duration(days: held.start)))} and ${_iso(_today.add(Duration(days: held.end)))}.');
+    }
+    if (held.freezes.where((freeze) => freeze.start <= end && freeze.end >= start).firstOrNull case final clash?) {
+      return refuse('starts_on', 'This membership is already frozen from ${_iso(_today.add(Duration(days: clash.start)))} to ${_iso(_today.add(Duration(days: clash.end)))}.');
+    }
+    final days = end - start + 1;
+    final daysLeft = max(0, held.freezeDaysAllowed - held.freezeDaysUsed);
+    if (days > daysLeft) {
+      return refuse('ends_on', daysLeft > 0 ? 'Only $daysLeft freeze days are left on this membership.' : 'No freeze days are left on this membership.');
+    }
+
+    _heldPlans[_key(phone, gym)] = held.copyWith(end: held.end + days, freezes: [...held.freezes, _Freeze(_nextFreezeId++, start, end)]);
+    return _json(201, {'data': _membership(phone, gym)});
+  }
+
+  /// The member is back: a freeze that started ends yesterday, one that
+  /// hasn't is cancelled, and the unused days come off the end date.
+  ResponseBody _endFreezeEarly(_Request request, String phone, String gym, String membershipId, int freezeId) {
+    final held = _held(phone, gym);
+    final freeze = held?.freezes.where((freeze) => freeze.id == freezeId).firstOrNull;
+    if ('${_membershipId(gym)}' != membershipId || held == null || freeze == null) {
+      return _error(404, 'NOT_FOUND', 'Not found.', request);
+    }
+    if (freeze.end < 0) {
+      return _error(422, 'VALIDATION_FAILED', 'This freeze has already ended.', request, errors: {
+        'freeze': ['This freeze has already ended.'],
+      });
+    }
+    final started = freeze.start < 0;
+    final daysBack = started ? freeze.end + 1 : freeze.days;
+    _heldPlans[_key(phone, gym)] = held.copyWith(
+      end: held.end - daysBack,
+      freezes: [
+        for (final other in held.freezes)
+          if (other.id != freezeId) other else if (started) _Freeze(other.id, other.start, -1),
+      ],
+    );
+    return _json(200, {'data': _membership(phone, gym)});
   }
 
   /// The open link for what is owed on the membership, made if there is none.
@@ -997,6 +1068,9 @@ final class _HeldPlan {
   final String status;
   final int freezeDaysAllowed;
   final List<_Freeze> freezes;
+
+  _HeldPlan copyWith({required int end, required List<_Freeze> freezes}) =>
+      _HeldPlan(name, start, end, status: status, freezeDaysAllowed: freezeDaysAllowed, freezes: freezes);
 
   int get freezeDaysUsed => freezes.fold(0, (days, freeze) => days + freeze.days);
 
