@@ -12,7 +12,8 @@ import 'api_headers.dart';
 /// uses it (see `Env.usesFakeBackend`).
 ///
 /// Sign-in: any Ethiopian mobile number, code [validCode]. [expiredCode]
-/// gives `OTP_EXPIRED`; five wrong codes give `OTP_TOO_MANY_ATTEMPTS`.
+/// is refused like a wrong code, as the API does; five wrong codes give 429.
+/// Gyms are known by their slug, in the path (`/me/gyms/{slug}/…`).
 /// [twoGymsPhone] belongs to two gyms, [noGymPhone] to none, any other
 /// number to one. The membership depends on the number too: see
 /// [endingSoonPhone], [expiredPhone], [frozenPhone] and [noPlanPhone]; any
@@ -69,7 +70,7 @@ final class FakeBackend implements HttpClientAdapter {
   ) async {
     await Future<void>.delayed(latency);
     final request = _Request(options);
-    return switch ((options.method, options.path)) {
+    return switch ((options.method, request.path)) {
       ('GET', '/app-config') => _json(200, {
         'data': {
           'min_supported_build': 1,
@@ -78,10 +79,13 @@ final class FakeBackend implements HttpClientAdapter {
           'maintenance': {'active': false, 'message': null},
         },
       }),
-      ('POST', '/auth/otp/request') => _requestCode(request),
-      ('POST', '/auth/otp/verify') => _verifyCode(request),
-      ('GET', '/me') => _signedIn(request, (phone) => _json(200, {'data': _profile(phone)})),
-      ('POST', '/auth/logout') => _signedIn(request, (phone) {
+      ('POST', '/auth/sms-codes') => _requestCode(request),
+      ('POST', '/auth/sms-tokens') => _verifyCode(request),
+      ('GET', '/me') => _signedIn(request, (phone) => _json(200, {
+        'data': {'user': _user(phone), 'staff': <Object?>[]},
+      })),
+      ('GET', '/me/gyms') => _signedIn(request, (phone) => _json(200, {'data': _gyms(phone)})),
+      ('DELETE', '/auth/tokens/current') => _signedIn(request, (phone) {
         _revokeDevice(phone, request.deviceId, 'signed_out');
         return _noContent();
       }),
@@ -148,9 +152,7 @@ final class FakeBackend implements HttpClientAdapter {
         'phone': ['The phone field must be a valid phone number.'],
       });
     }
-    return _json(200, {
-      'data': {'expires_in': 300, 'resend_in': 60},
-    });
+    return _json(202, {'message': 'If this number is registered at a gym, a code is on its way by SMS.'});
   }
 
   ResponseBody _verifyCode(_Request request) {
@@ -161,31 +163,39 @@ final class FakeBackend implements HttpClientAdapter {
     }
     final wrongCodes = _wrongCodes[phone] ?? 0;
     if (wrongCodes >= _maxWrongCodes) {
-      return _error(429, 'OTP_TOO_MANY_ATTEMPTS', 'Too many attempts.', request, retryAfterSeconds: 60);
-    }
-    if (code == expiredCode) {
-      return _error(422, 'OTP_EXPIRED', 'This code has expired.', request);
+      return _error(429, 'TOO_MANY_ATTEMPTS', 'Too Many Attempts.', request, retryAfterSeconds: 60);
     }
     if (code != validCode) {
       _wrongCodes[phone] = wrongCodes + 1;
-      return _error(422, 'OTP_INVALID', 'The code you entered is incorrect.', request, errors: {
-        'code': ['The code you entered is incorrect.'],
+      return _error(422, 'VALIDATION_FAILED', 'The code is wrong or has expired.', request, errors: {
+        'code': ['The code is wrong or has expired.'],
       });
     }
     _wrongCodes.remove(phone);
-    _registerDevice(phone, request.body['device']);
-    return _json(200, {
-      'data': {'token': '$_tokenPrefix$phone', ..._profile(phone)},
+    _registerDevice(phone, {'device_id': request.deviceId, 'device_name': request.body['device_name']});
+    return _json(201, {
+      'data': {'token': '$_tokenPrefix$phone', 'user': _user(phone)},
     });
   }
 
-  Map<String, Object?> _profile(String phone) => {
-    'user': {'id': '01K7Z5B2W8R3M5N7Q9S1T3V5X0', 'name': 'Abebe Kebede', 'phone': phone},
-    'organizations': [
-      if (phone != noGymPhone) _boleIronGym,
-      if (phone == twoGymsPhone) _kazanchisFitClub,
-    ],
-  };
+  Map<String, Object?> _user(String phone) => {'id': 7, 'name': 'Abebe Kebede', 'email': null, 'phone': phone};
+
+  /// What `GET /me/gyms` lists: every gym where the number is a member.
+  List<Map<String, Object?>> _gyms(String phone) => [
+    for (final gym in _memberGyms(phone))
+      {
+        'slug': gym['id'],
+        'name': gym['name'],
+        'member': {'id': 7, 'full_name': 'Abebe Kebede', 'home_branch': null},
+        'membership': null,
+        'balance_due': _money(0),
+      },
+  ];
+
+  List<Map<String, Object?>> _memberGyms(String phone) => [
+    if (phone != noGymPhone) _boleIronGym,
+    if (phone == twoGymsPhone) _kazanchisFitClub,
+  ];
 
   // Membership and visits
 
@@ -334,6 +344,13 @@ final class FakeBackend implements HttpClientAdapter {
   String _invoiceId(String number) => '01K7ZAI${number.replaceAll('-', '')}'.padRight(26, '0');
 
   /// Like the receipts: "4,000.00 ETB".
+  /// Money as the API sends it.
+  static Map<String, Object?> _money(int amountMinor) => {
+    'amount_minor': amountMinor,
+    'currency': 'ETB',
+    'formatted': _birr(amountMinor),
+  };
+
   static String _birr(int amountMinor) {
     final whole = '${amountMinor ~/ 100}'.replaceAllMapped(RegExp(r'\B(?=(\d{3})+$)'), (_) => ',');
     return '$whole.${(amountMinor % 100).toString().padLeft(2, '0')} ETB';
@@ -752,18 +769,16 @@ final class FakeBackend implements HttpClientAdapter {
     return respond(token.substring(_tokenPrefix.length));
   }
 
-  /// Like the API: the selected gym is only context, checked against the
-  /// member's own gyms.
+  /// Like the API: the gym in the path must be one of the member's, and any
+  /// other answers 404. Paths not yet moved under `/me/gyms/{slug}` still
+  /// name the gym in a header.
   ResponseBody _inGym(_Request request, ResponseBody Function(String phone, String gym) respond) => _signedIn(
     request,
     (phone) {
-      final gym = request.headers[ApiHeaders.organizationId];
-      final member = [
-        for (final organization in _profile(phone)['organizations']! as List<Object?>)
-          (organization! as Map<String, Object?>)['id'],
-      ];
+      final gym = request.gym ?? request.headers[ApiHeaders.organizationId];
+      final member = [for (final organization in _memberGyms(phone)) organization['id']];
       if (gym is! String || !member.contains(gym)) {
-        return _error(403, 'ORGANIZATION_NOT_ALLOWED', 'Not a member of this organization.', request);
+        return _error(404, 'NOT_FOUND', 'Not found.', request);
       }
       return respond(phone, gym);
     },
@@ -819,7 +834,7 @@ final class FakeBackend implements HttpClientAdapter {
   static const _kazanchisBranch = {'id': '01K7Z6KAZ00000000000000001', 'name': 'Kazanchis', 'photo_url': null};
 
   static const _boleIronGym = {
-    'id': '01K7Z6A1B2C3D4E5F6G7H8J9KM',
+    'id': 'bole-iron-gym',
     'name': 'Bole Iron Gym',
     'role': 'member',
     'branding': {
@@ -832,7 +847,7 @@ final class FakeBackend implements HttpClientAdapter {
   };
 
   static const _kazanchisFitClub = {
-    'id': '01K7Z6N2P3Q4R5S6T7V8W9X0YZ',
+    'id': 'kazanchis-fit-club',
     'name': 'Kazanchis Fit Club',
     'role': 'member',
     'branding': {
@@ -851,15 +866,29 @@ final class FakeBackend implements HttpClientAdapter {
 final class _Request {
   _Request(RequestOptions options)
     : headers = options.headers,
+      gym = _gymPath.firstMatch(options.path)?.group(1),
+      path = switch (_gymPath.firstMatch(options.path)) {
+        final match? => match.group(2) ?? '/',
+        null => options.path,
+      },
       body = switch (options.data) {
         final Map<String, dynamic> map => map,
         _ => const <String, dynamic>{},
       },
       query = {for (final MapEntry(:key, :value) in options.queryParameters.entries) key: '$value'};
 
+  /// `/me/gyms/{slug}/…`: the gym's slug, and the rest of the path.
+  static final _gymPath = RegExp(r'^/me/gyms/([^/]+)(/.*)?$');
+
   final Map<String, dynamic> headers;
   final Map<String, dynamic> body;
   final Map<String, String> query;
+
+  /// The gym's slug from the path, or null outside `/me/gyms/{slug}/…`.
+  final String? gym;
+
+  /// The path within the gym for gym paths, otherwise the whole path.
+  final String path;
 
   String? get deviceId => switch (headers[ApiHeaders.deviceId]) {
     final String id => id,

@@ -23,8 +23,15 @@ final class ApiClient {
 
   final Dio _dio;
 
-  Future<Object?> get(String path, {Map<String, Object?>? query}) =>
-      _send(() => _dio.get<Object?>(path, queryParameters: query));
+  /// Pass [token] to call with a token that isn't stored yet, such as the
+  /// one signing in just returned.
+  Future<Object?> get(String path, {Map<String, Object?>? query, String? token}) => _send(
+    () => _dio.get<Object?>(
+      path,
+      queryParameters: query,
+      options: token == null ? null : Options(headers: {ApiHeaders.authorization: 'Bearer $token'}),
+    ),
+  );
 
   /// Pass [idempotencyKey] when the call may be retried and must not take
   /// effect twice (payments, scans, offline sync).

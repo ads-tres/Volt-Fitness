@@ -39,4 +39,17 @@ void main() {
   test('rejects a profile without a user', () {
     expect(() => profileFromJson({'organizations': <Object?>[]}), throwsFormatException);
   });
+
+  test('reads the API\'s user and gyms, knowing each gym by its slug', () {
+    final profile = profileFromApi(
+      user: {'id': 7, 'name': 'Tigist Haile', 'email': null, 'phone': '+251922345678'},
+      gyms: [
+        {'slug': 'demo-gym', 'name': 'Demo Gym', 'member': <String, Object?>{}},
+      ],
+    );
+
+    expect(profile.user.id, '7');
+    expect(profile.organization('demo-gym')?.name, 'Demo Gym');
+    expect(profileFromJson(profileToJson(profile)).organizations.single.id, 'demo-gym');
+  });
 }

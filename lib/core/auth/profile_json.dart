@@ -4,8 +4,23 @@ import '../network/json.dart';
 import '../tenant/organization.dart';
 import 'profile.dart';
 
-/// Reads the `{user, organizations}` object that both OTP verify and `/me`
-/// return. Throws a [FormatException] when required fields are missing.
+/// Builds the profile from the API: the user object that signing in and
+/// `GET /me` return, and the gyms from `GET /me/gyms`, each known by its
+/// slug, which the API puts in every gym's paths (`/me/gyms/{slug}/…`).
+/// Throws a [FormatException] when required fields are missing.
+Profile profileFromApi({required Map<String, dynamic> user, required List<Map<String, dynamic>> gyms}) => Profile(
+  user: User(
+    id: '${user.field<Object>('id')}',
+    phone: user.field<String>('phone'),
+    name: user.optional<String>('name'),
+  ),
+  organizations: [
+    for (final gym in gyms) Organization(id: gym.field<String>('slug'), name: gym.field<String>('name'), role: 'member'),
+  ],
+);
+
+/// Reads the profile as [profileToJson] caches it between app starts.
+/// Throws a [FormatException] when required fields are missing.
 Profile profileFromJson(Map<String, dynamic> json) => Profile(
   user: _user(json.field<Map<String, dynamic>>('user')),
   organizations: [
