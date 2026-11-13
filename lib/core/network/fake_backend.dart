@@ -95,9 +95,9 @@ final class FakeBackend implements HttpClientAdapter {
         return _noContent();
       }),
       ('GET', '/dashboard') => _inGym(request, _dashboard),
-      ('GET', '/attendance') => _inGym(request, (phone, gym) => _attendance(request, phone, gym)),
-      ('POST', '/access/credentials') => _inGym(request, (phone, gym) => _issueCredential(request, phone, gym)),
-      ('GET', '/access/credentials/current') => _inGym(request, (phone, gym) => _currentCredential(request, phone, gym)),
+      ('GET', '/check-ins') => _inGym(request, (phone, gym) => _attendance(request, phone, gym)),
+      ('POST', '/access-credential') => _inGym(request, (phone, gym) => _issueCredential(request, phone, gym)),
+      ('GET', '/access-credential') => _inGym(request, (phone, gym) => _currentCredential(request, phone, gym)),
       ('GET', '/devices') => _signedIn(request, (phone) => _listDevices(request, phone)),
       ('GET', '/plans') => _inGym(request, (phone, gym) => _json(200, {'data': _plans(phone, gym)})),
       ('POST', final path) when _purchase.hasMatch(path) => _inGym(
@@ -235,15 +235,18 @@ final class FakeBackend implements HttpClientAdapter {
     },
   });
 
+  /// The check-ins, newest first, 25 a page like Laravel's paginator.
   ResponseBody _attendance(_Request request, String phone, String gym) {
+    const perPage = 25;
     final all = _visits(phone, gym);
-    final from = int.tryParse(request.query['cursor'] ?? '') ?? 0;
-    final perPage = int.tryParse(request.query['per_page'] ?? '') ?? 20;
+    final page = max(1, int.tryParse(request.query['page'] ?? '') ?? 1);
+    final from = min((page - 1) * perPage, all.length);
     final to = min(from + perPage, all.length);
+    final lastPage = max(1, (all.length / perPage).ceil());
     return _json(200, {
-      'data': all.sublist(min(from, all.length), to),
-      'links': {'next': null, 'prev': null},
-      'meta': {'per_page': perPage, 'next_cursor': to < all.length ? '$to' : null, 'prev_cursor': null},
+      'data': all.sublist(from, to),
+      'links': {'next': page < lastPage ? '?page=${page + 1}' : null, 'prev': page > 1 ? '?page=${page - 1}' : null},
+      'meta': {'current_page': page, 'last_page': lastPage, 'per_page': perPage, 'total': all.length},
     });
   }
 
@@ -338,22 +341,28 @@ final class FakeBackend implements HttpClientAdapter {
     return _json(201, {
       'data': {
         'credential_id': credential.id,
-        'secret': credential.secret,
         'algorithm': 'GQ1',
+        'status': 'active',
+        'revoked_reason': null,
         'issued_at': _now().toUtc().toIso8601String(),
+        // Base64 of the 32 bytes, as the API sends it.
+        'secret': base64.encode([
+          for (var i = 0; i < credential.secret.length; i += 2) int.parse(credential.secret.substring(i, i + 2), radix: 16),
+        ]),
       },
     });
   }
 
   ResponseBody _currentCredential(_Request request, String phone, String gym) {
     final credential = _credentials['$phone|$gym|${request.deviceId}'];
-    if (credential == null) return _error(404, 'CREDENTIAL_NOT_FOUND', 'No credential for this device.', request);
+    if (credential == null) return _error(404, 'NOT_FOUND', 'Not found.', request);
     return _json(200, {
       'data': {
         'credential_id': credential.id,
+        'algorithm': 'GQ1',
         'status': credential.status,
         'revoked_reason': credential.reason,
-        'algorithm': 'GQ1',
+        'issued_at': _now().toUtc().toIso8601String(),
       },
     });
   }
