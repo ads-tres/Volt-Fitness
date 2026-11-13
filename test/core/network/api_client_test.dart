@@ -53,7 +53,7 @@ void main() {
       expect(adapter.requests.single.headers.containsKey('X-Organization-ID'), isFalse);
     });
 
-    test('carries the token, the selected gym and the chosen language', () async {
+    test('carries the token and the chosen language, and no gym header', () async {
       final adapter = StubAdapter((_) => jsonResponse(200, null));
       final container = await containerWithAdapter(adapter, signedInAs: memberOf([boleGym]));
       await container.read(localeControllerProvider.notifier).select(const Locale('am'));
@@ -62,7 +62,7 @@ void main() {
 
       final headers = adapter.requests.single.headers;
       expect(headers['Authorization'], 'Bearer token-1');
-      expect(headers['X-Organization-ID'], boleGym.id);
+      expect(headers.containsKey('X-Organization-ID'), isFalse, reason: 'the gym is in the path');
       expect(headers['Accept-Language'], 'am');
     });
 

@@ -19,8 +19,9 @@ import '../data/billing_repository.dart';
 import '../domain/billing.dart';
 
 /// What became of a payment, as the API says. Coming back from Chapa
-/// proves nothing, so this asks until the API has verified the payment or
-/// given up, for about half a minute.
+/// proves nothing, so this has the API ask Chapa until it has verified the
+/// payment or given up, for about a minute (the API allows ten checks a
+/// minute).
 class PaymentResultPage extends ConsumerStatefulWidget {
   const PaymentResultPage({super.key, required this.attemptId, this.left = false});
 
@@ -34,8 +35,8 @@ class PaymentResultPage extends ConsumerStatefulWidget {
 }
 
 class _PaymentResultPageState extends ConsumerState<PaymentResultPage> {
-  static const _interval = Duration(seconds: 2);
-  static const _maxChecks = 15;
+  static const _interval = Duration(seconds: 6);
+  static const _maxChecks = 10;
 
   PaymentAttempt? _attempt;
   Failure? _failure;
@@ -57,7 +58,7 @@ class _PaymentResultPageState extends ConsumerState<PaymentResultPage> {
   Future<void> _check() async {
     _checks++;
     try {
-      final attempt = await ref.read(billingRepositoryProvider).attempt(widget.attemptId);
+      final attempt = await ref.read(billingRepositoryProvider).check(widget.attemptId);
       if (!mounted) return;
       setState(() {
         _attempt = attempt;

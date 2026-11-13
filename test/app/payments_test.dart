@@ -4,8 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import '../support/app_driver.dart';
 
 /// Payments run against the fake backend's stand-in for Chapa: the fake
-/// checkout reports the payment, and the result screen asks the API until
-/// it says the payment was verified.
+/// checkout reports the payment, and the result screen has the API check
+/// with Chapa until it says the payment is in.
 void main() {
   /// Plans scroll sideways; bring the card into view and open it.
   Future<void> openPlan(WidgetTester tester, String name) async {
@@ -24,8 +24,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Pay with Chapa'), findsOneWidget);
     await tester.tap(find.text('Pay with telebirr'));
-    // Processing on the first check, verified on the next, 2 s later.
-    await pumpFor(tester, const Duration(seconds: 3));
+    // Still confirming on the first check, paid on the next, 6 s later.
+    await pumpFor(tester, const Duration(seconds: 7));
     await tester.pumpAndSettle();
   }
 
@@ -52,7 +52,7 @@ void main() {
     expect(find.text('Renew'), findsNothing);
   });
 
-  testWidgets('an unpaid invoice is paid from home and its receipt opens', (tester) async {
+  testWidgets('what is owed is paid from home and its receipt opens', (tester) async {
     await startApp(tester);
     await signInWith(tester, phone: '0922222222');
     expect(find.text('Payment due'), findsOneWidget);
@@ -64,12 +64,16 @@ void main() {
 
     await tester.tap(find.text('View receipt'));
     await tester.pumpAndSettle();
-    expect(find.text('Invoice INV-2026-0187'), findsOneWidget);
+    expect(find.text('Invoice R-2026-2001'), findsOneWidget);
     expect(find.text('Paid'), findsWidgets);
-    expect(find.text('telebirr'), findsOneWidget);
+    expect(find.text('Chapa'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Home'));
+    await tester.pumpAndSettle();
+    expect(find.text('Payment due'), findsNothing);
   });
 
-  testWidgets('a declined payment says why and changes nothing', (tester) async {
+  testWidgets('a declined payment is never confirmed, and changes nothing', (tester) async {
     await startApp(tester);
     await signInWith(tester, phone: '0966666666');
 
@@ -78,9 +82,14 @@ void main() {
     await openPlan(tester, 'Monthly');
     await tester.tap(find.text('Pay 1,500.00 ETB'));
     await payInFakeCheckout(tester);
+    // Chapa never reports a declined payment as paid: the checks run out.
+    await pumpFor(tester, const Duration(seconds: 60));
+    await tester.pumpAndSettle();
 
-    expect(find.text("Payment didn't go through"), findsOneWidget);
-    expect(find.text('The telebirr account has too little balance.'), findsOneWidget);
+    expect(find.text('Still confirming'), findsOneWidget);
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+    expect(find.text('18 days'), findsOneWidget);
   });
 
   testWidgets('leaving the checkout reports the payment as not finished', (tester) async {
@@ -105,7 +114,7 @@ void main() {
     expect(find.text('Renew or change your plan'), findsOneWidget);
   });
 
-  testWidgets('the payment history opens an invoice with its receipt', (tester) async {
+  testWidgets('the payment history opens a receipt', (tester) async {
     await startApp(tester);
     await signInWith(tester, phone: '0912345678');
 
@@ -115,8 +124,8 @@ void main() {
     await tester.tap(find.text('Monthly plan'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Invoice INV-2026-0142'), findsOneWidget);
+    expect(find.text('Invoice R-2026-0142'), findsOneWidget);
     expect(find.text('Receipt'), findsWidgets);
-    expect(find.text('telebirr'), findsOneWidget);
+    expect(find.text('Chapa'), findsOneWidget);
   });
 }

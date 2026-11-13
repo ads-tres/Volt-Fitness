@@ -33,7 +33,7 @@ final pushTokenSyncProvider = Provider.autoDispose<void>((ref) {
       await ref
           .read(apiClientProvider)
           .put(
-            '/devices/current/push-token',
+            '/me/push-token',
             body: {'provider': push.provider, 'token': token, 'locale': languageCode},
           );
       await preferences.setString(_sentKey, sent);

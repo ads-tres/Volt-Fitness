@@ -182,7 +182,10 @@ class _ChapaWebViewState extends State<_ChapaWebView> {
       ..loadRequest(Uri.parse(widget.attempt.checkoutUrl));
   }
 
-  bool _isReturn(String? url) => url != null && url.startsWith(widget.attempt.returnUrl);
+  bool _isReturn(String? url) {
+    final returnUrl = widget.attempt.returnUrl;
+    return url != null && returnUrl != null && url.startsWith(returnUrl);
+  }
 
   NavigationDecision _decide(NavigationRequest request) {
     if (_isReturn(request.url)) {

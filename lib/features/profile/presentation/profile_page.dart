@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../app/routes.dart';
+import '../../../core/config/env.dart';
 import '../../../core/auth/session.dart';
 import '../../../core/auth/session_controller.dart';
 import '../../../core/design/brand.dart';
@@ -108,12 +109,16 @@ class ProfilePage extends ConsumerWidget {
                     label: l10n.notificationsTitle,
                     onTap: () => context.go(AppRoutes.notificationSettings),
                   ),
-                  const Divider(height: 1, indent: 60, color: AppColors.line),
-                  _SettingRow(
-                    icon: Icons.devices_rounded,
-                    label: l10n.devices,
-                    onTap: () => context.go(AppRoutes.devices),
-                  ),
+                  // The gym platform's API has no list of signed-in phones yet,
+                  // so only the offline fake offers it.
+                  if (ref.watch(envProvider).usesFakeBackend) ...[
+                    const Divider(height: 1, indent: 60, color: AppColors.line),
+                    _SettingRow(
+                      icon: Icons.devices_rounded,
+                      label: l10n.devices,
+                      onTap: () => context.go(AppRoutes.devices),
+                    ),
+                  ],
                 ],
               ),
             ),

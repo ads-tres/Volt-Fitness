@@ -63,13 +63,13 @@ const testAppInfo = AppInfo(
 );
 
 const boleGym = Organization(
-  id: '01K7Z6A1B2C3D4E5F6G7H8J9KM',
+  id: 'bole-iron-gym',
   name: 'Bole Iron Gym',
   role: 'member',
   branding: Branding(primaryColor: Color(0xFF0E7C66), contactPhone: '+251 11 000 0001'),
 );
 
-const kazanchisGym = Organization(id: '01K7Z6N2P3Q4R5S6T7V8W9X0YZ', name: 'Kazanchis Fit Club', role: 'member');
+const kazanchisGym = Organization(id: 'kazanchis-fit-club', name: 'Kazanchis Fit Club', role: 'member');
 
 Profile memberOf(List<Organization> organizations) => Profile(
   user: const User(id: '01K7Z5B2W8R3M5N7Q9S1T3V5X0', name: 'Abebe Kebede', phone: '+251911234567'),

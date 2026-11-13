@@ -8,8 +8,8 @@ import '../domain/app_notification.dart';
 /// shows it in full.
 String? notificationRoute(String type, Map<String, String> data) => switch (topicOf(type)) {
   NotificationTopic.membership => AppRoutes.membership,
-  NotificationTopic.payments => switch (data['invoice_id']) {
-    final invoiceId? => AppRoutes.invoice(invoiceId),
+  NotificationTopic.payments => switch (data['payment_id'] ?? data['invoice_id']) {
+    final receiptId? => AppRoutes.invoice(receiptId),
     null => AppRoutes.payments,
   },
   NotificationTopic.visits => AppRoutes.visits,

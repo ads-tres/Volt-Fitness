@@ -4,8 +4,8 @@ import '../auth/session.dart';
 import '../auth/session_controller.dart';
 import 'organization.dart';
 
-/// The gym the member is acting in, sent as `X-Organization-ID`. It is only
-/// context for the API, which checks the member really belongs to it.
+/// The gym the member is acting in. Its slug goes in the path of every gym
+/// call (`/me/gyms/{slug}/…`); the API checks the member belongs to it.
 final selectedOrganizationProvider = Provider<Organization?>(
   (ref) => switch (ref.watch(sessionControllerProvider)) {
     SignedIn(:final organization) => organization,

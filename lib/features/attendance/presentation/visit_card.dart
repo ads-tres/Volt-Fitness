@@ -106,13 +106,15 @@ String visitDayLabel(AppLocalizations l10n, DateText dates, LocalDate day, Local
       _ => dates.weekdayDate(day),
     };
 
-/// Why the front desk turned the member away, from the API's reason code.
+/// Why the front desk turned the member away, from the API's reason code
+/// (the members-app contract lists them). QR problems and anything new get
+/// the general reason.
 String denialReason(AppLocalizations l10n, String? reasonCode) => switch (reasonCode) {
   'MEMBERSHIP_EXPIRED' || 'MEMBERSHIP_NONE' => l10n.reasonMembershipExpired,
   'MEMBERSHIP_FROZEN' => l10n.reasonMembershipFrozen,
-  'OUTSIDE_ALLOWED_HOURS' => l10n.reasonOutsideHours,
+  'OUTSIDE_HOURS' => l10n.reasonOutsideHours,
   'BRANCH_NOT_ALLOWED' => l10n.reasonBranchNotAllowed,
-  'NO_VISITS_REMAINING' => l10n.reasonNoVisitsRemaining,
+  'VISITS_USED_UP' => l10n.reasonNoVisitsRemaining,
   'ALREADY_CHECKED_IN' => l10n.reasonAlreadyCheckedIn,
   _ => l10n.reasonOther,
 };

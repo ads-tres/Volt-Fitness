@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,7 +28,12 @@ void main() {
     final secureStore = InMemorySecureStore();
     final adapter = StubAdapter(
       (request) => jsonResponse(201, {
-        'data': {'credential_id': '01K7Z9NEW00000000000000000', 'secret': '07' * 32, 'algorithm': 'GQ1'},
+        'data': {
+          'credential_id': '01K7Z9NEW00000000000000000',
+          'algorithm': 'GQ1',
+          'status': 'active',
+          'secret': base64.encode(List<int>.filled(32, 7)),
+        },
       }),
     );
     final container = await containerWith(adapter, secureStore);
@@ -35,8 +41,10 @@ void main() {
     final card = await container.read(accessCardProvider.future);
 
     expect(card, isA<ActiveCard>().having((c) => c.credential.id, 'id', '01K7Z9NEW00000000000000000'));
-    expect(adapter.requests.single.path, '/access/credentials');
-    expect((await container.read(credentialStoreProvider).read(boleGym.id))?.id, '01K7Z9NEW00000000000000000');
+    expect(adapter.requests.single.path, '/me/gyms/bole-iron-gym/access-credential');
+    final kept = await container.read(credentialStoreProvider).read(boleGym.id);
+    expect(kept?.id, '01K7Z9NEW00000000000000000');
+    expect(kept?.secret, List<int>.filled(32, 7), reason: 'the 32 bytes the base64 stood for');
   });
 
   test('a stored credential shows offline', () async {
@@ -59,7 +67,12 @@ void main() {
       if (request.method == 'POST') {
         moved = true;
         return jsonResponse(201, {
-          'data': {'credential_id': '01K7Z9BACK0000000000000000', 'secret': '09' * 32, 'algorithm': 'GQ1'},
+          'data': {
+            'credential_id': '01K7Z9BACK0000000000000000',
+            'algorithm': 'GQ1',
+            'status': 'active',
+            'secret': base64.encode(List<int>.filled(32, 9)),
+          },
         });
       }
       return jsonResponse(200, {

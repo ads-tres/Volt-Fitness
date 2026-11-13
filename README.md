@@ -1,8 +1,11 @@
 # Volt member app
 
-Flutter client for the Gym Management System. The Laravel API is the source of
-truth for memberships, prices, payments and access; this app presents,
-requests, caches and syncs. Android first.
+Flutter client for the Gym Management System. The Laravel API
+([azabla/gym-platform](https://github.com/azabla/gym-platform)) is the source
+of truth for memberships, prices, payments and access; this app presents,
+requests, caches and syncs. Android first. It follows the API's members-app
+contract, `docs/api/members-app.md` in that repository: every gym call has the
+gym's slug in its path (`/me/gyms/{slug}/…`).
 
 ## Run
 
@@ -11,8 +14,8 @@ sit on one phone side by side:
 
 | Flavor    | App ID                | API                                  |
 | --------- | --------------------- | ------------------------------------ |
-| `dev`     | `com.volt.member.dev` | `http://10.0.2.2:8000/api/v1`        |
-| `staging` | `com.volt.member.stg` | placeholder until deployed           |
+| `dev`     | `com.volt.member.dev` | `http://10.0.2.2:8080/api/v1`        |
+| `staging` | `com.volt.member.stg` | `https://gym-platform.onrender.com/api/v1` |
 | `prod`    | `com.volt.member`     | placeholder until deployed           |
 
 ```sh
@@ -20,21 +23,28 @@ flutter run --flavor dev
 ```
 
 `10.0.2.2` is your computer as the Android emulator sees it, so it reaches
-`php artisan serve` there. To use a phone on the same Wi-Fi, override the URL:
+the gym platform's Docker setup (`make up`, on port 8080) there. To use a
+phone on the same Wi-Fi, override the URL:
 
 ```sh
-flutter run --flavor dev --dart-define=API_BASE_URL=http://192.168.1.20:8000/api/v1
+flutter run --flavor dev --dart-define=API_BASE_URL=http://192.168.1.20:8080/api/v1
 ```
+
+Staging is the gym platform on Render's free plan. It sleeps when nobody
+uses it, so the first call after a while takes up to a minute. Its SMS go to
+Render's logs: sign in as a member the gym registered (the demo gym's Tigist
+is `0922 34 56 78`) and read the code there.
 
 Android Studio and VS Code have run configurations for all three flavors. iOS
 flavors aren't set up yet; an iOS build without a flavor uses dev.
 
 ### Fake backend
 
-Until the Laravel API runs, dev builds answer every call from an in-app fake
-(`lib/core/network/fake_backend.dart`) that uses the JSON shapes from the
-backend contract doc. Pass `--dart-define=FAKE_BACKEND=false` to use the real
-API instead. Prod builds never use the fake.
+Dev builds answer every call from an in-app fake
+(`lib/core/network/fake_backend.dart`) that uses the same paths and JSON as
+the API's members-app contract, so the app can be tried offline. Pass
+`--dart-define=FAKE_BACKEND=false` to use the real API instead. Prod builds
+never use the fake.
 
 | To try                         | Phone number    | Code          |
 | ------------------------------ | --------------- | ------------- |
@@ -46,13 +56,15 @@ API instead. Prod builds never use the fake.
 | Payments always declined       | `0966 66 66 66` | `123456`      |
 | Member of two gyms             | `0911 11 11 11` | `123456`      |
 | Number with no gym             | `0900 00 00 00` | `123456`      |
-| Expired code                   | any             | `000000`      |
-| Wrong code (5× locks out)      | any             | anything else |
+| Wrong or expired code          | any             | anything else |
+| Too many wrong codes           | any             | 5 wrong codes, then 429 |
 
 Dates in the fake are built around today, and the fake forgets everything
 when the app restarts. Payments open a built-in test checkout instead of
-Chapa's page; paying there settles the payment as Chapa's webhook would, and
-a bought plan really extends the fake membership.
+Chapa's page; paying there settles the payment on the next check, as Chapa
+would, and a bought plan really extends the fake membership. The signed-in
+devices list (Profile) exists only in the fake: the API has no list of
+phones yet.
 
 Each number also starts with a few notifications that fit its plan. Profile →
 Notifications → **Send a test notification** makes a new one and delivers it
@@ -62,11 +74,15 @@ reminder and an invoice.
 
 ### Payments
 
-Laravel starts each payment with Chapa and returns Chapa's checkout URL.
-The app opens it in a web view, hands payment-app links (telebirr, CBE
-Birr) to those apps, and closes it when Chapa redirects to the attempt's
-`return_url`. The result screen then asks the API until it has verified the
-payment: reaching the return URL proves nothing. Amounts are always
+What a member owes is the balance on their membership; they pay it through a
+payment link (`POST /me/gyms/{gym}/memberships/{id}/payment-link`), and buy a
+plan with `POST /me/gyms/{gym}/plans/{id}/purchase`. The API starts each
+payment with Chapa and returns its checkout URL. The app opens it in a web
+view and hands payment-app links (telebirr, CBE Birr) to those apps. The API
+gives Chapa no return address yet, so the member closes the checkout when
+done; the result screen then has the API ask Chapa
+(`POST …/payment-links/{id}/check`, ten a minute) until the payment is in.
+Paid receipts come from `GET /me/gyms/{gym}/payments`. Amounts are always
 `Money` in minor units.
 
 ### Notifications

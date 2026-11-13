@@ -20,15 +20,18 @@ enum PushPermission {
 final class PushMessage {
   const PushMessage({required this.data, this.title, this.body});
 
-  /// FCM data values are always strings: `type`, `notification_id`,
-  /// `organization_id` and IDs such as `invoice_id`.
+  /// FCM data values are always strings: `type`, `notification_id`, the
+  /// gym, and IDs such as `payment_id`.
   final Map<String, String> data;
   final String? title;
   final String? body;
 
   String get type => data['type'] ?? '';
   String? get notificationId => data['notification_id'];
-  String? get organizationId => data['organization_id'];
+
+  /// The gym's slug, as the app knows its gyms: `gym` when the API sends
+  /// it, otherwise `organization_id`.
+  String? get organizationId => data['gym'] ?? data['organization_id'];
 }
 
 /// The phone's push channel: Firebase Cloud Messaging once the Firebase

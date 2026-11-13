@@ -396,11 +396,14 @@ class InvoiceStatusText extends StatelessWidget {
 }
 
 /// How a receipt names the way the member paid.
+/// The API's payment methods by name: paid at the desk, or online
+/// through Chapa.
 String paymentMethodName(String method) => switch (method) {
+  'cash' => 'Cash',
   'telebirr' => 'telebirr',
-  'cbebirr' => 'CBE Birr',
-  'mpesa' => 'M-Pesa',
-  'card' => 'Card',
+  'cbe_birr' => 'CBE Birr',
+  'bank_transfer' => 'Bank transfer',
+  'chapa' => 'Chapa',
   _ => method,
 };
 
