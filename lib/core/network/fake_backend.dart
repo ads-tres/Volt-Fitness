@@ -830,12 +830,11 @@ final class FakeBackend implements HttpClientAdapter {
   }
 
   /// Like the API: the gym in the path must be one of the member's, and any
-  /// other answers 404. Paths not yet moved under `/me/gyms/{slug}` still
-  /// name the gym in a header.
+  /// other answers 404.
   ResponseBody _inGym(_Request request, ResponseBody Function(String phone, String gym) respond) => _signedIn(
     request,
     (phone) {
-      final gym = request.gym ?? request.headers[ApiHeaders.organizationId];
+      final gym = request.gym;
       final member = [for (final organization in _memberGyms(phone)) organization['id']];
       if (gym is! String || !member.contains(gym)) {
         return _error(404, 'NOT_FOUND', 'Not found.', request);

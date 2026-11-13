@@ -7,18 +7,14 @@ import '../device/app_info.dart';
 import '../utils/uuid.dart';
 import 'api_headers.dart';
 
-/// Adds the headers every request carries. Values that change while the
-/// app runs (language, gym) are read per request.
+/// Adds the headers every request carries. The language can change while
+/// the app runs, so it is read per request. The gym is in each path, not a
+/// header (see `gymPath`).
 final class ContextHeadersInterceptor extends Interceptor {
-  ContextHeadersInterceptor({
-    required this.appInfo,
-    required this.languageCode,
-    required this.organizationId,
-  });
+  ContextHeadersInterceptor({required this.appInfo, required this.languageCode});
 
   final AppInfo appInfo;
   final String Function() languageCode;
-  final String? Function() organizationId;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -30,10 +26,6 @@ final class ContextHeadersInterceptor extends Interceptor {
       ApiHeaders.platform: appInfo.platform,
       ApiHeaders.requestId: uuidV4(),
     });
-    final organizationId = this.organizationId();
-    if (organizationId != null) {
-      options.headers[ApiHeaders.organizationId] = organizationId;
-    }
     handler.next(options);
   }
 }

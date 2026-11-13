@@ -9,7 +9,6 @@ import '../config/env.dart';
 import '../device/app_info.dart';
 import '../errors/failure.dart';
 import '../localization/locale_controller.dart';
-import '../tenant/selected_organization.dart';
 import '../time/clock.dart';
 import 'api_headers.dart';
 import 'error_mapper.dart';
@@ -73,7 +72,6 @@ final dioProvider = Provider<Dio>((ref) {
     ContextHeadersInterceptor(
       appInfo: ref.watch(appInfoProvider),
       languageCode: () => ref.read(languageCodeProvider),
-      organizationId: () => ref.read(selectedOrganizationProvider)?.id,
     ),
     AuthInterceptor(
       tokenStore: ref.watch(tokenStoreProvider),

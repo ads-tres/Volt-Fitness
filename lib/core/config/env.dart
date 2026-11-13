@@ -41,11 +41,12 @@ final class Env {
   bool get logsNetwork => environment == AppEnvironment.dev && kDebugMode;
 
   static String _defaultApiBaseUrl(AppEnvironment environment) => switch (environment) {
-    // `php artisan serve` on the development machine, as the Android
-    // emulator sees it.
-    AppEnvironment.dev => 'http://10.0.2.2:8000/api/v1',
-    // Placeholders until the backend is deployed.
-    AppEnvironment.staging => 'https://staging-api.volt.example/api/v1',
+    // The gym platform's Docker setup (`make up`) on the development
+    // machine, as the Android emulator sees it.
+    AppEnvironment.dev => 'http://10.0.2.2:8080/api/v1',
+    // The gym platform's staging on Render's free plan (its ADR 0020).
+    AppEnvironment.staging => 'https://gym-platform.onrender.com/api/v1',
+    // A placeholder until production is deployed.
     AppEnvironment.prod => 'https://api.volt.example/api/v1',
   };
 }
