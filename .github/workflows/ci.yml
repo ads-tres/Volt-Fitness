@@ -73,7 +73,10 @@ jobs:
       # The member app never asks for the camera; the front desk app does.
       - name: Check the camera permission
         run: |
-          apk=build/app/outputs/flutter-apk/app-${{ matrix.flavor }}-debug.apk
+          # Flutter names the APK after the flavor in lower case.
+          flavor='${{ matrix.flavor }}'
+          apk="build/app/outputs/flutter-apk/app-${flavor,,}-debug.apk"
+          test -f "$apk" || { echo "No APK at $apk"; ls build/app/outputs/flutter-apk; exit 1; }
           aapt=$(ls "$ANDROID_HOME"/build-tools/*/aapt | sort | tail -1)
           if [ "${{ matrix.flavor }}" = staffDev ]; then
             "$aapt" dump permissions "$apk" | grep -q 'android.permission.CAMERA'
