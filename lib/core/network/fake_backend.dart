@@ -220,8 +220,8 @@ final class FakeBackend implements HttpClientAdapter {
       'membership': switch (_membership(phone, gym)) {
         final membership? => {
           ...membership,
-          'frozen_until': switch (_held(phone, gym)?.frozenUntil) {
-            final days? => _iso(_today.add(Duration(days: days))),
+          'frozen_until': switch (_held(phone, gym)?.frozenToday) {
+            final freeze? => _iso(_today.add(Duration(days: freeze.end))),
             null => null,
           },
         },
@@ -261,7 +261,7 @@ final class FakeBackend implements HttpClientAdapter {
     return {
       'id': _membershipId(gym),
       'plan': {'id': _planId(held.name), 'name': held.name},
-      'status': held.status,
+      'status': held.status == 'active' && held.frozenToday != null ? 'frozen' : held.status,
       'starts_on': day(held.start),
       'ends_on': day(held.end),
       'price': price,
@@ -270,10 +270,13 @@ final class FakeBackend implements HttpClientAdapter {
       'valid_at_all_branches': false,
       'branches': _branchesOf(gym),
       'visits_remaining': null,
-      'freeze_days_allowed': 7,
-      'freeze_days_used': held.frozenUntil == null ? 0 : 7,
-      'freeze_days_left': held.frozenUntil == null ? 7 : 0,
-      'freezes': <Object?>[],
+      'freeze_days_allowed': held.freezeDaysAllowed,
+      'freeze_days_used': held.freezeDaysUsed,
+      'freeze_days_left': max(0, held.freezeDaysAllowed - held.freezeDaysUsed),
+      'freezes': [
+        for (final freeze in held.freezes)
+          {'id': freeze.id, 'starts_on': day(freeze.start), 'ends_on': day(freeze.end), 'days': freeze.days},
+      ],
       'sold_in_app': false,
       'cancelled_at': null,
       'open_payment_link': null,
@@ -295,7 +298,7 @@ final class FakeBackend implements HttpClientAdapter {
     return switch (phone) {
       endingSoonPhone => const _HeldPlan('Monthly', -27, 3),
       expiredPhone => const _HeldPlan('Monthly', -36, -6, status: 'expired'),
-      frozenPhone => const _HeldPlan('Monthly', -10, 30, status: 'frozen', frozenUntil: 7),
+      frozenPhone => const _HeldPlan('Monthly', -10, 30, freezeDaysAllowed: 10, freezes: [_Freeze(31, 0, 7)]),
       noPlanPhone => null,
       _ => const _HeldPlan('Monthly', -12, 18),
     };
@@ -545,7 +548,7 @@ final class FakeBackend implements HttpClientAdapter {
       final days = (plan['duration']! as Map<String, Object?>)['count']! as int;
       final continues = held != null && held.status != 'expired' && held.end >= 0;
       _heldPlans[_key(link.phone, link.gym)] =
-          _HeldPlan(planName, continues ? held.start : 0, (continues ? held.end : -1) + days);
+          _HeldPlan(planName, continues ? held.start : 0, (continues ? held.end : -1) + days, freezes: continues ? held.freezes : const []);
       link.membershipId = _membershipId(link.gym);
     } else {
       _owed[_key(link.phone, link.gym)] = 0;
@@ -977,7 +980,14 @@ final class _Credential {
 }
 
 final class _HeldPlan {
-  const _HeldPlan(this.name, this.start, this.end, {this.status = 'active', this.frozenUntil});
+  const _HeldPlan(
+    this.name,
+    this.start,
+    this.end, {
+    this.status = 'active',
+    this.freezeDaysAllowed = 7,
+    this.freezes = const [],
+  });
 
   final String name;
 
@@ -985,7 +995,24 @@ final class _HeldPlan {
   final int start;
   final int end;
   final String status;
-  final int? frozenUntil;
+  final int freezeDaysAllowed;
+  final List<_Freeze> freezes;
+
+  int get freezeDaysUsed => freezes.fold(0, (days, freeze) => days + freeze.days);
+
+  /// The freeze covering today, which makes the membership frozen.
+  _Freeze? get frozenToday => freezes.where((freeze) => freeze.start <= 0 && freeze.end >= 0).firstOrNull;
+}
+
+/// A freeze, in days from today like [_HeldPlan], both days included.
+final class _Freeze {
+  const _Freeze(this.id, this.start, this.end);
+
+  final int id;
+  final int start;
+  final int end;
+
+  int get days => end - start + 1;
 }
 
 final class _Link {

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gym_mobile/core/time/local_date.dart';
 import 'package:gym_mobile/features/attendance/domain/visit.dart';
 import 'package:gym_mobile/features/home/data/member_json.dart';
 import 'package:gym_mobile/features/membership/domain/membership.dart';
@@ -51,5 +52,38 @@ void main() {
     expect(dashboard.outstanding, isNull);
     expect(dashboard.membership?.allowedBranches, isEmpty);
     expect(membershipFromJson({...membership(balanceMinor: 0), 'status': 'upcoming'}).status, MembershipStatus.pending);
+  });
+
+  test('reads the freeze days and each freeze, and finds the one covering today or coming next', () {
+    final frozen = membershipFromJson({
+      ...membership(balanceMinor: 0),
+      'freeze_days_allowed': 14,
+      'freeze_days_left': 4,
+      'freezes': [
+        {'id': 3, 'starts_on': '2026-10-01', 'ends_on': '2026-10-03', 'days': 3},
+        {'id': 9, 'starts_on': '2026-10-20', 'ends_on': '2026-10-26', 'days': 7},
+      ],
+    });
+
+    expect(frozen.freezeDaysAllowed, 14);
+    expect(frozen.freezeDaysLeft, 4);
+    expect(frozen.canFreeze, isTrue);
+    expect(frozen.freezes.map((freeze) => freeze.id), ['3', '9']);
+    final next = frozen.currentOrNextFreeze(const LocalDate(2026, 10, 14));
+    expect(next?.id, '9');
+    expect(next?.days, 7);
+    expect(next?.hasStarted(const LocalDate(2026, 10, 14)), isFalse);
+    expect(frozen.currentOrNextFreeze(const LocalDate(2026, 10, 27)), isNull);
+  });
+
+  test('no freeze days left, an expired plan, or an older response without the fields can\'t freeze', () {
+    expect(membershipFromJson({...membership(balanceMinor: 0), 'freeze_days_left': 0}).canFreeze, isFalse);
+    expect(
+      membershipFromJson({...membership(balanceMinor: 0), 'status': 'expired', 'freeze_days_left': 7}).canFreeze,
+      isFalse,
+    );
+    final older = membershipFromJson(membership(balanceMinor: 0));
+    expect(older.canFreeze, isFalse);
+    expect(older.freezes, isEmpty);
   });
 }

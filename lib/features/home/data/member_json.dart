@@ -36,6 +36,17 @@ Membership membershipFromJson(Map<String, dynamic> json) => Membership(
       ? [for (final branch in json.objects('branches')) branchFromJson(branch)]
       : const [],
   visitsRemaining: json.optional<int>('visits_remaining'),
+  freezeDaysAllowed: json.optional<int>('freeze_days_allowed') ?? 0,
+  freezeDaysLeft: json.optional<int>('freeze_days_left') ?? 0,
+  freezes: [for (final freeze in json.objects('freezes')) freezeFromJson(freeze)],
+);
+
+/// A freeze on a membership: its days, both included.
+MembershipFreeze freezeFromJson(Map<String, dynamic> json) => MembershipFreeze(
+  id: '${json.field<Object>('id')}',
+  startsOn: LocalDate.parse(json.field<String>('starts_on')),
+  endsOn: LocalDate.parse(json.field<String>('ends_on')),
+  days: json.field<int>('days'),
 );
 
 Branch branchFromJson(Map<String, dynamic> json) => Branch(
