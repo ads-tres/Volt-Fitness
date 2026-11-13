@@ -42,6 +42,8 @@ jobs:
     name: Build ${{ matrix.app }} for Android
     runs-on: ubuntu-latest
     strategy:
+      # Each app reports its own build, even when the other fails.
+      fail-fast: false
       matrix:
         include:
           - app: the member app
