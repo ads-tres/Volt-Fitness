@@ -55,7 +55,7 @@ never use the fake.
 | Monthly plan, 18 days left     | any other       | `123456`      |
 | Plan ending in 3 days          | `0922 22 22 22` | `123456`      |
 | Plan expired 6 days ago        | `0933 33 33 33` | `123456`      |
-| Plan frozen for a week         | `0944 44 44 44` | `123456`      |
+| Plan frozen for 8 days from today | `0944 44 44 44` | `123456`      |
 | No plan                        | `0955 55 55 55` | `123456`      |
 | Payments always declined       | `0966 66 66 66` | `123456`      |
 | Member of two gyms             | `0911 11 11 11` | `123456`      |
@@ -88,6 +88,19 @@ proves nothing, so the result screen then has the API ask Chapa
 (`POST …/payment-links/{id}/check`, ten a minute) until the payment is in.
 Paid receipts come from `GET /me/gyms/{gym}/payments`. Amounts are always
 `Money` in minor units.
+
+### Freezing
+
+Members freeze their own membership from the Membership tab, within the
+freeze days their plan allows: `POST /me/gyms/{gym}/memberships/{id}/freezes`
+with the first and last day (from today, never in the past) and an optional
+reason. The plan's end date moves later by as many days. A freeze covering
+today or coming shows as a card with **I'm back** (or **Cancel freeze** before
+it starts), which calls `…/freezes/{freeze}/end`; the unused days come back.
+The API checks every rule and its refusal shows under the day it is about.
+
+In the fake, every Monthly plan allows 7 freeze days. The frozen number has
+used 8 of its 10, so it can end its freeze or add a two-day one after it.
 
 ### Notifications
 

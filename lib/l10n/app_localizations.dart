@@ -1561,6 +1561,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unknown code'**
   String get deskUnknownMember;
+
+  /// No description provided for @freezeDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Freeze days'**
+  String get freezeDays;
+
+  /// No description provided for @freezeDaysLeftOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{left} of {allowed} left'**
+  String freezeDaysLeftOf(int left, int allowed);
+
+  /// No description provided for @freezeMembership.
+  ///
+  /// In en, this message translates to:
+  /// **'Freeze my membership'**
+  String get freezeMembership;
+
+  /// No description provided for @freezeSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Freeze your membership'**
+  String get freezeSheetTitle;
+
+  /// No description provided for @freezeSheetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan pauses on these days, and its end date moves later by as many days.'**
+  String get freezeSheetBody;
+
+  /// No description provided for @freezeFirstDay.
+  ///
+  /// In en, this message translates to:
+  /// **'First day'**
+  String get freezeFirstDay;
+
+  /// No description provided for @freezeLastDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Last day'**
+  String get freezeLastDay;
+
+  /// No description provided for @freezeSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{1 day} other{{days} days}} · your plan will end on {date}'**
+  String freezeSummary(int days, String date);
+
+  /// No description provided for @freezeTooManyDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{left, plural, =1{Only 1 freeze day is left.} other{Only {left} freeze days are left.}}'**
+  String freezeTooManyDays(int left);
+
+  /// No description provided for @freezeReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (optional)'**
+  String get freezeReason;
+
+  /// No description provided for @freezeReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel, illness…'**
+  String get freezeReasonHint;
+
+  /// No description provided for @freezeConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Freeze'**
+  String get freezeConfirm;
+
+  /// No description provided for @freezeDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen from {from} to {to}.'**
+  String freezeDone(String from, String to);
+
+  /// No description provided for @freezeCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen from {from} to {to}'**
+  String freezeCurrent(String from, String to);
+
+  /// No description provided for @freezeComing.
+  ///
+  /// In en, this message translates to:
+  /// **'Freeze from {from} to {to}'**
+  String freezeComing(String from, String to);
+
+  /// No description provided for @freezeLength.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{1 day} other{{days} days}}'**
+  String freezeLength(int days);
+
+  /// No description provided for @freezeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m back'**
+  String get freezeBack;
+
+  /// No description provided for @freezeCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel freeze'**
+  String get freezeCancel;
+
+  /// No description provided for @freezeBackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'End your freeze today?'**
+  String get freezeBackTitle;
+
+  /// No description provided for @freezeBackBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You can use the gym again from today. The unused freeze days come back to you, and your plan ends earlier.'**
+  String get freezeBackBody;
+
+  /// No description provided for @freezeCancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this freeze?'**
+  String get freezeCancelTitle;
+
+  /// No description provided for @freezeCancelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The freeze days come back to you, and your plan\'s end date moves back.'**
+  String get freezeCancelBody;
+
+  /// No description provided for @freezeKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it'**
+  String get freezeKeep;
+
+  /// No description provided for @freezeEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back! Your freeze has ended.'**
+  String get freezeEnded;
+
+  /// No description provided for @freezeCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Your freeze is cancelled.'**
+  String get freezeCancelled;
 }
 
 class _AppLocalizationsDelegate
