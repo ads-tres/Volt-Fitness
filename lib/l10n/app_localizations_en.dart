@@ -849,4 +849,114 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskUnknownMember => 'Unknown code';
+
+  @override
+  String get freezeDays => 'Freeze days';
+
+  @override
+  String freezeDaysLeftOf(int left, int allowed) {
+    return '$left of $allowed left';
+  }
+
+  @override
+  String get freezeMembership => 'Freeze my membership';
+
+  @override
+  String get freezeSheetTitle => 'Freeze your membership';
+
+  @override
+  String get freezeSheetBody =>
+      'Your plan pauses on these days, and its end date moves later by as many days.';
+
+  @override
+  String get freezeFirstDay => 'First day';
+
+  @override
+  String get freezeLastDay => 'Last day';
+
+  @override
+  String freezeSummary(int days, String date) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '1 day',
+    );
+    return '$_temp0 · your plan will end on $date';
+  }
+
+  @override
+  String freezeTooManyDays(int left) {
+    String _temp0 = intl.Intl.pluralLogic(
+      left,
+      locale: localeName,
+      other: 'Only $left freeze days are left.',
+      one: 'Only 1 freeze day is left.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get freezeReason => 'Reason (optional)';
+
+  @override
+  String get freezeReasonHint => 'Travel, illness…';
+
+  @override
+  String get freezeConfirm => 'Freeze';
+
+  @override
+  String freezeDone(String from, String to) {
+    return 'Frozen from $from to $to.';
+  }
+
+  @override
+  String freezeCurrent(String from, String to) {
+    return 'Frozen from $from to $to';
+  }
+
+  @override
+  String freezeComing(String from, String to) {
+    return 'Freeze from $from to $to';
+  }
+
+  @override
+  String freezeLength(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get freezeBack => 'I\'m back';
+
+  @override
+  String get freezeCancel => 'Cancel freeze';
+
+  @override
+  String get freezeBackTitle => 'End your freeze today?';
+
+  @override
+  String get freezeBackBody =>
+      'You can use the gym again from today. The unused freeze days come back to you, and your plan ends earlier.';
+
+  @override
+  String get freezeCancelTitle => 'Cancel this freeze?';
+
+  @override
+  String get freezeCancelBody =>
+      'The freeze days come back to you, and your plan\'s end date moves back.';
+
+  @override
+  String get freezeKeep => 'Keep it';
+
+  @override
+  String get freezeEnded => 'Welcome back! Your freeze has ended.';
+
+  @override
+  String get freezeCancelled => 'Your freeze is cancelled.';
 }

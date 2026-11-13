@@ -828,4 +828,114 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get deskUnknownMember => 'ያልታወቀ ኮድ';
+
+  @override
+  String get freezeDays => 'የማቆያ ቀናት';
+
+  @override
+  String freezeDaysLeftOf(int left, int allowed) {
+    return 'ከ$allowed $left ቀርቷል';
+  }
+
+  @override
+  String get freezeMembership => 'አባልነቴን ለጊዜው አቁም';
+
+  @override
+  String get freezeSheetTitle => 'አባልነትዎን ለጊዜው ያቁሙ';
+
+  @override
+  String get freezeSheetBody =>
+      'እቅድዎ በእነዚህ ቀናት ይቆማል፤ የሚያልቅበት ቀንም በዚያው ልክ ይራዘማል።';
+
+  @override
+  String get freezeFirstDay => 'የመጀመሪያ ቀን';
+
+  @override
+  String get freezeLastDay => 'የመጨረሻ ቀን';
+
+  @override
+  String freezeSummary(int days, String date) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days ቀናት',
+      one: '1 ቀን',
+    );
+    return '$_temp0 · እቅድዎ $date ላይ ያልቃል';
+  }
+
+  @override
+  String freezeTooManyDays(int left) {
+    String _temp0 = intl.Intl.pluralLogic(
+      left,
+      locale: localeName,
+      other: 'የቀሩት $left የማቆያ ቀናት ብቻ ናቸው።',
+      one: 'የቀረው 1 የማቆያ ቀን ብቻ ነው።',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get freezeReason => 'ምክንያት (አማራጭ)';
+
+  @override
+  String get freezeReasonHint => 'ጉዞ፣ ሕመም…';
+
+  @override
+  String get freezeConfirm => 'አቁም';
+
+  @override
+  String freezeDone(String from, String to) {
+    return 'ከ$from እስከ $to ቆሟል።';
+  }
+
+  @override
+  String freezeCurrent(String from, String to) {
+    return 'ከ$from እስከ $to ቆሟል';
+  }
+
+  @override
+  String freezeComing(String from, String to) {
+    return 'ከ$from እስከ $to ይቆማል';
+  }
+
+  @override
+  String freezeLength(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days ቀናት',
+      one: '1 ቀን',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get freezeBack => 'ተመልሻለሁ';
+
+  @override
+  String get freezeCancel => 'ማቆሙን ሰርዝ';
+
+  @override
+  String get freezeBackTitle => 'ማቆሙን ዛሬ ይጨርሱ?';
+
+  @override
+  String get freezeBackBody =>
+      'ከዛሬ ጀምሮ ጂሙን መጠቀም ይችላሉ። ያልተጠቀሙባቸው የማቆያ ቀናት ይመለሱልዎታል፤ እቅድዎም ቀድሞ ያልቃል።';
+
+  @override
+  String get freezeCancelTitle => 'ይህን ማቆም ይሰርዙ?';
+
+  @override
+  String get freezeCancelBody =>
+      'የማቆያ ቀናቱ ይመለሱልዎታል፤ እቅድዎ የሚያልቅበት ቀንም ወደ ቀድሞው ይመለሳል።';
+
+  @override
+  String get freezeKeep => 'ይቆይ';
+
+  @override
+  String get freezeEnded => 'እንኳን ደህና መጡ! ማቆሙ አብቅቷል።';
+
+  @override
+  String get freezeCancelled => 'ማቆሙ ተሰርዟል።';
 }

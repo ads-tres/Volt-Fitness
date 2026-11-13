@@ -64,10 +64,11 @@ final class Membership {
   /// How much of the plan is left, from 1 (just started) to 0.
   double shareLeft(LocalDate today) => (daysLeft(today) / totalDays).clamp(0, 1).toDouble();
 
-  /// The member can freeze while the plan runs or before it starts, if any
-  /// freeze days are left. The API checks the dates.
+  /// The member can freeze while the plan runs (frozen or not) or before it
+  /// starts, if any freeze days are left. The API checks the dates.
   bool get canFreeze =>
-      freezeDaysLeft > 0 && (status == MembershipStatus.active || status == MembershipStatus.pending);
+      freezeDaysLeft > 0 &&
+      (status == MembershipStatus.active || status == MembershipStatus.frozen || status == MembershipStatus.pending);
 
   /// The freeze covering [today], or else the next one to come.
   MembershipFreeze? currentOrNextFreeze(LocalDate today) {

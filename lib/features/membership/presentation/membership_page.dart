@@ -8,6 +8,8 @@ import '../../../core/design/tokens.dart';
 import '../../../core/design/widgets/controls.dart';
 import '../../../core/design/widgets/feedback.dart';
 import '../../../core/design/widgets/surfaces.dart';
+import '../../../core/errors/failure.dart';
+import '../../../core/errors/failure_messages.dart';
 import '../../../core/localization/l10n.dart';
 import '../../../core/localization/language_menu.dart';
 import '../../../core/time/clock.dart';
@@ -15,7 +17,9 @@ import '../../../core/time/date_text.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../attendance/presentation/visit_card.dart';
 import '../../home/data/dashboard_repository.dart';
+import '../data/freeze_repository.dart';
 import '../domain/membership.dart';
+import 'freeze_sheet.dart';
 
 /// The member's plan at the selected gym: status, dates, what is left and
 /// where it works. Read from the same dashboard call as the home screen.
@@ -110,10 +114,19 @@ class _MembershipDetails extends ConsumerWidget {
                 const SizedBox(height: 12),
                 Text(l10n.visitsLeft(visits), style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
               ],
+              if (membership.freezeDaysAllowed > 0) ...[
+                const Divider(height: 24, color: AppColors.line),
+                _DateRow(
+                  label: l10n.freezeDays,
+                  value: l10n.freezeDaysLeftOf(membership.freezeDaysLeft, membership.freezeDaysAllowed),
+                ),
+              ],
             ],
           ),
         ),
-        if (membership.status == MembershipStatus.frozen && membership.frozenUntil != null)
+        if (membership.currentOrNextFreeze(today) case final freeze?)
+          _FreezeCard(membership: membership, freeze: freeze)
+        else if (membership.status == MembershipStatus.frozen && membership.frozenUntil != null)
           _Notice(text: l10n.frozenNotice(dates.date(membership.frozenUntil!)), icon: Icons.ac_unit_rounded),
         if (membership.graceEndsOn case final grace? when membership.status == MembershipStatus.expired)
           _Notice(text: l10n.graceNotice(dates.date(grace)), icon: Icons.schedule_rounded),
@@ -134,6 +147,20 @@ class _MembershipDetails extends ConsumerWidget {
                 ),
               ),
             ),
+        ],
+        if (membership.canFreeze) ...[
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            onPressed: () => showFreezeSheet(context, membership),
+            icon: const Icon(Icons.ac_unit_rounded, size: 20),
+            label: Text(l10n.freezeMembership),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.ink,
+              minimumSize: const Size.fromHeight(52),
+              side: const BorderSide(color: AppColors.line),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.control)),
+            ),
+          ),
         ],
         if (canRenew) ...[
           const SizedBox(height: 20),
@@ -242,6 +269,110 @@ class _DateRow extends StatelessWidget {
         const SizedBox(width: 16),
         Expanded(child: Text(value, textAlign: TextAlign.end, style: textTheme.titleSmall)),
       ],
+    );
+  }
+}
+
+/// A freeze covering today or coming, with a way to end it: "I'm back" once
+/// it has started, "Cancel freeze" before. Either asks first.
+class _FreezeCard extends ConsumerStatefulWidget {
+  const _FreezeCard({required this.membership, required this.freeze});
+
+  final Membership membership;
+  final MembershipFreeze freeze;
+
+  @override
+  ConsumerState<_FreezeCard> createState() => _FreezeCardState();
+}
+
+class _FreezeCardState extends ConsumerState<_FreezeCard> {
+  bool _ending = false;
+
+  Future<void> _end({required bool started}) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text(started ? l10n.freezeBackTitle : l10n.freezeCancelTitle),
+        content: Text(started ? l10n.freezeBackBody : l10n.freezeCancelBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            style: TextButton.styleFrom(foregroundColor: AppColors.ink),
+            child: Text(l10n.freezeKeep),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.danger),
+            child: Text(started ? l10n.freezeBack : l10n.freezeCancel),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() => _ending = true);
+    try {
+      await ref.read(freezeRepositoryProvider).endFreeze(widget.membership.id, widget.freeze.id);
+      await ref.read(dashboardProvider.notifier).refresh();
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(started ? l10n.freezeEnded : l10n.freezeCancelled)));
+    } on Failure catch (failure) {
+      messenger.showSnackBar(SnackBar(content: Text(failureMessage(l10n, failure))));
+    } finally {
+      if (mounted) setState(() => _ending = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final textTheme = Theme.of(context).textTheme;
+    final dates = ref.watch(dateTextProvider);
+    final started = widget.freeze.hasStarted(ref.watch(todayProvider));
+    final from = dates.date(widget.freeze.startsOn);
+    final to = dates.date(widget.freeze.endsOn);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: DecoratedBox(
+        decoration: BoxDecoration(color: const Color(0xFFE9E4DD), borderRadius: BorderRadius.circular(AppRadii.control)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 8, 14),
+          child: Row(
+            children: [
+              const Icon(Icons.ac_unit_rounded, size: 20, color: AppColors.ink),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(started ? l10n.freezeCurrent(from, to) : l10n.freezeComing(from, to), style: textTheme.titleSmall),
+                    const SizedBox(height: 2),
+                    Text(
+                      l10n.freezeLength(widget.freeze.days),
+                      style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              if (_ending)
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2.4)),
+                )
+              else
+                TextButton(
+                  onPressed: () => _end(started: started),
+                  style: TextButton.styleFrom(foregroundColor: AppColors.ink),
+                  child: Text(started ? l10n.freezeBack : l10n.freezeCancel),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
