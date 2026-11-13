@@ -52,6 +52,28 @@ android {
             dimension = "environment"
             resValue("string", "app_name", "Volt")
         }
+
+        // The front desk app (lib/main_staff.dart): its own app on the
+        // same phone, one per backend like the member app.
+        create("staffDev") {
+            dimension = "environment"
+            applicationId = "com.volt.staff"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            resValue("string", "app_name", "Volt Desk Dev")
+        }
+        create("staffStaging") {
+            dimension = "environment"
+            applicationId = "com.volt.staff"
+            applicationIdSuffix = ".stg"
+            versionNameSuffix = "-stg"
+            resValue("string", "app_name", "Volt Desk Staging")
+        }
+        create("staffProd") {
+            dimension = "environment"
+            applicationId = "com.volt.staff"
+            resValue("string", "app_name", "Volt Desk")
+        }
     }
 
     buildTypes {

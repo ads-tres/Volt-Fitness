@@ -1315,6 +1315,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Please try again.'**
   String get errorUnexpected;
+
+  /// The front desk app's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Volt Desk'**
+  String get deskTitle;
+
+  /// No description provided for @deskSignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to the front desk'**
+  String get deskSignInTitle;
+
+  /// No description provided for @deskSignInBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the phone number and the password you chose from the gym\'s SMS.'**
+  String get deskSignInBody;
+
+  /// No description provided for @deskPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get deskPassword;
+
+  /// No description provided for @deskSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get deskSignIn;
+
+  /// No description provided for @deskNoGym.
+  ///
+  /// In en, this message translates to:
+  /// **'This number isn\'t staff at any gym.'**
+  String get deskNoGym;
+
+  /// No description provided for @deskChooseGym.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the gym'**
+  String get deskChooseGym;
+
+  /// No description provided for @deskChooseBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Which branch is this desk at?'**
+  String get deskChooseBranch;
+
+  /// No description provided for @deskNoBranches.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t work at any branch of this gym yet. Ask the gym\'s owner.'**
+  String get deskNoBranches;
+
+  /// No description provided for @deskChangeBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Change branch'**
+  String get deskChangeBranch;
+
+  /// No description provided for @deskMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get deskMenu;
+
+  /// No description provided for @deskPointCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the member\'s QR code'**
+  String get deskPointCamera;
+
+  /// No description provided for @deskCameraDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera is off for Volt Desk. Allow it in the phone\'s settings to scan.'**
+  String get deskCameraDenied;
+
+  /// No description provided for @deskCameraFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera couldn\'t start. Close other apps using it, then try again.'**
+  String get deskCameraFailed;
+
+  /// No description provided for @deskLetIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Let in'**
+  String get deskLetIn;
+
+  /// No description provided for @deskTurnedAway.
+  ///
+  /// In en, this message translates to:
+  /// **'Turned away'**
+  String get deskTurnedAway;
+
+  /// No description provided for @deskPlanUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'{plan} · until {date}'**
+  String deskPlanUntil(String plan, String date);
+
+  /// No description provided for @deskOwes.
+  ///
+  /// In en, this message translates to:
+  /// **'Owes {amount}'**
+  String deskOwes(String amount);
+
+  /// No description provided for @deskTapToContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to scan the next member'**
+  String get deskTapToContinue;
+
+  /// No description provided for @deskReasonCredentialInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a member\'s code, or a code for another gym'**
+  String get deskReasonCredentialInvalid;
+
+  /// No description provided for @deskReasonCredentialRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone\'s code was replaced. Ask the member to open the app.'**
+  String get deskReasonCredentialRevoked;
+
+  /// No description provided for @deskReasonCodeExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'The code has expired. The member\'s phone clock may be wrong.'**
+  String get deskReasonCodeExpired;
+
+  /// No description provided for @deskReasonCodeAlreadyUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'This code was already scanned. Ask for the code the app shows now.'**
+  String get deskReasonCodeAlreadyUsed;
+
+  /// No description provided for @deskReasonOutsideHours.
+  ///
+  /// In en, this message translates to:
+  /// **'The branch is closed now'**
+  String get deskReasonOutsideHours;
+
+  /// No description provided for @deskReasonMembershipNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No membership for today'**
+  String get deskReasonMembershipNone;
+
+  /// No description provided for @deskReasonMembershipExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'The membership has ended'**
+  String get deskReasonMembershipExpired;
+
+  /// No description provided for @deskReasonMembershipFrozen.
+  ///
+  /// In en, this message translates to:
+  /// **'The membership is frozen today'**
+  String get deskReasonMembershipFrozen;
+
+  /// No description provided for @deskReasonBranchNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'The membership isn\'t valid at this branch'**
+  String get deskReasonBranchNotAllowed;
+
+  /// No description provided for @deskReasonVisitsUsedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Every visit of the pack is used'**
+  String get deskReasonVisitsUsedUp;
+
+  /// No description provided for @deskReasonAlreadyCheckedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Let in less than 5 minutes ago'**
+  String get deskReasonAlreadyCheckedIn;
+
+  /// No description provided for @deskReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Not let in'**
+  String get deskReasonOther;
+
+  /// No description provided for @deskTabScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get deskTabScan;
+
+  /// No description provided for @deskTabDesk.
+  ///
+  /// In en, this message translates to:
+  /// **'Desk'**
+  String get deskTabDesk;
+
+  /// No description provided for @deskTabToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get deskTabToday;
+
+  /// No description provided for @deskSearchMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Name or phone number'**
+  String get deskSearchMembers;
+
+  /// No description provided for @deskSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a member who came without their phone, then check them in.'**
+  String get deskSearchHint;
+
+  /// No description provided for @deskNoMembersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No member of this gym matches.'**
+  String get deskNoMembersFound;
+
+  /// No description provided for @deskCheckIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Check in'**
+  String get deskCheckIn;
+
+  /// No description provided for @deskTodayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today at this branch'**
+  String get deskTodayTitle;
+
+  /// No description provided for @deskTodayEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one has checked in here yet today.'**
+  String get deskTodayEmpty;
+
+  /// No description provided for @deskUnknownMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown code'**
+  String get deskUnknownMember;
 }
 
 class _AppLocalizationsDelegate

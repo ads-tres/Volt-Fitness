@@ -695,4 +695,137 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get errorUnexpected => 'የሆነ ችግር ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።';
+
+  @override
+  String get deskTitle => 'ቮልት ዴስክ';
+
+  @override
+  String get deskSignInTitle => 'ወደ መቀበያ ዴስክ ይግቡ';
+
+  @override
+  String get deskSignInBody => 'ከጂሙ በመጣው ኤስኤምኤስ ያዘጋጁትን ስልክ ቁጥርና የይለፍ ቃል ይጠቀሙ።';
+
+  @override
+  String get deskPassword => 'የይለፍ ቃል';
+
+  @override
+  String get deskSignIn => 'ግባ';
+
+  @override
+  String get deskNoGym => 'ይህ ቁጥር በየትኛውም ጂም ሠራተኛ አይደለም።';
+
+  @override
+  String get deskChooseGym => 'ጂሙን ይምረጡ';
+
+  @override
+  String get deskChooseBranch => 'ይህ ዴስክ በየትኛው ቅርንጫፍ ነው?';
+
+  @override
+  String get deskNoBranches =>
+      'በዚህ ጂም በየትኛውም ቅርንጫፍ ገና አልተመደቡም። የጂሙን ባለቤት ይጠይቁ።';
+
+  @override
+  String get deskChangeBranch => 'ቅርንጫፍ ቀይር';
+
+  @override
+  String get deskMenu => 'ምናሌ';
+
+  @override
+  String get deskPointCamera => 'ካሜራውን ወደ አባሉ QR ኮድ ያዙሩ';
+
+  @override
+  String get deskCameraDenied =>
+      'ለቮልት ዴስክ ካሜራ ጠፍቷል። ለመቃኘት በስልኩ ቅንብሮች ውስጥ ይፍቀዱ።';
+
+  @override
+  String get deskCameraFailed =>
+      'ካሜራው መጀመር አልቻለም። ካሜራውን የሚጠቀሙ ሌሎች መተግበሪያዎችን ዝግተው እንደገና ይሞክሩ።';
+
+  @override
+  String get deskLetIn => 'ገብቷል';
+
+  @override
+  String get deskTurnedAway => 'አልገባም';
+
+  @override
+  String deskPlanUntil(String plan, String date) {
+    return '$plan · እስከ $date';
+  }
+
+  @override
+  String deskOwes(String amount) {
+    return 'ዕዳ $amount';
+  }
+
+  @override
+  String get deskTapToContinue => 'ቀጣዩን አባል ለመቃኘት ይንኩ';
+
+  @override
+  String get deskReasonCredentialInvalid => 'የአባል ኮድ አይደለም፣ ወይም የሌላ ጂም ኮድ ነው';
+
+  @override
+  String get deskReasonCredentialRevoked =>
+      'የዚህ ስልክ ኮድ ተተክቷል። አባሉ መተግበሪያውን እንዲከፍት ይጠይቁ።';
+
+  @override
+  String get deskReasonCodeExpired =>
+      'ኮዱ ጊዜው አልፎበታል። የአባሉ ስልክ ሰዓት ትክክል ላይሆን ይችላል።';
+
+  @override
+  String get deskReasonCodeAlreadyUsed =>
+      'ይህ ኮድ ቀድሞ ተቃኝቷል። መተግበሪያው አሁን የሚያሳየውን ኮድ ይጠይቁ።';
+
+  @override
+  String get deskReasonOutsideHours => 'ቅርንጫፉ አሁን ዝግ ነው';
+
+  @override
+  String get deskReasonMembershipNone => 'ለዛሬ አባልነት የለም';
+
+  @override
+  String get deskReasonMembershipExpired => 'አባልነቱ አልቋል';
+
+  @override
+  String get deskReasonMembershipFrozen => 'አባልነቱ ዛሬ ታግዷል';
+
+  @override
+  String get deskReasonBranchNotAllowed => 'አባልነቱ በዚህ ቅርንጫፍ አይሰራም';
+
+  @override
+  String get deskReasonVisitsUsedUp => 'የጥቅሉ ጉብኝቶች በሙሉ ተጠቅመዋል';
+
+  @override
+  String get deskReasonAlreadyCheckedIn => 'ከ5 ደቂቃ በፊት ገብቷል';
+
+  @override
+  String get deskReasonOther => 'አልገባም';
+
+  @override
+  String get deskTabScan => 'ቃኝ';
+
+  @override
+  String get deskTabDesk => 'ዴስክ';
+
+  @override
+  String get deskTabToday => 'ዛሬ';
+
+  @override
+  String get deskSearchMembers => 'ስም ወይም ስልክ ቁጥር';
+
+  @override
+  String get deskSearchHint => 'ያለ ስልካቸው የመጡ አባልን ይፈልጉና ያስገቡ።';
+
+  @override
+  String get deskNoMembersFound => 'የሚመሳሰል የዚህ ጂም አባል የለም።';
+
+  @override
+  String get deskCheckIn => 'አስገባ';
+
+  @override
+  String get deskTodayTitle => 'ዛሬ በዚህ ቅርንጫፍ';
+
+  @override
+  String get deskTodayEmpty => 'ዛሬ እዚህ እስካሁን የገባ የለም።';
+
+  @override
+  String get deskUnknownMember => 'ያልታወቀ ኮድ';
 }
