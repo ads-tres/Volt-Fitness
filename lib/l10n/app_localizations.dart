@@ -1879,6 +1879,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove the code'**
   String get promoCodeRemove;
+
+  /// No description provided for @branchesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Branches and hours'**
+  String get branchesTitle;
+
+  /// No description provided for @branchAlwaysOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Always open'**
+  String get branchAlwaysOpen;
+
+  /// No description provided for @branchOpenUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Open now · until {time}'**
+  String branchOpenUntil(String time);
+
+  /// No description provided for @branchClosedOpensAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed · opens {time}'**
+  String branchClosedOpensAt(String time);
+
+  /// No description provided for @branchClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get branchClosed;
+
+  /// No description provided for @branchOnYourPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan'**
+  String get branchOnYourPlan;
+
+  /// No description provided for @yourOtherPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Your other plans'**
+  String get yourOtherPlans;
+
+  /// No description provided for @planDates.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} – {to}'**
+  String planDates(String from, String to);
+
+  /// No description provided for @planPaidOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid {paid} of {price}'**
+  String planPaidOf(String paid, String price);
+
+  /// No description provided for @freezeByYou.
+  ///
+  /// In en, this message translates to:
+  /// **'you froze it in the app'**
+  String get freezeByYou;
+
+  /// No description provided for @freezeByGym.
+  ///
+  /// In en, this message translates to:
+  /// **'frozen by the gym'**
+  String get freezeByGym;
 }
 
 class _AppLocalizationsDelegate

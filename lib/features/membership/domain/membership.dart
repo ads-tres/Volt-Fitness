@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import '../../../core/money/money.dart';
 import '../../../core/time/local_date.dart';
 
 /// From the API; the app shows it and never works it out itself.
@@ -28,6 +29,8 @@ final class Membership {
     this.freezeDaysAllowed = 0,
     this.freezeDaysLeft = 0,
     this.freezes = const [],
+    this.price,
+    this.amountPaid,
   });
 
   /// Shown as "ends soon" from this many days before the end.
@@ -56,6 +59,10 @@ final class Membership {
   /// Every freeze on this membership, past and coming.
   final List<MembershipFreeze> freezes;
 
+  /// What it was sold for, and how much of that is paid.
+  final Money? price;
+  final Money? amountPaid;
+
   /// Days from [today] to the last day, 0 on the last day itself.
   int daysLeft(LocalDate today) => max(0, today.daysUntil(endsOn));
 
@@ -83,12 +90,21 @@ final class Membership {
 /// A stretch of days the membership is paused, both days included. Its
 /// days are added to the membership's end date.
 final class MembershipFreeze {
-  const MembershipFreeze({required this.id, required this.startsOn, required this.endsOn, required this.days});
+  const MembershipFreeze({
+    required this.id,
+    required this.startsOn,
+    required this.endsOn,
+    required this.days,
+    this.inApp = false,
+  });
 
   final String id;
   final LocalDate startsOn;
   final LocalDate endsOn;
   final int days;
+
+  /// The member made it in the app; otherwise the gym did.
+  final bool inApp;
 
   /// It started on or before [today], so ending it keeps the days used.
   bool hasStarted(LocalDate today) => startsOn.compareTo(today) <= 0;

@@ -17,6 +17,7 @@ abstract final class AppRoutes {
   static const visits = '/home/visits';
   static const notifications = '/home/notifications';
   static const devices = '/profile/devices';
+  static const branches = '/profile/branches';
   static const notificationSettings = '/profile/notifications';
   static String invoice(String id) => '/payments/invoices/$id';
 

@@ -392,5 +392,20 @@
   "promoCodeApply": "Apply",
   "promoCodeApplied": "{code} applied",
   "@promoCodeApplied": {"placeholders": {"code": {"type": "String"}}},
-  "promoCodeRemove": "Remove the code"
+  "promoCodeRemove": "Remove the code",
+  "branchesTitle": "Branches and hours",
+  "branchAlwaysOpen": "Always open",
+  "branchOpenUntil": "Open now · until {time}",
+  "@branchOpenUntil": {"placeholders": {"time": {"type": "String"}}},
+  "branchClosedOpensAt": "Closed · opens {time}",
+  "@branchClosedOpensAt": {"placeholders": {"time": {"type": "String"}}},
+  "branchClosed": "Closed",
+  "branchOnYourPlan": "Your plan",
+  "yourOtherPlans": "Your other plans",
+  "planDates": "{from} – {to}",
+  "@planDates": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
+  "planPaidOf": "Paid {paid} of {price}",
+  "@planPaidOf": {"placeholders": {"paid": {"type": "String"}, "price": {"type": "String"}}},
+  "freezeByYou": "you froze it in the app",
+  "freezeByGym": "frozen by the gym"
 }

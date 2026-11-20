@@ -112,6 +112,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('+251\u00A091\u00A0234\u00A05678'), findsOneWidget);
 
+    // Below the settings, so scroll it clear of the navigation bar first.
+    await tester.scrollUntilVisible(find.text('Sign out'), 200);
+    await Scrollable.ensureVisible(tester.element(find.text('Sign out')), alignment: 0.5);
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Sign out'));
     await tester.pumpAndSettle();
     expect(find.text('Welcome to Volt'), findsOneWidget);

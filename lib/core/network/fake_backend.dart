@@ -108,6 +108,8 @@ final class FakeBackend implements HttpClientAdapter {
       ('POST', '/access-credential') => _inGym(request, (phone, gym) => _issueCredential(request, phone, gym)),
       ('GET', '/access-credential') => _inGym(request, (phone, gym) => _currentCredential(request, phone, gym)),
       ('GET', '/devices') => _signedIn(request, (phone) => _listDevices(request, phone)),
+      ('GET', '/branches') => _inGym(request, (phone, gym) => _json(200, {'data': _branchesWithHours(gym)})),
+      ('GET', '/memberships') => _inGym(request, (phone, gym) => _json(200, {'data': _allMemberships(phone, gym)})),
       ('GET', '/plans') => _inGym(request, (phone, gym) {
         final code = request.query['promo_code'];
         if (code != null && code.isNotEmpty) {
@@ -175,6 +177,15 @@ final class FakeBackend implements HttpClientAdapter {
         (phone, gym) => _updatePreferences(request, phone, gym),
       ),
       ('PUT', '/me/push-token') => _signedIn(request, (phone) => _savePushToken(request, phone)),
+      ('PUT', '/me/language') => _signedIn(request, (_) {
+        final language = request.body['language'];
+        if (language != 'am' && language != 'en') {
+          return _error(422, 'VALIDATION_FAILED', 'The selected language is invalid.', request, errors: {
+            'language': ['The selected language is invalid.'],
+          });
+        }
+        return _noContent();
+      }),
       ('POST', '/dev/fake-push') => _inGym(request, _fakePush),
       ('DELETE', final path) when path.startsWith('/devices/') => _signedIn(
         request,
@@ -300,12 +311,45 @@ final class FakeBackend implements HttpClientAdapter {
       'freeze_days_left': max(0, held.freezeDaysAllowed - held.freezeDaysUsed),
       'freezes': [
         for (final freeze in held.freezes)
-          {'id': freeze.id, 'starts_on': day(freeze.start), 'ends_on': day(freeze.end), 'days': freeze.days},
+          {
+            'id': freeze.id,
+            'starts_on': day(freeze.start),
+            'ends_on': day(freeze.end),
+            'days': freeze.days,
+            'frozen_in_app': freeze.inApp,
+          },
       ],
       'sold_in_app': false,
       'cancelled_at': null,
       'open_payment_link': null,
     };
+  }
+
+  /// Every membership, newest first: one coming after an ending-soon plan,
+  /// the current one, and last month's, expired and paid.
+  List<Map<String, Object?>> _allMemberships(String phone, String gym) {
+    final current = _membership(phone, gym);
+    final held = _held(phone, gym);
+    if (current == null || held == null) return const [];
+    String day(int offset) => _iso(_today.add(Duration(days: offset)));
+    final price = current['price']! as Map<String, Object?>;
+    Map<String, Object?> other(int id, String status, int start, int end, {required bool paid}) => {
+      ...current,
+      'id': id,
+      'status': status,
+      'starts_on': day(start),
+      'ends_on': day(end),
+      'amount_paid': paid ? price : _money(0),
+      'balance_due': paid ? _money(0) : price,
+      'freezes': const <Object?>[],
+      'freeze_days_used': 0,
+      'freeze_days_left': held.freezeDaysAllowed,
+    };
+    return [
+      if (phone == endingSoonPhone) other(_membershipId(gym) + 1, 'upcoming', held.end + 1, held.end + 30, paid: false),
+      current,
+      other(_membershipId(gym) - 1, 'expired', held.start - 30, held.start - 1, paid: true),
+    ];
   }
 
   static int _membershipId(String gym) => gym == _kazanchisFitClub['id'] ? 202 : 101;
@@ -314,6 +358,24 @@ final class FakeBackend implements HttpClientAdapter {
       gym == _kazanchisFitClub['id'] ? [_kazanchisBranch] : [_boleBranch, _megenagnaBranch];
 
   static String _key(String phone, String gym) => '$phone|$gym';
+
+  /// The gym's branches by name, with their weeks: Bole opens Monday to
+  /// Saturday 06:00 to 22:00 and Sunday 08:00 to 14:00, Megenagna has no
+  /// hours (always open), Kazanchis Monday to Saturday 05:30 to 21:00.
+  List<Map<String, Object?>> _branchesWithHours(String gym) {
+    Map<String, Object?> day(int weekday, String opens, String closes) =>
+        {'weekday': weekday, 'opens_at': opens, 'closes_at': closes};
+    final weekdays = [for (var weekday = 1; weekday <= 6; weekday++) weekday];
+    final hours = <Object?, List<Map<String, Object?>>>{
+      _boleBranch['id']: [for (final weekday in weekdays) day(weekday, '06:00', '22:00'), day(7, '08:00', '14:00')],
+      _megenagnaBranch['id']: const [],
+      _kazanchisBranch['id']: [for (final weekday in weekdays) day(weekday, '05:30', '21:00')],
+    };
+    return [
+      for (final branch in _branchesOf(gym)..sort((a, b) => '${a['name']}'.compareTo('${b['name']}')))
+        {...branch, 'opening_hours': hours[branch['id']]},
+    ];
+  }
 
   /// The member's plan at [gym], in days from today: what they bought here
   /// in this session, or what their number starts with.
@@ -554,21 +616,35 @@ final class FakeBackend implements HttpClientAdapter {
     if (start == null) return refuse('starts_on', 'The starts on field must match the format Y-m-d.');
     if (end == null) return refuse('ends_on', 'The ends on field is required.');
     if (held.status != 'active') return refuse('membership', 'This membership has already ended.');
-    if (start < 0) return refuse('starts_on', 'A freeze can\'t start in the past.');
+    if (start < 0) return refuse('starts_on', 'A freeze can start today at the earliest.');
     if (end < start) return refuse('ends_on', 'The last day of the freeze can\'t be before its first day.');
     if (start < held.start || start > held.end) {
-      return refuse('starts_on', 'The freeze must start between ${_iso(_today.add(Duration(days: held.start)))} and ${_iso(_today.add(Duration(days: held.end)))}.');
+      return refuse(
+        'starts_on',
+        'A freeze must start while the membership runs, from ${_longDate(held.start)} to ${_longDate(held.end)}.',
+      );
     }
     if (held.freezes.where((freeze) => freeze.start <= end && freeze.end >= start).firstOrNull case final clash?) {
-      return refuse('starts_on', 'This membership is already frozen from ${_iso(_today.add(Duration(days: clash.start)))} to ${_iso(_today.add(Duration(days: clash.end)))}.');
+      return refuse(
+        'starts_on',
+        'This membership is already frozen from ${_longDate(clash.start)} to ${_longDate(clash.end)}.',
+      );
     }
     final days = end - start + 1;
     final daysLeft = max(0, held.freezeDaysAllowed - held.freezeDaysUsed);
     if (days > daysLeft) {
-      return refuse('ends_on', daysLeft > 0 ? 'Only $daysLeft freeze days are left on this membership.' : 'No freeze days are left on this membership.');
+      return refuse(
+        'ends_on',
+        daysLeft > 0
+            ? 'This membership can be frozen for $daysLeft more ${daysLeft == 1 ? 'day' : 'days'}.'
+            : 'This membership has no freeze days left.',
+      );
     }
 
-    _heldPlans[_key(phone, gym)] = held.copyWith(end: held.end + days, freezes: [...held.freezes, _Freeze(_nextFreezeId++, start, end)]);
+    _heldPlans[_key(phone, gym)] = held.copyWith(
+      end: held.end + days,
+      freezes: [...held.freezes, _Freeze(_nextFreezeId++, start, end, inApp: true)],
+    );
     return _json(201, {'data': _membership(phone, gym)});
   }
 
@@ -591,7 +667,7 @@ final class FakeBackend implements HttpClientAdapter {
       end: held.end - daysBack,
       freezes: [
         for (final other in held.freezes)
-          if (other.id != freezeId) other else if (started) _Freeze(other.id, other.start, -1),
+          if (other.id != freezeId) other else if (started) _Freeze(other.id, other.start, -1, inApp: other.inApp),
       ],
     );
     return _json(200, {'data': _membership(phone, gym)});
@@ -980,6 +1056,17 @@ final class FakeBackend implements HttpClientAdapter {
     return DateTime(now.year, now.month, now.day);
   }
 
+  /// A day [offset] days from today as the API writes it in messages:
+  /// "14 October 2026".
+  String _longDate(int offset) {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+    final day = _today.add(Duration(days: offset));
+    return '${day.day} ${months[day.month - 1]} ${day.year}';
+  }
+
   static String _iso(DateTime day) =>
       '${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
 
@@ -1138,11 +1225,14 @@ final class _HeldPlan {
 
 /// A freeze, in days from today like [_HeldPlan], both days included.
 final class _Freeze {
-  const _Freeze(this.id, this.start, this.end);
+  const _Freeze(this.id, this.start, this.end, {this.inApp = false});
 
   final int id;
   final int start;
   final int end;
+
+  /// Made by the member in the app, not by the gym.
+  final bool inApp;
 
   int get days => end - start + 1;
 }

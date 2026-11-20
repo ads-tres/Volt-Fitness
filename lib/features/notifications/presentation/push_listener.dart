@@ -9,6 +9,7 @@ import '../../../core/auth/session.dart';
 import '../../../core/auth/session_controller.dart';
 import '../../../core/design/tokens.dart';
 import '../../../core/localization/l10n.dart';
+import '../../../core/localization/member_language_sync.dart';
 import '../../../core/push/push_service.dart';
 import '../../../core/push/push_token_sync.dart';
 import '../../home/data/dashboard_repository.dart';
@@ -126,7 +127,9 @@ class _PushListenerState extends ConsumerState<PushListener> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(pushTokenSyncProvider);
+    ref
+      ..watch(pushTokenSyncProvider)
+      ..watch(memberLanguageSyncProvider);
     return widget.child;
   }
 }

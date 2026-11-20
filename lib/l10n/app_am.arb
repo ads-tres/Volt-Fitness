@@ -311,5 +311,16 @@
   "promoCodeHint": "የቅናሽ ኮድ",
   "promoCodeApply": "ተግብር",
   "promoCodeApplied": "{code} ተተግብሯል",
-  "promoCodeRemove": "ኮዱን አስወግድ"
+  "promoCodeRemove": "ኮዱን አስወግድ",
+  "branchesTitle": "ቅርንጫፎች እና የስራ ሰዓታት",
+  "branchAlwaysOpen": "ሁልጊዜ ክፍት",
+  "branchOpenUntil": "አሁን ክፍት · እስከ {time}",
+  "branchClosedOpensAt": "ዝግ · {time} ይከፈታል",
+  "branchClosed": "ዝግ",
+  "branchOnYourPlan": "የእርስዎ እቅድ",
+  "yourOtherPlans": "ሌሎች እቅዶችዎ",
+  "planDates": "{from} – {to}",
+  "planPaidOf": "ከ{price} {paid} ተከፍሏል",
+  "freezeByYou": "በመተግበሪያው እርስዎ ያቆሙት",
+  "freezeByGym": "ጂሙ ያቆመው"
 }
