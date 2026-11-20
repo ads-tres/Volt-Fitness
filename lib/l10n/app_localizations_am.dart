@@ -945,4 +945,40 @@ class AppLocalizationsAm extends AppLocalizations {
   @override
   String get deskSavedOfflineBody =>
       'አሁን ኢንተርኔት የለም። እርግጠኛ ከሆኑ ያስገቡ፤ ስካኑ ሲላክ ውጤቱ በዛሬ ገጽ ላይ ይታያል።';
+
+  @override
+  String deskWaitingBadge(int count) {
+    return '$count በመጠባበቅ ላይ';
+  }
+
+  @override
+  String get deskWaitingTitle => 'ለመላክ በመጠባበቅ ላይ';
+
+  @override
+  String get deskWaitingBody => 'ያለ ኢንተርኔት የተስካኑ። ዴስኩ ኢንተርኔት እንዳገኘ ይላካሉ።';
+
+  @override
+  String deskWaitingRow(String time) {
+    return '$time ላይ የተስካነ';
+  }
+
+  @override
+  String get deskSendNow => 'አሁን ላክ';
+
+  @override
+  String get deskOfflineChip => 'ያለ ኢንተርኔት የተስካነ';
+
+  @override
+  String deskDroppedNotice(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ስካኖች ከአንድ ቀን በላይ ስለቆዩ መላክ አልተቻለም።',
+      one: '1 ስካን ከአንድ ቀን በላይ ስለቆየ መላክ አልተቻለም።',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskDismiss => 'ዝጋ';
 }

@@ -16,6 +16,7 @@ final class DeskCheckIn {
     this.endsOn,
     this.balanceDue,
     this.branchName,
+    this.scannedOffline = false,
   });
 
   final int id;
@@ -35,6 +36,10 @@ final class DeskCheckIn {
   final Money? balanceDue;
   final String? branchName;
 
+  /// Scanned without internet and sent later: the API judged it as of the
+  /// time it was scanned, after the member was already at the door.
+  final bool scannedOffline;
+
   bool get owes => (balanceDue?.amountMinor ?? 0) > 0;
 }
 
@@ -48,6 +53,7 @@ DeskCheckIn deskCheckInFromJson(Map<String, dynamic> json) {
     letIn: json.optional<String>('decision') == 'allow',
     reasonCode: json.optional<String>('reason_code'),
     checkedInAt: DateTime.parse(json.field<String>('checked_in_at')).toUtc(),
+    scannedOffline: json.optional<bool>('scanned_offline') ?? false,
     memberName: member?.optional<String>('full_name'),
     memberPhone: member?.optional<String>('phone'),
     planName: membership?.optional<Map<String, dynamic>>('plan')?.optional<String>('name'),

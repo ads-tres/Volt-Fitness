@@ -16,7 +16,9 @@ import '../core/network/api_headers.dart';
 /// Haile's ended membership, and one with `OWES` lets Abebe Kebede in with
 /// 1,000.00 ETB still to pay. A code scanned twice is `CODE_ALREADY_USED`.
 /// One with `OFFLINE` in it fails as if the desk had no internet, until it
-/// is sent again from the desk's queue (with `scanned_at`).
+/// is sent again from the desk's queue (with `scanned_at`). A scan sent
+/// late is recorded at the time it was scanned, flagged `scanned_offline`,
+/// and refused when that was more than a day ago.
 /// At the desk, Tigist is turned away and anyone else let in. Today's list
 /// holds every check-in made here, newest first, after two from earlier.
 final class FakeFrontDesk implements HttpClientAdapter {
@@ -135,15 +137,26 @@ final class FakeFrontDesk implements HttpClientAdapter {
     if (payload.contains('OFFLINE') && body['scanned_at'] == null) {
       throw DioException.connectionError(requestOptions: options, reason: 'No internet at the desk (demo)');
     }
-    if (!payload.startsWith('GQ1:')) return _record(_checkIn(branch, deny: 'CREDENTIAL_INVALID'));
-    if (!_scanned.add(payload)) return _record(_checkIn(branch, deny: 'CODE_ALREADY_USED'));
+    final scannedAt = body['scanned_at'] is String ? DateTime.tryParse(body['scanned_at']! as String) : null;
+    if (scannedAt != null && _now().difference(scannedAt) > const Duration(hours: 24)) {
+      return _json(422, {
+        'message': 'A scan can be sent up to 24 hours late.',
+        'errors': {
+          'scanned_at': ['A scan can be sent up to 24 hours late.'],
+        },
+      });
+    }
+    Map<String, Object?> checkIn(String? deny, {Map<String, Object?>? member, int owedMinor = 0, String? endsOn}) =>
+        _checkIn(branch, deny: deny, member: member, owedMinor: owedMinor, endsOn: endsOn, scannedAt: scannedAt);
+    if (!payload.startsWith('GQ1:')) return _record(checkIn('CREDENTIAL_INVALID'));
+    if (!_scanned.add(payload)) return _record(checkIn('CODE_ALREADY_USED'));
     if (payload.contains('EXPIRED')) {
-      return _record(_checkIn(branch, deny: 'MEMBERSHIP_EXPIRED', member: _tigist, owedMinor: 0, endsOn: '2026-10-08'));
+      return _record(checkIn('MEMBERSHIP_EXPIRED', member: _tigist, endsOn: '2026-10-08'));
     }
     if (payload.contains('OWES')) {
-      return _record(_checkIn(branch, member: _abebe, owedMinor: 100000, endsOn: '2026-11-01'));
+      return _record(checkIn(null, member: _abebe, owedMinor: 100000, endsOn: '2026-11-01'));
     }
-    return _record(_checkIn(branch, member: _hana, owedMinor: 0, endsOn: '2026-11-01'));
+    return _record(checkIn(null, member: _hana, endsOn: '2026-11-01'));
   }
 
   ResponseBody _record(Map<String, Object?> checkIn) {
@@ -189,10 +202,11 @@ final class FakeFrontDesk implements HttpClientAdapter {
   /// Today's check-ins at a branch, newest first, 25 a page.
   ResponseBody _today(RequestOptions options) {
     final branchId = int.tryParse('${options.queryParameters['branch_id'] ?? ''}');
+    // Newest first by when they happened: a scan sent late lands at its time.
     final all = [
       for (final checkIn in _history.reversed)
         if (branchId == null || (checkIn['branch']! as Map)['id'] == branchId) checkIn,
-    ];
+    ]..sort((a, b) => (b['checked_in_at']! as String).compareTo(a['checked_in_at']! as String));
     final page = int.tryParse('${options.queryParameters['page'] ?? ''}') ?? 1;
     final from = ((page - 1) * 25).clamp(0, all.length);
     final to = (from + 25).clamp(0, all.length);
@@ -215,12 +229,14 @@ final class FakeFrontDesk implements HttpClientAdapter {
     String? endsOn,
     String method = 'qr',
     int minutesAgo = 0,
+    DateTime? scannedAt,
   }) => {
     'id': 800 + _checkIns++,
     'decision': deny == null ? 'allow' : 'deny',
     'reason_code': deny,
     'method': method,
-    'checked_in_at': _now().subtract(Duration(minutes: minutesAgo)).toUtc().toIso8601String(),
+    'checked_in_at': (scannedAt ?? _now().subtract(Duration(minutes: minutesAgo))).toUtc().toIso8601String(),
+    'scanned_offline': scannedAt != null,
     'branch': branch,
     'member': member,
     'membership': member == null

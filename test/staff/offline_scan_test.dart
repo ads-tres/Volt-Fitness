@@ -54,4 +54,29 @@ void main() {
     await tester.tap(find.byKey(const Key('check-in-result')));
     await tester.pumpAndSettle();
   });
+
+  testWidgets('the top bar counts what waits; Today lists it, sends it, and marks it once sent', (tester) async {
+    final camera = FakeCamera();
+    await startDesk(tester, camera: camera);
+    await openScanner(tester);
+    camera.show(offlineCode);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('saved-offline')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('1 waiting'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('waiting-scans')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Waiting to send'), findsOneWidget);
+    expect(find.text('Scanned at 09:30'), findsOneWidget);
+    expect(find.text('Scanned offline'), findsNothing);
+
+    await tester.tap(find.text('Send now'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Waiting to send'), findsNothing);
+    expect(find.text('1 waiting'), findsNothing);
+    expect(find.text('Scanned offline'), findsOneWidget, reason: 'Hana, let in as of 09:30');
+  });
 }
