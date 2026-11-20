@@ -108,6 +108,7 @@ final class FakeBackend implements HttpClientAdapter {
       ('POST', '/access-credential') => _inGym(request, (phone, gym) => _issueCredential(request, phone, gym)),
       ('GET', '/access-credential') => _inGym(request, (phone, gym) => _currentCredential(request, phone, gym)),
       ('GET', '/devices') => _signedIn(request, (phone) => _listDevices(request, phone)),
+      ('GET', '/branches') => _inGym(request, (phone, gym) => _json(200, {'data': _branchesWithHours(gym)})),
       ('GET', '/plans') => _inGym(request, (phone, gym) {
         final code = request.query['promo_code'];
         if (code != null && code.isNotEmpty) {
@@ -323,6 +324,24 @@ final class FakeBackend implements HttpClientAdapter {
       gym == _kazanchisFitClub['id'] ? [_kazanchisBranch] : [_boleBranch, _megenagnaBranch];
 
   static String _key(String phone, String gym) => '$phone|$gym';
+
+  /// The gym's branches by name, with their weeks: Bole opens Monday to
+  /// Saturday 06:00 to 22:00 and Sunday 08:00 to 14:00, Megenagna has no
+  /// hours (always open), Kazanchis Monday to Saturday 05:30 to 21:00.
+  List<Map<String, Object?>> _branchesWithHours(String gym) {
+    Map<String, Object?> day(int weekday, String opens, String closes) =>
+        {'weekday': weekday, 'opens_at': opens, 'closes_at': closes};
+    final weekdays = [for (var weekday = 1; weekday <= 6; weekday++) weekday];
+    final hours = <Object?, List<Map<String, Object?>>>{
+      _boleBranch['id']: [for (final weekday in weekdays) day(weekday, '06:00', '22:00'), day(7, '08:00', '14:00')],
+      _megenagnaBranch['id']: const [],
+      _kazanchisBranch['id']: [for (final weekday in weekdays) day(weekday, '05:30', '21:00')],
+    };
+    return [
+      for (final branch in _branchesOf(gym)..sort((a, b) => '${a['name']}'.compareTo('${b['name']}')))
+        {...branch, 'opening_hours': hours[branch['id']]},
+    ];
+  }
 
   /// The member's plan at [gym], in days from today: what they bought here
   /// in this session, or what their number starts with.

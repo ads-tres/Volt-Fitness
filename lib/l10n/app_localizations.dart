@@ -1879,6 +1879,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove the code'**
   String get promoCodeRemove;
+
+  /// No description provided for @branchesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Branches and hours'**
+  String get branchesTitle;
+
+  /// No description provided for @branchAlwaysOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Always open'**
+  String get branchAlwaysOpen;
+
+  /// No description provided for @branchOpenUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Open now · until {time}'**
+  String branchOpenUntil(String time);
+
+  /// No description provided for @branchClosedOpensAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed · opens {time}'**
+  String branchClosedOpensAt(String time);
+
+  /// No description provided for @branchClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get branchClosed;
+
+  /// No description provided for @branchOnYourPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan'**
+  String get branchOnYourPlan;
 }
 
 class _AppLocalizationsDelegate

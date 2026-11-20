@@ -21,6 +21,7 @@ import '../features/payments/presentation/checkout_page.dart';
 import '../features/payments/presentation/invoice_page.dart';
 import '../features/payments/presentation/payment_result_page.dart';
 import '../features/payments/presentation/payments_page.dart';
+import '../features/gyms/presentation/branches_page.dart';
 import '../features/profile/presentation/devices_page.dart';
 import '../features/profile/presentation/profile_page.dart';
 import '../features/shell/presentation/app_shell.dart';
@@ -133,6 +134,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) => const ProfilePage(),
                 routes: [
                   GoRoute(path: 'devices', builder: (context, state) => const DevicesPage()),
+                  GoRoute(path: 'branches', builder: (context, state) => const BranchesPage()),
                   GoRoute(path: 'notifications', builder: (context, state) => const NotificationSettingsPage()),
                 ],
               ),

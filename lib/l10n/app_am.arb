@@ -311,5 +311,11 @@
   "promoCodeHint": "የቅናሽ ኮድ",
   "promoCodeApply": "ተግብር",
   "promoCodeApplied": "{code} ተተግብሯል",
-  "promoCodeRemove": "ኮዱን አስወግድ"
+  "promoCodeRemove": "ኮዱን አስወግድ",
+  "branchesTitle": "ቅርንጫፎች እና የስራ ሰዓታት",
+  "branchAlwaysOpen": "ሁልጊዜ ክፍት",
+  "branchOpenUntil": "አሁን ክፍት · እስከ {time}",
+  "branchClosedOpensAt": "ዝግ · {time} ይከፈታል",
+  "branchClosed": "ዝግ",
+  "branchOnYourPlan": "የእርስዎ እቅድ"
 }

@@ -1061,4 +1061,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get promoCodeRemove => 'Remove the code';
+
+  @override
+  String get branchesTitle => 'Branches and hours';
+
+  @override
+  String get branchAlwaysOpen => 'Always open';
+
+  @override
+  String branchOpenUntil(String time) {
+    return 'Open now · until $time';
+  }
+
+  @override
+  String branchClosedOpensAt(String time) {
+    return 'Closed · opens $time';
+  }
+
+  @override
+  String get branchClosed => 'Closed';
+
+  @override
+  String get branchOnYourPlan => 'Your plan';
 }

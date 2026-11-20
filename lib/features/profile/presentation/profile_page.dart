@@ -98,6 +98,12 @@ class ProfilePage extends ConsumerWidget {
               child: Column(
                 children: [
                   _SettingRow(
+                    icon: Icons.schedule_rounded,
+                    label: l10n.branchesTitle,
+                    onTap: () => context.go(AppRoutes.branches),
+                  ),
+                  const Divider(height: 1, indent: 60, color: AppColors.line),
+                  _SettingRow(
                     icon: Icons.calendar_month_rounded,
                     label: l10n.calendar,
                     value: calendarName(l10n, ref.watch(calendarProvider)),

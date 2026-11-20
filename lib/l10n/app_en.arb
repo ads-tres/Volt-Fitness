@@ -392,5 +392,13 @@
   "promoCodeApply": "Apply",
   "promoCodeApplied": "{code} applied",
   "@promoCodeApplied": {"placeholders": {"code": {"type": "String"}}},
-  "promoCodeRemove": "Remove the code"
+  "promoCodeRemove": "Remove the code",
+  "branchesTitle": "Branches and hours",
+  "branchAlwaysOpen": "Always open",
+  "branchOpenUntil": "Open now · until {time}",
+  "@branchOpenUntil": {"placeholders": {"time": {"type": "String"}}},
+  "branchClosedOpensAt": "Closed · opens {time}",
+  "@branchClosedOpensAt": {"placeholders": {"time": {"type": "String"}}},
+  "branchClosed": "Closed",
+  "branchOnYourPlan": "Your plan"
 }

@@ -1038,4 +1038,26 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get promoCodeRemove => 'ኮዱን አስወግድ';
+
+  @override
+  String get branchesTitle => 'ቅርንጫፎች እና የስራ ሰዓታት';
+
+  @override
+  String get branchAlwaysOpen => 'ሁልጊዜ ክፍት';
+
+  @override
+  String branchOpenUntil(String time) {
+    return 'አሁን ክፍት · እስከ $time';
+  }
+
+  @override
+  String branchClosedOpensAt(String time) {
+    return 'ዝግ · $time ይከፈታል';
+  }
+
+  @override
+  String get branchClosed => 'ዝግ';
+
+  @override
+  String get branchOnYourPlan => 'የእርስዎ እቅድ';
 }
