@@ -90,6 +90,20 @@ proves nothing, so the result screen then has the API ask Chapa
 Paid receipts come from `GET /me/gyms/{gym}/payments`. Amounts are always
 `Money` in minor units.
 
+### Branches, past plans and language
+
+Profile, then **Branches and hours** lists the gym's branches
+(`GET branches`) with each one's week and whether it is open now, by the
+same rule as the door: no hours means always open, and a weekday without
+hours is closed. The Membership tab lists the member's other plans, coming
+and past (`GET memberships`). The app tells the API the member's language
+(`PUT /me/language`) after sign-in and when it changes, so texts from the
+gym come in Amharic or English to match.
+
+In the fake, Bole opens Monday to Saturday 06:00 to 22:00 and Sunday 08:00
+to 14:00, Megenagna is always open, and every member has last month's plan
+behind the current one.
+
 ### Discounts and promo codes
 
 Plans show what the member pays (`your_price`, the gym platform's ADR
@@ -112,6 +126,9 @@ reason. The plan's end date moves later by as many days. A freeze covering
 today or coming shows as a card with **I'm back** (or **Cancel freeze** before
 it starts), which calls `…/freezes/{freeze}/end`; the unused days come back.
 The API checks every rule and its refusal shows under the day it is about.
+
+Each freeze says whether the member made it in the app or the gym did
+(`frozen_in_app`).
 
 In the fake, every Monthly plan allows 7 freeze days. The frozen number has
 used 8 of its 10, so it can end its freeze or add a two-day one after it.
