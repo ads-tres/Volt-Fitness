@@ -1915,6 +1915,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your plan'**
   String get branchOnYourPlan;
+
+  /// No description provided for @yourOtherPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Your other plans'**
+  String get yourOtherPlans;
+
+  /// No description provided for @planDates.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} – {to}'**
+  String planDates(String from, String to);
+
+  /// No description provided for @planPaidOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid {paid} of {price}'**
+  String planPaidOf(String paid, String price);
 }
 
 class _AppLocalizationsDelegate

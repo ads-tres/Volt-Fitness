@@ -317,5 +317,8 @@
   "branchOpenUntil": "አሁን ክፍት · እስከ {time}",
   "branchClosedOpensAt": "ዝግ · {time} ይከፈታል",
   "branchClosed": "ዝግ",
-  "branchOnYourPlan": "የእርስዎ እቅድ"
+  "branchOnYourPlan": "የእርስዎ እቅድ",
+  "yourOtherPlans": "ሌሎች እቅዶችዎ",
+  "planDates": "{from} – {to}",
+  "planPaidOf": "ከ{price} {paid} ተከፍሏል"
 }

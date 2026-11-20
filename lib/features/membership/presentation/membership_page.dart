@@ -17,7 +17,9 @@ import '../../../core/time/date_text.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../attendance/presentation/visit_card.dart';
 import '../../home/data/dashboard_repository.dart';
+import '../../../core/localization/locale_controller.dart';
 import '../data/freeze_repository.dart';
+import '../data/memberships_repository.dart';
 import '../domain/membership.dart';
 import 'freeze_sheet.dart';
 
@@ -37,7 +39,10 @@ class MembershipPage extends ConsumerWidget {
       child: SafeArea(
         bottom: false,
         child: RefreshIndicator(
-          onRefresh: controller.refresh,
+          onRefresh: () async {
+            ref.invalidate(membershipsProvider);
+            await controller.refresh();
+          },
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
@@ -166,6 +171,66 @@ class _MembershipDetails extends ConsumerWidget {
           const SizedBox(height: 20),
           PrimaryButton(label: l10n.renewPlan, onPressed: () => context.go(AppRoutes.payments)),
         ],
+        _OtherPlans(currentId: membership.id),
+      ],
+    );
+  }
+}
+
+/// The member's other memberships at this gym, coming and past, newest
+/// first: plan, dates, status and what was paid. Nothing when there are none.
+class _OtherPlans extends ConsumerWidget {
+  const _OtherPlans({required this.currentId});
+
+  final String currentId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final textTheme = Theme.of(context).textTheme;
+    final dates = ref.watch(dateTextProvider);
+    final languageCode = ref.watch(languageCodeProvider);
+    final others = [
+      for (final membership in ref.watch(membershipsProvider).value ?? const <Membership>[])
+        if (membership.id != currentId) membership,
+    ];
+    if (others.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 28),
+        SectionHeader(l10n.yourOtherPlans),
+        for (final membership in others)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: AppCard(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(child: Text(membership.planName, style: textTheme.titleMedium)),
+                      Text(
+                        membershipStatusLabel(l10n, membership.status),
+                        style: textTheme.labelLarge?.copyWith(color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l10n.planDates(dates.date(membership.startsOn), dates.date(membership.endsOn)),
+                    style: textTheme.bodyMedium,
+                  ),
+                  if ((membership.amountPaid, membership.price) case (final paid?, final price?))
+                    Text(
+                      l10n.planPaidOf(paid.format(languageCode), price.format(languageCode)),
+                      style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                    ),
+                ],
+              ),
+            ),
+          ),
       ],
     );
   }

@@ -85,7 +85,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Quarterly'), findsOneWidget);
+    expect(find.text('Quarterly'), findsWidgets, reason: 'the plan, and the last one below it');
     expect(find.text('Kazanchis'), findsOneWidget);
   });
 

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import '../../../core/money/money.dart';
 import '../../../core/time/local_date.dart';
 
 /// From the API; the app shows it and never works it out itself.
@@ -28,6 +29,8 @@ final class Membership {
     this.freezeDaysAllowed = 0,
     this.freezeDaysLeft = 0,
     this.freezes = const [],
+    this.price,
+    this.amountPaid,
   });
 
   /// Shown as "ends soon" from this many days before the end.
@@ -55,6 +58,10 @@ final class Membership {
 
   /// Every freeze on this membership, past and coming.
   final List<MembershipFreeze> freezes;
+
+  /// What it was sold for, and how much of that is paid.
+  final Money? price;
+  final Money? amountPaid;
 
   /// Days from [today] to the last day, 0 on the last day itself.
   int daysLeft(LocalDate today) => max(0, today.daysUntil(endsOn));

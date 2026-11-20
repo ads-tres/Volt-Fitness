@@ -1060,4 +1060,17 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get branchOnYourPlan => 'የእርስዎ እቅድ';
+
+  @override
+  String get yourOtherPlans => 'ሌሎች እቅዶችዎ';
+
+  @override
+  String planDates(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String planPaidOf(String paid, String price) {
+    return 'ከ$price $paid ተከፍሏል';
+  }
 }

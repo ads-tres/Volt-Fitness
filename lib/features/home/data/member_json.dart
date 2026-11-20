@@ -1,3 +1,4 @@
+import '../../../core/money/money.dart';
 import '../../../core/network/json.dart';
 import '../../../core/time/local_date.dart';
 import '../../attendance/domain/visit.dart';
@@ -39,6 +40,14 @@ Membership membershipFromJson(Map<String, dynamic> json) => Membership(
   freezeDaysAllowed: json.optional<int>('freeze_days_allowed') ?? 0,
   freezeDaysLeft: json.optional<int>('freeze_days_left') ?? 0,
   freezes: [for (final freeze in json.objects('freezes')) freezeFromJson(freeze)],
+  price: switch (json.optional<Map<String, dynamic>>('price')) {
+    final money? => Money.fromJson(money),
+    null => null,
+  },
+  amountPaid: switch (json.optional<Map<String, dynamic>>('amount_paid')) {
+    final money? => Money.fromJson(money),
+    null => null,
+  },
 );
 
 /// A freeze on a membership: its days, both included.

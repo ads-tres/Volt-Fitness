@@ -60,7 +60,7 @@ void main() {
     await tester.tap(find.byTooltip('Membership'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Monthly'), findsOneWidget);
+    expect(find.text('Monthly'), findsWidgets, reason: 'the plan, and last month\'s below it');
     expect(find.text('Active'), findsOneWidget);
     expect(find.text('Oct 2, 2026'), findsOneWidget);
     expect(find.text('Nov 1, 2026'), findsOneWidget);

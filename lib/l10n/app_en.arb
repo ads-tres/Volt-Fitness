@@ -400,5 +400,10 @@
   "branchClosedOpensAt": "Closed · opens {time}",
   "@branchClosedOpensAt": {"placeholders": {"time": {"type": "String"}}},
   "branchClosed": "Closed",
-  "branchOnYourPlan": "Your plan"
+  "branchOnYourPlan": "Your plan",
+  "yourOtherPlans": "Your other plans",
+  "planDates": "{from} – {to}",
+  "@planDates": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
+  "planPaidOf": "Paid {paid} of {price}",
+  "@planPaidOf": {"placeholders": {"paid": {"type": "String"}, "price": {"type": "String"}}}
 }

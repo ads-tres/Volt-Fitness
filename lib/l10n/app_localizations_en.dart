@@ -1083,4 +1083,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get branchOnYourPlan => 'Your plan';
+
+  @override
+  String get yourOtherPlans => 'Your other plans';
+
+  @override
+  String planDates(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String planPaidOf(String paid, String price) {
+    return 'Paid $paid of $price';
+  }
 }

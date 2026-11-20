@@ -109,6 +109,7 @@ final class FakeBackend implements HttpClientAdapter {
       ('GET', '/access-credential') => _inGym(request, (phone, gym) => _currentCredential(request, phone, gym)),
       ('GET', '/devices') => _signedIn(request, (phone) => _listDevices(request, phone)),
       ('GET', '/branches') => _inGym(request, (phone, gym) => _json(200, {'data': _branchesWithHours(gym)})),
+      ('GET', '/memberships') => _inGym(request, (phone, gym) => _json(200, {'data': _allMemberships(phone, gym)})),
       ('GET', '/plans') => _inGym(request, (phone, gym) {
         final code = request.query['promo_code'];
         if (code != null && code.isNotEmpty) {
@@ -316,6 +317,33 @@ final class FakeBackend implements HttpClientAdapter {
       'cancelled_at': null,
       'open_payment_link': null,
     };
+  }
+
+  /// Every membership, newest first: one coming after an ending-soon plan,
+  /// the current one, and last month's, expired and paid.
+  List<Map<String, Object?>> _allMemberships(String phone, String gym) {
+    final current = _membership(phone, gym);
+    final held = _held(phone, gym);
+    if (current == null || held == null) return const [];
+    String day(int offset) => _iso(_today.add(Duration(days: offset)));
+    final price = current['price']! as Map<String, Object?>;
+    Map<String, Object?> other(int id, String status, int start, int end, {required bool paid}) => {
+      ...current,
+      'id': id,
+      'status': status,
+      'starts_on': day(start),
+      'ends_on': day(end),
+      'amount_paid': paid ? price : _money(0),
+      'balance_due': paid ? _money(0) : price,
+      'freezes': const <Object?>[],
+      'freeze_days_used': 0,
+      'freeze_days_left': held.freezeDaysAllowed,
+    };
+    return [
+      if (phone == endingSoonPhone) other(_membershipId(gym) + 1, 'upcoming', held.end + 1, held.end + 30, paid: false),
+      current,
+      other(_membershipId(gym) - 1, 'expired', held.start - 30, held.start - 1, paid: true),
+    ];
   }
 
   static int _membershipId(String gym) => gym == _kazanchisFitClub['id'] ? 202 : 101;
