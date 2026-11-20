@@ -283,5 +283,7 @@
   "freezeCancelBody": "የማቆያ ቀናቱ ይመለሱልዎታል፤ እቅድዎ የሚያልቅበት ቀንም ወደ ቀድሞው ይመለሳል።",
   "freezeKeep": "ይቆይ",
   "freezeEnded": "እንኳን ደህና መጡ! ማቆሙ አብቅቷል።",
-  "freezeCancelled": "ማቆሙ ተሰርዟል።"
+  "freezeCancelled": "ማቆሙ ተሰርዟል።",
+  "deskSavedOffline": "ተቀምጧል፤ ኢንተርኔት ሲመለስ ይረጋገጣል",
+  "deskSavedOfflineBody": "አሁን ኢንተርኔት የለም። እርግጠኛ ከሆኑ ያስገቡ፤ ስካኑ ሲላክ ውጤቱ በዛሬ ገጽ ላይ ይታያል።"
 }

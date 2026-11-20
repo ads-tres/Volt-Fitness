@@ -360,5 +360,7 @@
   "freezeCancelBody": "The freeze days come back to you, and your plan's end date moves back.",
   "freezeKeep": "Keep it",
   "freezeEnded": "Welcome back! Your freeze has ended.",
-  "freezeCancelled": "Your freeze is cancelled."
+  "freezeCancelled": "Your freeze is cancelled.",
+  "deskSavedOffline": "Saved, will check when back online",
+  "deskSavedOfflineBody": "No internet right now. Let them in if you're sure; the answer shows in Today once the scan is sent."
 }

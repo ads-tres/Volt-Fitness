@@ -938,4 +938,11 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get freezeCancelled => 'ማቆሙ ተሰርዟል።';
+
+  @override
+  String get deskSavedOffline => 'ተቀምጧል፤ ኢንተርኔት ሲመለስ ይረጋገጣል';
+
+  @override
+  String get deskSavedOfflineBody =>
+      'አሁን ኢንተርኔት የለም። እርግጠኛ ከሆኑ ያስገቡ፤ ስካኑ ሲላክ ውጤቱ በዛሬ ገጽ ላይ ይታያል።';
 }

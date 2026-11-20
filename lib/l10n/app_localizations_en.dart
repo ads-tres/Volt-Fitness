@@ -959,4 +959,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get freezeCancelled => 'Your freeze is cancelled.';
+
+  @override
+  String get deskSavedOffline => 'Saved, will check when back online';
+
+  @override
+  String get deskSavedOfflineBody =>
+      'No internet right now. Let them in if you\'re sure; the answer shows in Today once the scan is sent.';
 }

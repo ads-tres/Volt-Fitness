@@ -1711,6 +1711,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your freeze is cancelled.'**
   String get freezeCancelled;
+
+  /// No description provided for @deskSavedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved, will check when back online'**
+  String get deskSavedOffline;
+
+  /// No description provided for @deskSavedOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet right now. Let them in if you\'re sure; the answer shows in Today once the scan is sent.'**
+  String get deskSavedOfflineBody;
 }
 
 class _AppLocalizationsDelegate

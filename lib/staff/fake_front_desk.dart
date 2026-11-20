@@ -15,6 +15,8 @@ import '../core/network/api_headers.dart';
 /// Any GQ1 code lets Hana Girma in; one with `EXPIRED` in it is Tigist
 /// Haile's ended membership, and one with `OWES` lets Abebe Kebede in with
 /// 1,000.00 ETB still to pay. A code scanned twice is `CODE_ALREADY_USED`.
+/// One with `OFFLINE` in it fails as if the desk had no internet, until it
+/// is sent again from the desk's queue (with `scanned_at`).
 /// At the desk, Tigist is turned away and anyone else let in. Today's list
 /// holds every check-in made here, newest first, after two from earlier.
 final class FakeFrontDesk implements HttpClientAdapter {
@@ -129,6 +131,9 @@ final class FakeFrontDesk implements HttpClientAdapter {
           'branch_id': ['Choose a branch of this gym that you work at.'],
         },
       });
+    }
+    if (payload.contains('OFFLINE') && body['scanned_at'] == null) {
+      throw DioException.connectionError(requestOptions: options, reason: 'No internet at the desk (demo)');
     }
     if (!payload.startsWith('GQ1:')) return _record(_checkIn(branch, deny: 'CREDENTIAL_INVALID'));
     if (!_scanned.add(payload)) return _record(_checkIn(branch, deny: 'CODE_ALREADY_USED'));
