@@ -981,4 +981,44 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get deskDismiss => 'ዝጋ';
+
+  @override
+  String get deskInboxTitle => 'መልዕክቶች';
+
+  @override
+  String get deskMarkAllRead => 'ሁሉንም እንደተነበበ ምልክት አድርግ';
+
+  @override
+  String get deskInboxEmpty =>
+      'እስካሁን መልዕክት የለም። የኦንላይን ክፍያዎች፣ የሚመለሱ ገንዘቦች፣ በመተግበሪያው የቆሙ አባልነቶች እና የሚደወልላቸው አባላት እዚህ ይታያሉ።';
+
+  @override
+  String get deskOpenPanel => 'በሰራተኞች ፓነል ክፈት';
+
+  @override
+  String get deskViewMessage => 'ይመልከቱ';
+
+  @override
+  String get deskNotificationSettings => 'ማሳወቂያዎች';
+
+  @override
+  String get deskTopicOnlinePayments => 'የኦንላይን ክፍያዎች';
+
+  @override
+  String get deskTopicRefunds => 'የሚመለሱ ገንዘቦች';
+
+  @override
+  String get deskTopicAppFreezes => 'በመተግበሪያው የቆሙ አባልነቶች';
+
+  @override
+  String get deskTopicMembersToCall => 'የሚደወልላቸው አባላት';
+
+  @override
+  String get deskChannelPush => 'ፑሽ';
+
+  @override
+  String get deskChannelSms => 'ኤስኤምኤስ';
+
+  @override
+  String get deskQuietHours => 'ከምሽቱ 3:00 እስከ ጠዋቱ 1:00 ኤስኤምኤስ አይላክም።';
 }

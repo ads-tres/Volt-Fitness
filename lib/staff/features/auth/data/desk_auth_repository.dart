@@ -39,7 +39,17 @@ final class DeskAuthRepository {
     );
   }
 
-  Future<void> signOut() => _api.delete('/auth/tokens/current');
+  /// Stops this phone's staff pushes, so a shared desk phone doesn't get
+  /// the last person's messages, then revokes the token. Pushes stopping is
+  /// best effort; revoking the token stops them too.
+  Future<void> signOut() async {
+    try {
+      await _api.delete('/me/push-token');
+    } on Failure {
+      // Revoking the token below ends the pushes anyway.
+    }
+    await _api.delete('/auth/tokens/current');
+  }
 }
 
 final deskAuthRepositoryProvider = Provider<DeskAuthRepository>(

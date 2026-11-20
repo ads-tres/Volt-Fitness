@@ -145,7 +145,21 @@ opens on the scanner. Three tabs:
   number and checks them in at the branch, with the same answer.
 - **Today** lists the branch's check-ins for the day, newest first.
 
-The menu at the top changes the branch or signs out.
+The menu at the top changes the branch, opens **Notifications** or signs
+out.
+
+**Staff messages.** The bell in the top bar counts unread messages and
+opens the inbox (`GET /organizations/{gym}/notifications`): online
+payments, refunds to make, freezes members made in the app, and the
+morning's members to call. Opening one shows it in full and marks it read;
+the members to call link to the gym's staff panel. The desk checks every
+two minutes and when it comes back to the front. **Notifications** in the
+menu sets push and SMS for each topic (`notification-preferences`).
+While signed in, the desk registers the phone's push token with
+`"app": "staff"`, so it gets staff pushes and never members' ones (the gym
+platform's ADR 0035); signing out removes it first, for shared desk
+phones. A push arriving shows a banner; a tapped one opens its message.
+Real builds have no Firebase yet, so for now they only see the inbox.
 
 **Without internet.** A scan that can't reach the API is kept on the phone
 (`desk.outbox` in preferences) with the time it was scanned, its gym and
@@ -184,6 +198,9 @@ the API's shapes, as the member app's fake does
 | a `GQ1:` code containing `OWES` | Abebe Kebede let in, owing 1,000 ETB    |
 | the same code twice             | turned away, code already used          |
 | a `GQ1:` code containing `OFFLINE` | fails as if offline; sent from the queue it lets Hana in, marked offline |
+
+Each gym's inbox starts with one unread message of each kind, and the
+choices start with push on and SMS off.
 
 At the desk, search finds Abebe (owes 1,000 ETB), Tigist (turned away, plan
 ended) and Hana. Today starts with two earlier check-ins at Main Branch and

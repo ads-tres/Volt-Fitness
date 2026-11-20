@@ -1004,4 +1004,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskDismiss => 'Dismiss';
+
+  @override
+  String get deskInboxTitle => 'Messages';
+
+  @override
+  String get deskMarkAllRead => 'Mark all read';
+
+  @override
+  String get deskInboxEmpty =>
+      'No messages yet. Online payments, refunds to make, freezes made in the app and the members to call show here.';
+
+  @override
+  String get deskOpenPanel => 'Open in the staff panel';
+
+  @override
+  String get deskViewMessage => 'View';
+
+  @override
+  String get deskNotificationSettings => 'Notifications';
+
+  @override
+  String get deskTopicOnlinePayments => 'Online payments';
+
+  @override
+  String get deskTopicRefunds => 'Refunds to make';
+
+  @override
+  String get deskTopicAppFreezes => 'Freezes in the app';
+
+  @override
+  String get deskTopicMembersToCall => 'Members to call';
+
+  @override
+  String get deskChannelPush => 'Push';
+
+  @override
+  String get deskChannelSms => 'SMS';
+
+  @override
+  String get deskQuietHours => 'No SMS goes out between 21:00 and 07:00.';
 }
