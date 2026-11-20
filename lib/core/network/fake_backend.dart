@@ -175,6 +175,15 @@ final class FakeBackend implements HttpClientAdapter {
         (phone, gym) => _updatePreferences(request, phone, gym),
       ),
       ('PUT', '/me/push-token') => _signedIn(request, (phone) => _savePushToken(request, phone)),
+      ('PUT', '/me/language') => _signedIn(request, (_) {
+        final language = request.body['language'];
+        if (language != 'am' && language != 'en') {
+          return _error(422, 'VALIDATION_FAILED', 'The selected language is invalid.', request, errors: {
+            'language': ['The selected language is invalid.'],
+          });
+        }
+        return _noContent();
+      }),
       ('POST', '/dev/fake-push') => _inGym(request, _fakePush),
       ('DELETE', final path) when path.startsWith('/devices/') => _signedIn(
         request,
