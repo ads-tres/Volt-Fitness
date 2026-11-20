@@ -386,5 +386,11 @@
   "deskTopicMembersToCall": "Members to call",
   "deskChannelPush": "Push",
   "deskChannelSms": "SMS",
-  "deskQuietHours": "No SMS goes out between 21:00 and 07:00."
+  "deskQuietHours": "No SMS goes out between 21:00 and 07:00.",
+  "promoCodeAsk": "Have a promo code?",
+  "promoCodeHint": "Promo code",
+  "promoCodeApply": "Apply",
+  "promoCodeApplied": "{code} applied",
+  "@promoCodeApplied": {"placeholders": {"code": {"type": "String"}}},
+  "promoCodeRemove": "Remove the code"
 }

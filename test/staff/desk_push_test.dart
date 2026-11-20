@@ -11,6 +11,16 @@ import 'package:gym_mobile/staff/features/auth/data/desk_auth_repository.dart';
 import '../support/desk_driver.dart';
 import '../support/test_doubles.dart';
 
+/// Waits until [done], up to two seconds: the sync runs on its own time.
+Future<void> until(bool Function() done) async {
+  for (var waited = 0; !done() && waited < 2000; waited += 10) {
+    await Future<void>.delayed(const Duration(milliseconds: 10), () {});
+  }
+}
+
+/// Lets anything still in flight finish, to show nothing more is sent.
+Future<void> settle() => Future<void>.delayed(const Duration(milliseconds: 200), () {});
+
 /// What the API answers to PUT and DELETE: nothing.
 ResponseBody noContent() => ResponseBody.fromString('', 204);
 
@@ -22,21 +32,22 @@ void main() {
     final container = ProviderContainer.test(overrides: await testOverrides(fakeBackend: true));
     container.read(dioProvider).httpClientAdapter = adapter;
     final keepAlive = container.listen(deskPushTokenSyncProvider, (_, _) {});
-    await Future<void>.delayed(const Duration(milliseconds: 20), () {});
+    await settle();
     expect(adapter.requests, isEmpty, reason: 'signed out: nothing to send');
 
     await container.read(deskSessionProvider.notifier).signIn(token: '9|desk', name: 'Selam', gyms: [demoGym]);
-    await Future<void>.delayed(const Duration(milliseconds: 20), () {});
+    await until(() => adapter.requests.isNotEmpty);
+    await settle();
     expect(adapter.requests.single.method, 'PUT');
     expect(adapter.requests.single.path, '/me/push-token');
     expect(adapter.requests.single.data, {'provider': 'fcm', 'token': 'fake-fcm-token-1', 'locale': 'en', 'app': 'staff'});
 
     container.invalidate(deskPushTokenSyncProvider);
-    await Future<void>.delayed(const Duration(milliseconds: 20), () {});
+    await settle();
     expect(adapter.requests, hasLength(1), reason: 'the same token is not sent twice');
 
     (container.read(pushServiceProvider) as FakePushService).rotateToken();
-    await Future<void>.delayed(const Duration(milliseconds: 20), () {});
+    await until(() => adapter.requests.length == 2);
     expect((adapter.requests.last.data as Map)['token'], 'fake-fcm-token-2');
     keepAlive.close();
   });

@@ -87,7 +87,10 @@ void main() {
   test('the inbox counts what is unread, and reading one or all brings it down', () async {
     final container = await desk();
     final inbox = container.read(staffInboxProvider.notifier);
-    await Future<void>.delayed(const Duration(milliseconds: 20), () {}); // it loads as it starts
+    // It loads as it starts.
+    for (var waited = 0; container.read(staffInboxProvider).messages.isEmpty && waited < 2000; waited += 10) {
+      await Future<void>.delayed(const Duration(milliseconds: 10), () {});
+    }
 
     expect(container.read(staffInboxProvider).messages, hasLength(4));
     expect(container.read(staffInboxProvider).unreadCount, 4);

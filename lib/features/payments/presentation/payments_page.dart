@@ -17,6 +17,7 @@ import '../../home/data/dashboard_repository.dart';
 import '../data/billing_repository.dart';
 import '../domain/billing.dart';
 import 'pay_button.dart';
+import 'plan_price.dart';
 
 /// What the member owes, the plans they can buy, and what they paid.
 class PaymentsPage extends ConsumerWidget {
@@ -48,6 +49,8 @@ class PaymentsPage extends ConsumerWidget {
               const SizedBox(height: 24),
               if (outstanding != null) ...[DueCard(outstanding: outstanding), const SizedBox(height: 28)],
               SectionHeader(l10n.plansTitle),
+              const PromoCodeField(),
+              const SizedBox(height: 10),
               switch (plans) {
                 // A row, not a fixed-height list, so cards size to their
                 // content at any text size.
@@ -190,7 +193,6 @@ class _PlanCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
-    final languageCode = ref.watch(languageCodeProvider);
     return SizedBox(
       width: 236,
       child: AppCard(
@@ -215,12 +217,7 @@ class _PlanCard extends ConsumerWidget {
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      Expanded(
-                        child: Text(
-                          plan.price.format(languageCode),
-                          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-                        ),
-                      ),
+                      Expanded(child: PlanPrice(plan: plan)),
                       Icon(Icons.arrow_forward_rounded, color: context.brand.primary),
                     ],
                   ),
@@ -278,9 +275,11 @@ class _PlanSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
-    final price = plan.price.format(ref.watch(languageCodeProvider));
+    final price = plan.pays.format(ref.watch(languageCodeProvider));
+    final promoCode = plan.discountFromCode ? ref.watch(promoCodeProvider) : null;
     return SafeArea(
-      child: Padding(
+      // Scrolls on a short phone or with large text.
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -303,13 +302,13 @@ class _PlanSheet extends ConsumerWidget {
                     ],
                   ),
                 ),
-                Text(price, style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                PlanPrice(plan: plan),
               ],
             ),
             const SizedBox(height: 12),
             Text(l10n.confirmPlanBody, style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
             const SizedBox(height: 20),
-            PayButton(label: l10n.payAmount(price), planId: plan.id),
+            PayButton(label: l10n.payAmount(price), planId: plan.id, promoCode: promoCode),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

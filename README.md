@@ -59,6 +59,7 @@ never use the fake.
 | No plan                        | `0955 55 55 55` | `123456`      |
 | Payments always declined       | `0966 66 66 66` | `123456`      |
 | Member of two gyms             | `0911 11 11 11` | `123456`      |
+| In the Student group (20% off) | `0977 77 77 77` | `123456`      |
 | Number with no gym             | `0900 00 00 00` | `123456`      |
 | Wrong or expired code          | any             | anything else |
 | Too many wrong codes           | any             | 5 wrong codes, then 429 |
@@ -88,6 +89,19 @@ proves nothing, so the result screen then has the API ask Chapa
 (`POST …/payment-links/{id}/check`, ten a minute) until the payment is in.
 Paid receipts come from `GET /me/gyms/{gym}/payments`. Amounts are always
 `Money` in minor units.
+
+### Discounts and promo codes
+
+Plans show what the member pays (`your_price`, the gym platform's ADR
+0032): their discount group's price, such as Student, or a promo code's,
+whichever is lower, with the list price struck through and a tag naming
+why. **Have a promo code?** on the Payments tab applies a code to every
+plan (`GET plans?promo_code=`); the API's reason shows when it can't be
+used. Buying a plan the code covers sends it (`{"promo_code": …}`) and is
+charged its price. The code is forgotten when the member changes gym.
+
+In the fake, `NEWYEAR` takes 10% off Monthly and Quarterly (not Annual),
+`USED` has already been used, and any other code doesn't exist.
 
 ### Freezing
 

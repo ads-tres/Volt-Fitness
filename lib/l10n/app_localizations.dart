@@ -1849,6 +1849,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No SMS goes out between 21:00 and 07:00.'**
   String get deskQuietHours;
+
+  /// No description provided for @promoCodeAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Have a promo code?'**
+  String get promoCodeAsk;
+
+  /// No description provided for @promoCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Promo code'**
+  String get promoCodeHint;
+
+  /// No description provided for @promoCodeApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get promoCodeApply;
+
+  /// No description provided for @promoCodeApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'{code} applied'**
+  String promoCodeApplied(String code);
+
+  /// No description provided for @promoCodeRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the code'**
+  String get promoCodeRemove;
 }
 
 class _AppLocalizationsDelegate
