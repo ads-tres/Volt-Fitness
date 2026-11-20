@@ -1795,6 +1795,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open in the staff panel'**
   String get deskOpenPanel;
+
+  /// No description provided for @deskViewMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get deskViewMessage;
 }
 
 class _AppLocalizationsDelegate

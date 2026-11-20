@@ -377,5 +377,6 @@
   "deskInboxTitle": "Messages",
   "deskMarkAllRead": "Mark all read",
   "deskInboxEmpty": "No messages yet. Online payments, refunds to make, freezes made in the app and the members to call show here.",
-  "deskOpenPanel": "Open in the staff panel"
+  "deskOpenPanel": "Open in the staff panel",
+  "deskViewMessage": "View"
 }

@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/errors/failure.dart';
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/push/push_service.dart';
 import '../../../core/desk_session.dart';
 import '../../auth/data/desk_auth_repository.dart';
 
@@ -29,6 +30,7 @@ class DeskMenu extends ConsumerWidget {
             } on Failure {
               // Revoked at the next sign-in instead.
             }
+            unawaited(ref.read(pushServiceProvider).deleteToken());
             unawaited(ref.read(deskSessionProvider.notifier).signOut());
         }
       },

@@ -297,5 +297,6 @@
   "deskInboxTitle": "መልዕክቶች",
   "deskMarkAllRead": "ሁሉንም እንደተነበበ ምልክት አድርግ",
   "deskInboxEmpty": "እስካሁን መልዕክት የለም። የኦንላይን ክፍያዎች፣ የሚመለሱ ገንዘቦች፣ በመተግበሪያው የቆሙ አባልነቶች እና የሚደወልላቸው አባላት እዚህ ይታያሉ።",
-  "deskOpenPanel": "በሰራተኞች ፓነል ክፈት"
+  "deskOpenPanel": "በሰራተኞች ፓነል ክፈት",
+  "deskViewMessage": "ይመልከቱ"
 }

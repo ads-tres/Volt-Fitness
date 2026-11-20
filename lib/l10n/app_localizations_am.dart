@@ -994,4 +994,7 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get deskOpenPanel => 'በሰራተኞች ፓነል ክፈት';
+
+  @override
+  String get deskViewMessage => 'ይመልከቱ';
 }

@@ -1017,4 +1017,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOpenPanel => 'Open in the staff panel';
+
+  @override
+  String get deskViewMessage => 'View';
 }
