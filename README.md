@@ -176,8 +176,15 @@ opens on the scanner. Three tabs:
   number and checks them in at the branch, with the same answer.
 - **Today** lists the branch's check-ins for the day, newest first.
 
-The menu at the top changes the branch, opens **Notifications** or signs
-out.
+The menu at the top changes the branch, opens **Numbers** or
+**Notifications**, or signs out.
+
+**Numbers.** The gym's figures from the staff dashboard
+(`GET /organizations/{gym}/dashboard`), for today or the last 7 or 30 days,
+at this branch or every branch: check-ins with the top reasons for turning
+away, money and what is owed, members and plans sold, the busy hours, and
+the members to call, with a button to call each. The API leaves money out
+for roles that don't see it, so a receptionist sees no money cards.
 
 **Staff messages.** The bell in the top bar counts unread messages and
 opens the inbox (`GET /organizations/{gym}/notifications`): online
@@ -231,7 +238,8 @@ the API's shapes, as the member app's fake does
 | a `GQ1:` code containing `OFFLINE` | fails as if offline; sent from the queue it lets Hana in, marked offline |
 
 Each gym's inbox starts with one unread message of each kind, and the
-choices start with push on and SMS off.
+choices start with push on and SMS off. Numbers counts the check-ins made
+in the fake; the owner sees money, the two-gyms receptionist doesn't.
 
 At the desk, search finds Abebe (owes 1,000 ETB), Tigist (turned away, plan
 ended) and Hana. Today starts with two earlier check-ins at Main Branch and
