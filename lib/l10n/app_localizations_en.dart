@@ -1044,4 +1044,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskQuietHours => 'No SMS goes out between 21:00 and 07:00.';
+
+  @override
+  String get promoCodeAsk => 'Have a promo code?';
+
+  @override
+  String get promoCodeHint => 'Promo code';
+
+  @override
+  String get promoCodeApply => 'Apply';
+
+  @override
+  String promoCodeApplied(String code) {
+    return '$code applied';
+  }
+
+  @override
+  String get promoCodeRemove => 'Remove the code';
 }

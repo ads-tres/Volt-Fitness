@@ -1021,4 +1021,21 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get deskQuietHours => 'ከምሽቱ 3:00 እስከ ጠዋቱ 1:00 ኤስኤምኤስ አይላክም።';
+
+  @override
+  String get promoCodeAsk => 'የቅናሽ ኮድ አለዎት?';
+
+  @override
+  String get promoCodeHint => 'የቅናሽ ኮድ';
+
+  @override
+  String get promoCodeApply => 'ተግብር';
+
+  @override
+  String promoCodeApplied(String code) {
+    return '$code ተተግብሯል';
+  }
+
+  @override
+  String get promoCodeRemove => 'ኮዱን አስወግድ';
 }

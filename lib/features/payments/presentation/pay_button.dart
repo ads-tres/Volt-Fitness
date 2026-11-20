@@ -15,12 +15,22 @@ import '../data/billing_repository.dart';
 /// Pays an open invoice, or buys a plan: the API starts a Chapa payment and
 /// the checkout opens. Shows why when it can't start.
 class PayButton extends ConsumerStatefulWidget {
-  const PayButton({super.key, required this.label, this.invoiceId, this.planId, this.compact = false})
+  const PayButton({
+    super.key,
+    required this.label,
+    this.invoiceId,
+    this.planId,
+    this.promoCode,
+    this.compact = false,
+  })
     : assert((invoiceId == null) != (planId == null), 'Pay an invoice or a plan, not both');
 
   final String label;
   final String? invoiceId;
   final String? planId;
+
+  /// Buys the plan with this code, charged at its price.
+  final String? promoCode;
 
   /// A small brand-coloured button for cards, instead of the full-width one.
   final bool compact;
@@ -37,11 +47,17 @@ class _PayButtonState extends ConsumerState<PayButton> {
     try {
       final attempt = await ref
           .read(billingRepositoryProvider)
-          .startPayment(invoiceId: widget.invoiceId, planId: widget.planId);
+          .startPayment(invoiceId: widget.invoiceId, planId: widget.planId, promoCode: widget.promoCode);
       if (mounted) unawaited(context.push(AppRoutes.checkout(attempt.id), extra: attempt));
     } on Failure catch (failure) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failureMessage(context.l10n, failure))));
+        // A refusal names its reason, such as a plan free at the desk.
+        final message = switch (failure) {
+          ValidationFailure(:final fieldErrors) when fieldErrors.isNotEmpty => fieldErrors.values.first.first,
+          ValidationFailure(message: final message?) => message,
+          _ => failureMessage(context.l10n, failure),
+        };
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
       }
     } finally {
       if (mounted) setState(() => _starting = false);

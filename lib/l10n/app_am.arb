@@ -306,5 +306,10 @@
   "deskTopicMembersToCall": "የሚደወልላቸው አባላት",
   "deskChannelPush": "ፑሽ",
   "deskChannelSms": "ኤስኤምኤስ",
-  "deskQuietHours": "ከምሽቱ 3:00 እስከ ጠዋቱ 1:00 ኤስኤምኤስ አይላክም።"
+  "deskQuietHours": "ከምሽቱ 3:00 እስከ ጠዋቱ 1:00 ኤስኤምኤስ አይላክም።",
+  "promoCodeAsk": "የቅናሽ ኮድ አለዎት?",
+  "promoCodeHint": "የቅናሽ ኮድ",
+  "promoCodeApply": "ተግብር",
+  "promoCodeApplied": "{code} ተተግብሯል",
+  "promoCodeRemove": "ኮዱን አስወግድ"
 }
