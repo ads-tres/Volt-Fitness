@@ -7,6 +7,47 @@ import '../../../../core/time/date_text.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../domain/desk_check_in.dart';
 
+/// No internet: the scan is kept and will be sent later, so nobody knows
+/// yet whether the member may come in. Amber, for the desk to decide.
+class SavedOfflineView extends StatelessWidget {
+  const SavedOfflineView({super.key, required this.onDone});
+
+  static const color = Color(0xFFB54708);
+
+  final VoidCallback onDone;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final textTheme = Theme.of(context).textTheme.apply(bodyColor: Colors.white, displayColor: Colors.white);
+    return GestureDetector(
+      key: const Key('saved-offline'),
+      onTap: onDone,
+      child: ColoredBox(
+        color: color,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Spacer(),
+                const Icon(Icons.cloud_off_rounded, color: Colors.white, size: 72),
+                const SizedBox(height: 16),
+                Text(l10n.deskSavedOffline, style: textTheme.headlineMedium),
+                const SizedBox(height: 8),
+                Text(l10n.deskSavedOfflineBody, style: textTheme.titleMedium),
+                const Spacer(),
+                Text(l10n.deskTapToContinue, style: textTheme.bodySmall),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// The answer at the door, big enough to read from the desk: green and
 /// who it is when let in, red and why when turned away. What the member
 /// owes shows either way, for the desk to ask for. Tapping it, or waiting,

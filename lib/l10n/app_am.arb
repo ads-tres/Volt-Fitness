@@ -283,5 +283,15 @@
   "freezeCancelBody": "የማቆያ ቀናቱ ይመለሱልዎታል፤ እቅድዎ የሚያልቅበት ቀንም ወደ ቀድሞው ይመለሳል።",
   "freezeKeep": "ይቆይ",
   "freezeEnded": "እንኳን ደህና መጡ! ማቆሙ አብቅቷል።",
-  "freezeCancelled": "ማቆሙ ተሰርዟል።"
+  "freezeCancelled": "ማቆሙ ተሰርዟል።",
+  "deskSavedOffline": "ተቀምጧል፤ ኢንተርኔት ሲመለስ ይረጋገጣል",
+  "deskSavedOfflineBody": "አሁን ኢንተርኔት የለም። እርግጠኛ ከሆኑ ያስገቡ፤ ስካኑ ሲላክ ውጤቱ በዛሬ ገጽ ላይ ይታያል።",
+  "deskWaitingBadge": "{count} በመጠባበቅ ላይ",
+  "deskWaitingTitle": "ለመላክ በመጠባበቅ ላይ",
+  "deskWaitingBody": "ያለ ኢንተርኔት የተስካኑ። ዴስኩ ኢንተርኔት እንዳገኘ ይላካሉ።",
+  "deskWaitingRow": "{time} ላይ የተስካነ",
+  "deskSendNow": "አሁን ላክ",
+  "deskOfflineChip": "ያለ ኢንተርኔት የተስካነ",
+  "deskDroppedNotice": "{count, plural, =1{1 ስካን ከአንድ ቀን በላይ ስለቆየ መላክ አልተቻለም።} other{{count} ስካኖች ከአንድ ቀን በላይ ስለቆዩ መላክ አልተቻለም።}}",
+  "deskDismiss": "ዝጋ"
 }

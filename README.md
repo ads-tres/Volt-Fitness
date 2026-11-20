@@ -147,6 +147,17 @@ opens on the scanner. Three tabs:
 
 The menu at the top changes the branch or signs out.
 
+**Without internet.** A scan that can't reach the API is kept on the phone
+(`desk.outbox` in preferences) with the time it was scanned, its gym and
+branch, and its own `Idempotency-Key`, and an amber screen says it is
+saved: the desk decides at the door. The top bar counts what waits; Today
+lists it with **Send now**. The app sends the queue oldest first every 30
+seconds, when it comes back to the front, and after any scan that gets
+through, with `scanned_at` so the API judges each scan as of then and marks
+it `scanned_offline`. The API takes scans up to a day late; older ones are
+let go and Today says how many. Desk check-in by search needs the internet.
+Signing out empties the queue.
+
 **The camera.** Scanning needs a phone or tablet with a back camera; the
 app asks for the camera permission the first time and says so if it was
 refused (allow it in the phone's settings). An emulator's virtual camera
@@ -172,6 +183,7 @@ the API's shapes, as the member app's fake does
 | a `GQ1:` code containing `EXPIRED` | Tigist Haile turned away, plan ended |
 | a `GQ1:` code containing `OWES` | Abebe Kebede let in, owing 1,000 ETB    |
 | the same code twice             | turned away, code already used          |
+| a `GQ1:` code containing `OFFLINE` | fails as if offline; sent from the queue it lets Hana in, marked offline |
 
 At the desk, search finds Abebe (owes 1,000 ETB), Tigist (turned away, plan
 ended) and Hana. Today starts with two earlier check-ins at Main Branch and

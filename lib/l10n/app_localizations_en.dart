@@ -959,4 +959,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get freezeCancelled => 'Your freeze is cancelled.';
+
+  @override
+  String get deskSavedOffline => 'Saved, will check when back online';
+
+  @override
+  String get deskSavedOfflineBody =>
+      'No internet right now. Let them in if you\'re sure; the answer shows in Today once the scan is sent.';
+
+  @override
+  String deskWaitingBadge(int count) {
+    return '$count waiting';
+  }
+
+  @override
+  String get deskWaitingTitle => 'Waiting to send';
+
+  @override
+  String get deskWaitingBody =>
+      'Scanned without internet. They are sent as soon as the desk is back online.';
+
+  @override
+  String deskWaitingRow(String time) {
+    return 'Scanned at $time';
+  }
+
+  @override
+  String get deskSendNow => 'Send now';
+
+  @override
+  String get deskOfflineChip => 'Scanned offline';
+
+  @override
+  String deskDroppedNotice(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count scans couldn\'t be sent, as they were more than a day old.',
+      one: '1 scan couldn\'t be sent, as it was more than a day old.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskDismiss => 'Dismiss';
 }

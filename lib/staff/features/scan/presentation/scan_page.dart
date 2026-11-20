@@ -6,14 +6,17 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_messages.dart';
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/utils/uuid.dart';
 import '../data/check_in_repository.dart';
+import '../data/scan_outbox.dart';
 import '../domain/desk_check_in.dart';
 import 'check_in_result.dart';
 import 'code_camera.dart';
 import 'desk_app_bar.dart';
 
 /// Where the front desk scans members' QR codes. Each GQ1 code goes to the
-/// API once; the answer fills the screen, then the camera is back.
+/// API once; the answer fills the screen, then the camera is back. Without
+/// internet the scan is kept to send later, and an amber screen says so.
 class ScanPage extends ConsumerStatefulWidget {
   const ScanPage({super.key});
 
@@ -30,6 +33,7 @@ class ScanPage extends ConsumerStatefulWidget {
 class _ScanPageState extends ConsumerState<ScanPage> {
   var _sending = false;
   DeskCheckIn? _result;
+  bool _savedOffline = false;
   Timer? _hideResult;
   String? _lastCode;
   DateTime? _lastCodeAt;
@@ -41,16 +45,25 @@ class _ScanPageState extends ConsumerState<ScanPage> {
   }
 
   Future<void> _onCode(String code) async {
-    if (!code.startsWith('GQ1:') || _sending || _result != null) return;
+    if (!code.startsWith('GQ1:') || _sending || _result != null || _savedOffline) return;
     final now = DateTime.now();
     if (code == _lastCode && now.difference(_lastCodeAt!) < ScanPage.sameCodeIgnoredFor) return;
     _lastCode = code;
     _lastCodeAt = now;
     setState(() => _sending = true);
+    final idempotencyKey = uuidV4();
     try {
-      final checkIn = await ref.read(checkInRepositoryProvider).scan(code);
+      final checkIn = await ref.read(checkInRepositoryProvider).scan(code, idempotencyKey: idempotencyKey);
+      unawaited(ref.read(scanOutboxProvider.notifier).flush());
       if (!mounted) return;
       setState(() => _result = checkIn);
+      _hideResult = Timer(ScanPage.resultShownFor, _done);
+    } on NetworkFailure {
+      // The same key: if the scan did reach the API, sending it again gets
+      // that answer back.
+      await ref.read(scanOutboxProvider.notifier).add(code, idempotencyKey: idempotencyKey);
+      if (!mounted) return;
+      setState(() => _savedOffline = true);
       _hideResult = Timer(ScanPage.resultShownFor, _done);
     } on Failure catch (failure) {
       if (mounted) {
@@ -63,7 +76,12 @@ class _ScanPageState extends ConsumerState<ScanPage> {
 
   void _done() {
     _hideResult?.cancel();
-    if (mounted) setState(() => _result = null);
+    if (mounted) {
+      setState(() {
+        _result = null;
+        _savedOffline = false;
+      });
+    }
   }
 
   @override
@@ -91,6 +109,7 @@ class _ScanPageState extends ConsumerState<ScanPage> {
           ),
           if (_sending) const ColoredBox(color: Colors.black26, child: Center(child: CircularProgressIndicator())),
           if (result != null) CheckInResultView(checkIn: result, onDone: _done),
+          if (_savedOffline) SavedOfflineView(onDone: _done),
         ],
       ),
     );

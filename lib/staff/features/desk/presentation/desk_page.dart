@@ -11,6 +11,7 @@ import '../../../../core/localization/l10n.dart';
 import '../../../../core/localization/locale_controller.dart';
 import '../../../../core/utils/ethiopian_phone.dart';
 import '../../scan/data/check_in_repository.dart';
+import '../../scan/data/scan_outbox.dart';
 import '../../scan/presentation/check_in_result.dart';
 import '../../scan/presentation/desk_app_bar.dart';
 import '../../scan/presentation/scan_page.dart';
@@ -50,6 +51,7 @@ class _DeskPageState extends ConsumerState<DeskPage> {
     setState(() => _checkingIn = member.id);
     try {
       final checkIn = await ref.read(checkInRepositoryProvider).atDesk(member.id);
+      unawaited(ref.read(scanOutboxProvider.notifier).flush());
       if (!mounted) return;
       setState(() => _checkingIn = null);
       final navigator = Navigator.of(context);

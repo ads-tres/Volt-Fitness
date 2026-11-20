@@ -1711,6 +1711,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your freeze is cancelled.'**
   String get freezeCancelled;
+
+  /// No description provided for @deskSavedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved, will check when back online'**
+  String get deskSavedOffline;
+
+  /// No description provided for @deskSavedOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet right now. Let them in if you\'re sure; the answer shows in Today once the scan is sent.'**
+  String get deskSavedOfflineBody;
+
+  /// No description provided for @deskWaitingBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} waiting'**
+  String deskWaitingBadge(int count);
+
+  /// No description provided for @deskWaitingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to send'**
+  String get deskWaitingTitle;
+
+  /// No description provided for @deskWaitingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned without internet. They are sent as soon as the desk is back online.'**
+  String get deskWaitingBody;
+
+  /// No description provided for @deskWaitingRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned at {time}'**
+  String deskWaitingRow(String time);
+
+  /// No description provided for @deskSendNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Send now'**
+  String get deskSendNow;
+
+  /// No description provided for @deskOfflineChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned offline'**
+  String get deskOfflineChip;
+
+  /// No description provided for @deskDroppedNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 scan couldn\'t be sent, as it was more than a day old.} other{{count} scans couldn\'t be sent, as they were more than a day old.}}'**
+  String deskDroppedNotice(int count);
+
+  /// No description provided for @deskDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get deskDismiss;
 }
 
 class _AppLocalizationsDelegate

@@ -23,11 +23,28 @@ final class CheckInRepository {
   /// Sends a scanned code. The API answers 200 either way, with its
   /// decision. A new Idempotency-Key for each scan means a retry after a lost
   /// answer gets the first answer back, not `CODE_ALREADY_USED`.
-  Future<DeskCheckIn> scan(String payload, {String? idempotencyKey}) async {
+  ///
+  /// A scan saved while offline is sent later with its own key, the time it
+  /// was scanned ([scannedAt]), and the gym and branch it was scanned at, so
+  /// the API judges it as of then.
+  Future<DeskCheckIn> scan(
+    String payload, {
+    String? idempotencyKey,
+    DateTime? scannedAt,
+    String? gymSlug,
+    int? branchId,
+  }) async {
+    final path = gymSlug == null
+        ? deskPath(_session(), '/check-ins/scan')
+        : '/organizations/${Uri.encodeComponent(gymSlug)}/check-ins/scan';
     final data = dataObject(
       await _api.post(
-        deskPath(_session(), '/check-ins/scan'),
-        body: {'payload': payload, 'branch_id': _branchId},
+        path,
+        body: {
+          'payload': payload,
+          'branch_id': branchId ?? _branchId,
+          if (scannedAt != null) 'scanned_at': scannedAt.toUtc().toIso8601String(),
+        },
         idempotencyKey: idempotencyKey ?? uuidV4(),
       ),
     );
