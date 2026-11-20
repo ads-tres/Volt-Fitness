@@ -6,4 +6,5 @@ abstract final class StaffRoutes {
   static const desk = '/desk';
   static const today = '/today';
   static const inbox = '/inbox';
+  static const notificationSettings = '/notification-settings';
 }

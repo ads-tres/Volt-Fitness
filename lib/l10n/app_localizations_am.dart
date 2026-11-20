@@ -997,4 +997,28 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get deskViewMessage => 'ይመልከቱ';
+
+  @override
+  String get deskNotificationSettings => 'ማሳወቂያዎች';
+
+  @override
+  String get deskTopicOnlinePayments => 'የኦንላይን ክፍያዎች';
+
+  @override
+  String get deskTopicRefunds => 'የሚመለሱ ገንዘቦች';
+
+  @override
+  String get deskTopicAppFreezes => 'በመተግበሪያው የቆሙ አባልነቶች';
+
+  @override
+  String get deskTopicMembersToCall => 'የሚደወልላቸው አባላት';
+
+  @override
+  String get deskChannelPush => 'ፑሽ';
+
+  @override
+  String get deskChannelSms => 'ኤስኤምኤስ';
+
+  @override
+  String get deskQuietHours => 'ከምሽቱ 3:00 እስከ ጠዋቱ 1:00 ኤስኤምኤስ አይላክም።';
 }

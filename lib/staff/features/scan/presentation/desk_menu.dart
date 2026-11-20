@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/errors/failure.dart';
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/push/push_service.dart';
+import '../../../app/staff_routes.dart';
 import '../../../core/desk_session.dart';
 import '../../auth/data/desk_auth_repository.dart';
 
@@ -22,6 +24,8 @@ class DeskMenu extends ConsumerWidget {
         switch (choice) {
           case 'branch':
             await ref.read(deskSessionProvider.notifier).chooseAgain();
+          case 'notifications':
+            unawaited(context.push(StaffRoutes.notificationSettings));
           case 'sign-out':
             // The token is revoked on the server when it can be; the desk
             // signs out either way.
@@ -36,6 +40,7 @@ class DeskMenu extends ConsumerWidget {
       },
       itemBuilder: (context) => [
         PopupMenuItem(value: 'branch', child: Text(l10n.deskChangeBranch)),
+        PopupMenuItem(value: 'notifications', child: Text(l10n.deskNotificationSettings)),
         PopupMenuItem(value: 'sign-out', child: Text(l10n.signOut)),
       ],
     );

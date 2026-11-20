@@ -298,5 +298,13 @@
   "deskMarkAllRead": "ሁሉንም እንደተነበበ ምልክት አድርግ",
   "deskInboxEmpty": "እስካሁን መልዕክት የለም። የኦንላይን ክፍያዎች፣ የሚመለሱ ገንዘቦች፣ በመተግበሪያው የቆሙ አባልነቶች እና የሚደወልላቸው አባላት እዚህ ይታያሉ።",
   "deskOpenPanel": "በሰራተኞች ፓነል ክፈት",
-  "deskViewMessage": "ይመልከቱ"
+  "deskViewMessage": "ይመልከቱ",
+  "deskNotificationSettings": "ማሳወቂያዎች",
+  "deskTopicOnlinePayments": "የኦንላይን ክፍያዎች",
+  "deskTopicRefunds": "የሚመለሱ ገንዘቦች",
+  "deskTopicAppFreezes": "በመተግበሪያው የቆሙ አባልነቶች",
+  "deskTopicMembersToCall": "የሚደወልላቸው አባላት",
+  "deskChannelPush": "ፑሽ",
+  "deskChannelSms": "ኤስኤምኤስ",
+  "deskQuietHours": "ከምሽቱ 3:00 እስከ ጠዋቱ 1:00 ኤስኤምኤስ አይላክም።"
 }

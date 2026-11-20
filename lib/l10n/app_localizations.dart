@@ -1801,6 +1801,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View'**
   String get deskViewMessage;
+
+  /// No description provided for @deskNotificationSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get deskNotificationSettings;
+
+  /// No description provided for @deskTopicOnlinePayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Online payments'**
+  String get deskTopicOnlinePayments;
+
+  /// No description provided for @deskTopicRefunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunds to make'**
+  String get deskTopicRefunds;
+
+  /// No description provided for @deskTopicAppFreezes.
+  ///
+  /// In en, this message translates to:
+  /// **'Freezes in the app'**
+  String get deskTopicAppFreezes;
+
+  /// No description provided for @deskTopicMembersToCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Members to call'**
+  String get deskTopicMembersToCall;
+
+  /// No description provided for @deskChannelPush.
+  ///
+  /// In en, this message translates to:
+  /// **'Push'**
+  String get deskChannelPush;
+
+  /// No description provided for @deskChannelSms.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS'**
+  String get deskChannelSms;
+
+  /// No description provided for @deskQuietHours.
+  ///
+  /// In en, this message translates to:
+  /// **'No SMS goes out between 21:00 and 07:00.'**
+  String get deskQuietHours;
 }
 
 class _AppLocalizationsDelegate

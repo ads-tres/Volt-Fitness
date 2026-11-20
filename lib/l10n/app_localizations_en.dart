@@ -1020,4 +1020,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskViewMessage => 'View';
+
+  @override
+  String get deskNotificationSettings => 'Notifications';
+
+  @override
+  String get deskTopicOnlinePayments => 'Online payments';
+
+  @override
+  String get deskTopicRefunds => 'Refunds to make';
+
+  @override
+  String get deskTopicAppFreezes => 'Freezes in the app';
+
+  @override
+  String get deskTopicMembersToCall => 'Members to call';
+
+  @override
+  String get deskChannelPush => 'Push';
+
+  @override
+  String get deskChannelSms => 'SMS';
+
+  @override
+  String get deskQuietHours => 'No SMS goes out between 21:00 and 07:00.';
 }
