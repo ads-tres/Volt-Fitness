@@ -21,6 +21,9 @@ import '../core/network/api_headers.dart';
 /// and refused when that was more than a day ago.
 /// At the desk, Tigist is turned away and anyone else let in. Today's list
 /// holds every check-in made here, newest first, after two from earlier.
+///
+/// The inbox starts with one unread message of each staff type at each gym;
+/// choices start push on, SMS off, and are kept until the app restarts.
 final class FakeFrontDesk implements HttpClientAdapter {
   FakeFrontDesk({this.latency = const Duration(milliseconds: 400), DateTime Function()? now})
     : _now = now ?? DateTime.now;
@@ -54,6 +57,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
       ('POST', '/auth/tokens') => _signIn(body),
       ('GET', '/me') => _signedIn(options, (phone) => _json(200, {'data': _me(phone)})),
       ('DELETE', '/auth/tokens/current') => _signedIn(options, (_) => _empty()),
+      ('PUT' || 'DELETE', '/me/push-token') => _signedIn(options, (_) => _empty()),
       _ when gymPath != null => _signedIn(options, (phone) => _inGym(options, phone, gymPath.group(1)!, gymPath.group(2)!)),
       _ => _json(404, {'message': 'Not found.'}),
     };
@@ -112,8 +116,93 @@ final class FakeFrontDesk implements HttpClientAdapter {
         int.parse(path.split('/')[2]),
       ),
       ('GET', '/check-ins') => _today(options),
+      ('GET', '/notifications') => _inbox(phone, gym),
+      ('POST', '/notifications/read-all') => _readAll(phone, gym),
+      ('POST', final path) when RegExp(r'^/notifications/[^/]+/read$').hasMatch(path) => _read(phone, gym, path.split('/')[2]),
+      ('GET', '/notification-preferences') => _json(200, {'data': _choices(phone, gym)}),
+      ('PATCH', '/notification-preferences') => _choose(options, phone, gym),
       _ => _json(404, {'message': 'Not found.'}),
     };
+  }
+
+  // Staff messages
+
+  final _messages = <String, List<Map<String, Object?>>>{};
+  final _preferences = <String, Map<String, Map<String, bool>>>{};
+
+  List<Map<String, Object?>> _messagesAt(String phone, String gym) => _messages.putIfAbsent('$phone|$gym', () {
+    Map<String, Object?> message(String id, String type, String title, String body, Map<String, Object?> data, int minutesAgo) => {
+      'id': id,
+      'type': type,
+      'title': title,
+      'body': body,
+      'data': data,
+      'read_at': null,
+      'created_at': _now().subtract(Duration(minutes: minutesAgo)).toUtc().toIso8601String(),
+    };
+    return [
+      message('9b1d4c6e-0000-4000-8000-000000000001', 'staff_online_payment', 'Online payment',
+          'Abebe Kebede paid 1,500.00 ETB for Monthly with Chapa.', {'payment_id': 41, 'membership_id': 101}, 5),
+      message('9b1d4c6e-0000-4000-8000-000000000002', 'staff_member_froze', 'Membership frozen in the app',
+          'Hana Girma froze Monthly from Oct 16 to Oct 22.', {'membership_id': 103}, 40),
+      message('9b1d4c6e-0000-4000-8000-000000000003', 'staff_refund_needed', 'A refund to make',
+          'Chapa took 1,500.00 ETB from Tigist Haile that wasn\'t due. Refund it.', {'payment_link_id': 7, 'member_id': 2}, 90),
+      message('9b1d4c6e-0000-4000-8000-000000000004', 'staff_members_to_call', 'Members to call today',
+          '3 members have a plan ending soon or money owed.', <String, Object?>{}, 120),
+    ];
+  });
+
+  ResponseBody _inbox(String phone, String gym) {
+    final messages = _messagesAt(phone, gym);
+    return _json(200, {
+      'data': messages,
+      'links': {'next': null},
+      'meta': {'current_page': 1, 'unread_count': messages.where((message) => message['read_at'] == null).length},
+    });
+  }
+
+  ResponseBody _read(String phone, String gym, String id) {
+    final message = _messagesAt(phone, gym).where((message) => message['id'] == id).firstOrNull;
+    if (message == null) return _json(404, {'message': 'Not found.'});
+    message['read_at'] ??= _now().toUtc().toIso8601String();
+    return _empty();
+  }
+
+  ResponseBody _readAll(String phone, String gym) {
+    for (final message in _messagesAt(phone, gym)) {
+      message['read_at'] ??= _now().toUtc().toIso8601String();
+    }
+    return _empty();
+  }
+
+  static const _topics = ['online_payments', 'refunds', 'app_freezes', 'members_to_call'];
+
+  Map<String, Map<String, bool>> _choices(String phone, String gym) => _preferences.putIfAbsent(
+    '$phone|$gym',
+    () => {
+      for (final topic in _topics) topic: {'push': true, 'sms': false},
+    },
+  );
+
+  ResponseBody _choose(RequestOptions options, String phone, String gym) {
+    final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
+    final choices = _choices(phone, gym);
+    for (final MapEntry(key: topic, value: channels) in body.entries) {
+      if (!_topics.contains(topic) || channels is! Map || channels.values.any((value) => value is! bool)) {
+        return _json(422, {
+          'message': 'Choose push or SMS, on or off, for a known topic.',
+          'errors': {
+            topic: ['Choose push or SMS, on or off, for a known topic.'],
+          },
+        });
+      }
+    }
+    for (final MapEntry(key: topic, value: channels) in body.entries) {
+      for (final MapEntry(key: channel, value: on) in (channels as Map).entries) {
+        if (channel == 'push' || channel == 'sms') choices[topic]![channel as String] = on as bool;
+      }
+    }
+    return _json(200, {'data': choices});
   }
 
   List<Map<String, Object?>> _branches(String phone, String gym) => switch (gym) {
