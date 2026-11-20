@@ -24,6 +24,8 @@ class DeskMenu extends ConsumerWidget {
         switch (choice) {
           case 'branch':
             await ref.read(deskSessionProvider.notifier).chooseAgain();
+          case 'numbers':
+            unawaited(context.push(StaffRoutes.numbers));
           case 'notifications':
             unawaited(context.push(StaffRoutes.notificationSettings));
           case 'sign-out':
@@ -40,6 +42,7 @@ class DeskMenu extends ConsumerWidget {
       },
       itemBuilder: (context) => [
         PopupMenuItem(value: 'branch', child: Text(l10n.deskChangeBranch)),
+        PopupMenuItem(value: 'numbers', child: Text(l10n.numbersTitle)),
         PopupMenuItem(value: 'notifications', child: Text(l10n.deskNotificationSettings)),
         PopupMenuItem(value: 'sign-out', child: Text(l10n.signOut)),
       ],

@@ -1079,4 +1079,88 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get freezeByGym => 'ጂሙ ያቆመው';
+
+  @override
+  String get numbersTitle => 'ቁጥሮች';
+
+  @override
+  String get numbersToday => 'ዛሬ';
+
+  @override
+  String get numbersWeek => '7 ቀናት';
+
+  @override
+  String get numbersMonth => '30 ቀናት';
+
+  @override
+  String get numbersAllBranches => 'ሁሉም ቅርንጫፎቼ';
+
+  @override
+  String get numbersCheckIns => 'መግቢያዎች';
+
+  @override
+  String get numbersMoney => 'ገንዘብ';
+
+  @override
+  String get numbersTaken => 'የተሰበሰበ';
+
+  @override
+  String get numbersReceived => 'የተቀበልነው';
+
+  @override
+  String get numbersRefunded => 'የተመለሰ';
+
+  @override
+  String numbersOpenLinks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ክፍት የክፍያ ሊንኮች',
+      one: '1 ክፍት የክፍያ ሊንክ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String numbersRefundsNeeded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count የሚመለሱ ገንዘቦች',
+      one: '1 የሚመለስ ገንዘብ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get numbersOwed => 'ዕዳ';
+
+  @override
+  String numbersOwedMembers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'በ$count አባላት',
+      one: 'በ1 አባል',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get numbersMembers => 'አባላት';
+
+  @override
+  String get numbersActive => 'ንቁ';
+
+  @override
+  String get numbersNew => 'አዲስ';
+
+  @override
+  String get numbersSoldAtDesk => 'በዴስክ የተሸጡ እቅዶች';
+
+  @override
+  String get numbersSoldInApp => 'በመተግበሪያው የተሸጡ እቅዶች';
+
+  @override
+  String get numbersBusyHours => 'የተጨናነቁ ሰዓታት';
 }

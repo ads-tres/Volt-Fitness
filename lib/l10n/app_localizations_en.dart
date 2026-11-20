@@ -1102,4 +1102,88 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get freezeByGym => 'frozen by the gym';
+
+  @override
+  String get numbersTitle => 'Numbers';
+
+  @override
+  String get numbersToday => 'Today';
+
+  @override
+  String get numbersWeek => '7 days';
+
+  @override
+  String get numbersMonth => '30 days';
+
+  @override
+  String get numbersAllBranches => 'All my branches';
+
+  @override
+  String get numbersCheckIns => 'Check-ins';
+
+  @override
+  String get numbersMoney => 'Money';
+
+  @override
+  String get numbersTaken => 'Taken';
+
+  @override
+  String get numbersReceived => 'Received';
+
+  @override
+  String get numbersRefunded => 'Refunded';
+
+  @override
+  String numbersOpenLinks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count payment links open',
+      one: '1 payment link open',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String numbersRefundsNeeded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count refunds to make',
+      one: '1 refund to make',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get numbersOwed => 'Owed';
+
+  @override
+  String numbersOwedMembers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'by $count members',
+      one: 'by 1 member',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get numbersMembers => 'Members';
+
+  @override
+  String get numbersActive => 'Active';
+
+  @override
+  String get numbersNew => 'New';
+
+  @override
+  String get numbersSoldAtDesk => 'Plans sold at the desk';
+
+  @override
+  String get numbersSoldInApp => 'Plans sold in the app';
+
+  @override
+  String get numbersBusyHours => 'Busy hours';
 }
