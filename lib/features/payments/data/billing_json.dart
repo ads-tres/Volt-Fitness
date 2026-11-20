@@ -12,7 +12,13 @@ Plan planFromJson(Map<String, dynamic> json) => Plan(
   durationDays:
       LocalDate.parse(json.field<String>('starts_on')).daysUntil(LocalDate.parse(json.field<String>('ends_on'))) + 1,
   price: Money.fromJson(json.field<Map<String, dynamic>>('price')),
+  yourPrice: _money(json.optional<Map<String, dynamic>>('your_price')),
+  discountName: json.optional<Map<String, dynamic>>('your_discount')?.optional<String>('name'),
+  discountFromCode: json.optional<Map<String, dynamic>>('your_discount')?.optional<String>('source') == 'promo_code',
+  priceWithCode: _money(json.optional<Map<String, dynamic>>('price_with_code')),
 );
+
+Money? _money(Map<String, dynamic>? json) => json == null ? null : Money.fromJson(json);
 
 /// A receipt (`GET /me/gyms/{gym}/payments`), shown as a paid invoice for the
 /// plan of its membership. A voided receipt shows as void.

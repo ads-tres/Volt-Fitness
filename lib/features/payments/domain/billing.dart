@@ -4,13 +4,41 @@ import '../../../core/time/local_date.dart';
 /// A plan the member can buy or renew at the selected gym. The price shown
 /// is the API's; the API charges what it calculates, not what the app sent.
 final class Plan {
-  const Plan({required this.id, required this.name, required this.durationDays, required this.price, this.photoUrl});
+  const Plan({
+    required this.id,
+    required this.name,
+    required this.durationDays,
+    required this.price,
+    this.photoUrl,
+    this.yourPrice,
+    this.discountName,
+    this.discountFromCode = false,
+    this.priceWithCode,
+  });
 
   final String id;
   final String name;
   final int durationDays;
+
+  /// The plan's list price.
   final Money price;
   final String? photoUrl;
+
+  /// What this member pays, when less than [price]: through their discount
+  /// group (such as Student) or the promo code applied, whichever is better.
+  final Money? yourPrice;
+
+  /// "Student", or the code, when [yourPrice] is set.
+  final String? discountName;
+
+  /// Whether [yourPrice] comes from the promo code, so buying sends it.
+  final bool discountFromCode;
+
+  /// The price with the promo code applied, when it covers this plan.
+  final Money? priceWithCode;
+
+  /// What buying it charges.
+  Money get pays => yourPrice ?? price;
 }
 
 enum InvoiceStatus { open, paid, voided, unknown }

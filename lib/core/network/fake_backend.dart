@@ -35,6 +35,9 @@ final class FakeBackend implements HttpClientAdapter {
   static const noPlanPhone = '+251955555555';
   static const paymentFailsPhone = '+251966666666';
 
+  /// In the gym's "Student" discount group: 20% off every plan.
+  static const studentPhone = '+251977777777';
+
   static const _tokenPrefix = 'fake-token:';
   static const _maxWrongCodes = 5;
 
@@ -389,6 +392,17 @@ final class FakeBackend implements HttpClientAdapter {
   static final _checkLink = RegExp(r'^/payment-links/(\d+)/check$');
   static final _receipt = RegExp(r'^/payments/(\d+)$');
 
+  /// What [phone] pays instead of [listMinor], with why: the Student group's
+  /// 20% off. Null at full price, as the API leaves `your_price` null.
+  Map<String, Object?>? _memberPrice(String phone, int listMinor) {
+    final student = phone == studentPhone ? listMinor * 80 ~/ 100 : null;
+    return {
+      'price_with_code': null,
+      'your_price': student == null ? null : _money(student),
+      'your_discount': student == null ? null : {'source': 'discount_group', 'name': 'Student'},
+    };
+  }
+
   /// The plans on sale, cheapest first, with the dates each would run if
   /// bought now: from the day after the member's plan ends, or today.
   List<Map<String, Object?>> _plans(String phone, String gym) {
@@ -400,6 +414,7 @@ final class FakeBackend implements HttpClientAdapter {
       'description': null,
       'price': _money(priceMinor),
       'duration': {'count': days, 'unit': 'day'},
+      ...?_memberPrice(phone, priceMinor),
       'freeze_days_allowed': 7,
       'valid_at_all_branches': true,
       'starts_on': _iso(_today.add(Duration(days: startsIn))),

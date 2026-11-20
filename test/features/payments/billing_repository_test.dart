@@ -106,4 +106,48 @@ void main() {
     expect(receipt.status, InvoiceStatus.voided);
     expect(receipt.receipt?.method, 'telebirr');
   });
+
+  test('reads what the member pays: a group price, a code price, or the list price', () async {
+    final adapter = StubAdapter(
+      (_) => jsonResponse(200, {
+        'data': [
+          {
+            'id': 2,
+            'name': 'Monthly',
+            'price': money(150000),
+            'price_with_code': money(135000),
+            'your_price': money(120000),
+            'your_discount': {'source': 'discount_group', 'name': 'Student'},
+            'starts_on': '2026-10-14',
+            'ends_on': '2026-11-12',
+          },
+          {
+            'id': 3,
+            'name': 'Quarterly',
+            'price': money(400000),
+            'price_with_code': money(360000),
+            'your_price': money(360000),
+            'your_discount': {'source': 'promo_code', 'name': 'NEWYEAR'},
+            'starts_on': '2026-10-14',
+            'ends_on': '2027-01-11',
+          },
+          {
+            'id': 4,
+            'name': 'Annual',
+            'price': money(1400000),
+            'starts_on': '2026-10-14',
+            'ends_on': '2027-10-13',
+          },
+        ],
+      }),
+    );
+    final container = await containerWithAdapter(adapter, signedInAs: memberOf([boleGym]));
+
+    final [monthly, quarterly, annual] = await container.read(billingRepositoryProvider).plans();
+
+    expect((monthly.pays.amountMinor, monthly.discountName, monthly.discountFromCode), (120000, 'Student', false));
+    expect(monthly.priceWithCode?.amountMinor, 135000);
+    expect((quarterly.pays.amountMinor, quarterly.discountName, quarterly.discountFromCode), (360000, 'NEWYEAR', true));
+    expect((annual.pays.amountMinor, annual.yourPrice, annual.discountName), (1400000, null, null));
+  });
 }
