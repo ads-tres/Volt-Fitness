@@ -116,6 +116,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
         int.parse(path.split('/')[2]),
       ),
       ('GET', '/check-ins') => _today(options),
+      ('GET', '/dashboard') => _dashboard(options, phone),
       ('GET', '/notifications') => _inbox(phone, gym),
       ('POST', '/notifications/read-all') => _readAll(phone, gym),
       ('POST', final path) when RegExp(r'^/notifications/[^/]+/read$').hasMatch(path) => _read(phone, gym, path.split('/')[2]),
@@ -123,6 +124,82 @@ final class FakeFrontDesk implements HttpClientAdapter {
       ('PATCH', '/notification-preferences') => _choose(options, phone, gym),
       _ => _json(404, {'message': 'Not found.'}),
     };
+  }
+
+  // Numbers
+
+  /// The staff dashboard: check-ins counted from those made here, in the
+  /// period and at the branch asked for; money and what is owed only for
+  /// the owner, as the API leaves them out for roles that don't see money.
+  ResponseBody _dashboard(RequestOptions options, String phone) {
+    final query = options.queryParameters;
+    final today = DateTime(_now().year, _now().month, _now().day);
+    DateTime day(Object? iso, DateTime fallback) => DateTime.tryParse('${iso ?? ''}') ?? fallback;
+    final from = day(query['from'], today);
+    final to = day(query['to'], today);
+    final branchId = int.tryParse('${query['branch_id'] ?? ''}');
+    final inPeriod = [
+      for (final checkIn in _history)
+        if (branchId == null || (checkIn['branch']! as Map)['id'] == branchId)
+          if (DateTime.parse(checkIn['checked_in_at']! as String).toLocal() case final at
+              when !DateTime(at.year, at.month, at.day).isBefore(from) && !DateTime(at.year, at.month, at.day).isAfter(to))
+            (checkIn, at),
+    ];
+    final denied = <String, int>{};
+    final byHour = List<int>.filled(24, 0);
+    var allowed = 0;
+    for (final (checkIn, at) in inPeriod) {
+      if (checkIn['decision'] == 'allow') {
+        allowed++;
+        byHour[at.hour]++;
+      } else {
+        denied.update(checkIn['reason_code']! as String, (count) => count + 1, ifAbsent: () => 1);
+      }
+    }
+    final seesMoney = phone == staffPhone;
+    String iso(DateTime day) => day.toIso8601String().substring(0, 10);
+    return _json(200, {
+      'data': {
+        'period': {'from': iso(from), 'to': iso(to)},
+        'money': seesMoney
+            ? {
+                'received': _money(450000),
+                'refunded': _money(0),
+                'net': _money(450000),
+                'by_method': {'telebirr': _money(300000), 'cash': _money(150000)},
+                'open_payment_links': {'count': 1, 'amount': _money(100000)},
+                'refunds_needed': {'count': 1, 'amount': _money(150000)},
+              }
+            : null,
+        'owed': seesMoney ? {'total': _money(100000), 'members': 1} : null,
+        'check_ins': {'allowed': allowed, 'denied': denied.values.fold(0, (a, b) => a + b), 'denied_by_reason': denied},
+        'members': {
+          'active': 3,
+          'new': 1,
+          'memberships_sold': {'at_the_desk': 2, 'in_the_app': 1},
+        },
+        'expiring': [
+          {
+            'membership_id': 101,
+            'member': _abebe,
+            'plan': {'id': 2, 'name': 'Monthly'},
+            'ends_on': iso(today.add(const Duration(days: 3))),
+            if (seesMoney) 'balance_due': _money(100000),
+          },
+          {
+            'membership_id': 103,
+            'member': _hana,
+            'plan': {'id': 4, 'name': '10 Visits'},
+            'ends_on': iso(today.add(const Duration(days: 40))),
+            'visits_remaining': 1,
+            if (seesMoney) 'balance_due': _money(0),
+          },
+        ],
+        'trends': {
+          'check_ins_by_hour': [for (var hour = 0; hour < 24; hour++) {'hour': hour, 'allowed': byHour[hour]}],
+        },
+      },
+    });
   }
 
   // Staff messages

@@ -1945,6 +1945,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'frozen by the gym'**
   String get freezeByGym;
+
+  /// No description provided for @numbersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Numbers'**
+  String get numbersTitle;
+
+  /// No description provided for @numbersToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get numbersToday;
+
+  /// No description provided for @numbersWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get numbersWeek;
+
+  /// No description provided for @numbersMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'30 days'**
+  String get numbersMonth;
+
+  /// No description provided for @numbersAllBranches.
+  ///
+  /// In en, this message translates to:
+  /// **'All my branches'**
+  String get numbersAllBranches;
+
+  /// No description provided for @numbersCheckIns.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-ins'**
+  String get numbersCheckIns;
+
+  /// No description provided for @numbersMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Money'**
+  String get numbersMoney;
+
+  /// No description provided for @numbersTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken'**
+  String get numbersTaken;
+
+  /// No description provided for @numbersReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get numbersReceived;
+
+  /// No description provided for @numbersRefunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded'**
+  String get numbersRefunded;
+
+  /// No description provided for @numbersOpenLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 payment link open} other{{count} payment links open}}'**
+  String numbersOpenLinks(int count);
+
+  /// No description provided for @numbersRefundsNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 refund to make} other{{count} refunds to make}}'**
+  String numbersRefundsNeeded(int count);
+
+  /// No description provided for @numbersOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed'**
+  String get numbersOwed;
+
+  /// No description provided for @numbersOwedMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{by 1 member} other{by {count} members}}'**
+  String numbersOwedMembers(int count);
+
+  /// No description provided for @numbersMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get numbersMembers;
+
+  /// No description provided for @numbersActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get numbersActive;
+
+  /// No description provided for @numbersNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get numbersNew;
+
+  /// No description provided for @numbersSoldAtDesk.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans sold at the desk'**
+  String get numbersSoldAtDesk;
+
+  /// No description provided for @numbersSoldInApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans sold in the app'**
+  String get numbersSoldInApp;
+
+  /// No description provided for @numbersBusyHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Busy hours'**
+  String get numbersBusyHours;
+
+  /// No description provided for @numbersToCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Members to call'**
+  String get numbersToCall;
+
+  /// No description provided for @numbersNoOneToCall.
+  ///
+  /// In en, this message translates to:
+  /// **'No one to call: no plan ends in the next days.'**
+  String get numbersNoOneToCall;
+
+  /// No description provided for @numbersEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'ends {date}'**
+  String numbersEnds(String date);
+
+  /// No description provided for @numbersCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Call {phone}'**
+  String numbersCall(String phone);
 }
 
 class _AppLocalizationsDelegate
