@@ -1096,4 +1096,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String planPaidOf(String paid, String price) {
     return 'Paid $paid of $price';
   }
+
+  @override
+  String get freezeByYou => 'you froze it in the app';
+
+  @override
+  String get freezeByGym => 'frozen by the gym';
 }

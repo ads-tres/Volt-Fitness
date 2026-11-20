@@ -417,7 +417,8 @@ class _FreezeCardState extends ConsumerState<_FreezeCard> {
                     Text(started ? l10n.freezeCurrent(from, to) : l10n.freezeComing(from, to), style: textTheme.titleSmall),
                     const SizedBox(height: 2),
                     Text(
-                      l10n.freezeLength(widget.freeze.days),
+                      '${l10n.freezeLength(widget.freeze.days)} · '
+                      '${widget.freeze.inApp ? l10n.freezeByYou : l10n.freezeByGym}',
                       style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                     ),
                   ],

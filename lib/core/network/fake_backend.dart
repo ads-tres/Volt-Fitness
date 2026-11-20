@@ -311,7 +311,13 @@ final class FakeBackend implements HttpClientAdapter {
       'freeze_days_left': max(0, held.freezeDaysAllowed - held.freezeDaysUsed),
       'freezes': [
         for (final freeze in held.freezes)
-          {'id': freeze.id, 'starts_on': day(freeze.start), 'ends_on': day(freeze.end), 'days': freeze.days},
+          {
+            'id': freeze.id,
+            'starts_on': day(freeze.start),
+            'ends_on': day(freeze.end),
+            'days': freeze.days,
+            'frozen_in_app': freeze.inApp,
+          },
       ],
       'sold_in_app': false,
       'cancelled_at': null,
@@ -610,21 +616,35 @@ final class FakeBackend implements HttpClientAdapter {
     if (start == null) return refuse('starts_on', 'The starts on field must match the format Y-m-d.');
     if (end == null) return refuse('ends_on', 'The ends on field is required.');
     if (held.status != 'active') return refuse('membership', 'This membership has already ended.');
-    if (start < 0) return refuse('starts_on', 'A freeze can\'t start in the past.');
+    if (start < 0) return refuse('starts_on', 'A freeze can start today at the earliest.');
     if (end < start) return refuse('ends_on', 'The last day of the freeze can\'t be before its first day.');
     if (start < held.start || start > held.end) {
-      return refuse('starts_on', 'The freeze must start between ${_iso(_today.add(Duration(days: held.start)))} and ${_iso(_today.add(Duration(days: held.end)))}.');
+      return refuse(
+        'starts_on',
+        'A freeze must start while the membership runs, from ${_longDate(held.start)} to ${_longDate(held.end)}.',
+      );
     }
     if (held.freezes.where((freeze) => freeze.start <= end && freeze.end >= start).firstOrNull case final clash?) {
-      return refuse('starts_on', 'This membership is already frozen from ${_iso(_today.add(Duration(days: clash.start)))} to ${_iso(_today.add(Duration(days: clash.end)))}.');
+      return refuse(
+        'starts_on',
+        'This membership is already frozen from ${_longDate(clash.start)} to ${_longDate(clash.end)}.',
+      );
     }
     final days = end - start + 1;
     final daysLeft = max(0, held.freezeDaysAllowed - held.freezeDaysUsed);
     if (days > daysLeft) {
-      return refuse('ends_on', daysLeft > 0 ? 'Only $daysLeft freeze days are left on this membership.' : 'No freeze days are left on this membership.');
+      return refuse(
+        'ends_on',
+        daysLeft > 0
+            ? 'This membership can be frozen for $daysLeft more ${daysLeft == 1 ? 'day' : 'days'}.'
+            : 'This membership has no freeze days left.',
+      );
     }
 
-    _heldPlans[_key(phone, gym)] = held.copyWith(end: held.end + days, freezes: [...held.freezes, _Freeze(_nextFreezeId++, start, end)]);
+    _heldPlans[_key(phone, gym)] = held.copyWith(
+      end: held.end + days,
+      freezes: [...held.freezes, _Freeze(_nextFreezeId++, start, end, inApp: true)],
+    );
     return _json(201, {'data': _membership(phone, gym)});
   }
 
@@ -647,7 +667,7 @@ final class FakeBackend implements HttpClientAdapter {
       end: held.end - daysBack,
       freezes: [
         for (final other in held.freezes)
-          if (other.id != freezeId) other else if (started) _Freeze(other.id, other.start, -1),
+          if (other.id != freezeId) other else if (started) _Freeze(other.id, other.start, -1, inApp: other.inApp),
       ],
     );
     return _json(200, {'data': _membership(phone, gym)});
@@ -1036,6 +1056,17 @@ final class FakeBackend implements HttpClientAdapter {
     return DateTime(now.year, now.month, now.day);
   }
 
+  /// A day [offset] days from today as the API writes it in messages:
+  /// "14 October 2026".
+  String _longDate(int offset) {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+    final day = _today.add(Duration(days: offset));
+    return '${day.day} ${months[day.month - 1]} ${day.year}';
+  }
+
   static String _iso(DateTime day) =>
       '${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
 
@@ -1194,11 +1225,14 @@ final class _HeldPlan {
 
 /// A freeze, in days from today like [_HeldPlan], both days included.
 final class _Freeze {
-  const _Freeze(this.id, this.start, this.end);
+  const _Freeze(this.id, this.start, this.end, {this.inApp = false});
 
   final int id;
   final int start;
   final int end;
+
+  /// Made by the member in the app, not by the gym.
+  final bool inApp;
 
   int get days => end - start + 1;
 }

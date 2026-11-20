@@ -320,5 +320,7 @@
   "branchOnYourPlan": "የእርስዎ እቅድ",
   "yourOtherPlans": "ሌሎች እቅዶችዎ",
   "planDates": "{from} – {to}",
-  "planPaidOf": "ከ{price} {paid} ተከፍሏል"
+  "planPaidOf": "ከ{price} {paid} ተከፍሏል",
+  "freezeByYou": "በመተግበሪያው እርስዎ ያቆሙት",
+  "freezeByGym": "ጂሙ ያቆመው"
 }

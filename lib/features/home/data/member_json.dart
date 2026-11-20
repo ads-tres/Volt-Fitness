@@ -56,6 +56,7 @@ MembershipFreeze freezeFromJson(Map<String, dynamic> json) => MembershipFreeze(
   startsOn: LocalDate.parse(json.field<String>('starts_on')),
   endsOn: LocalDate.parse(json.field<String>('ends_on')),
   days: json.field<int>('days'),
+  inApp: json.optional<bool>('frozen_in_app') ?? false,
 );
 
 Branch branchFromJson(Map<String, dynamic> json) => Branch(

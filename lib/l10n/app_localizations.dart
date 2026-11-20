@@ -1933,6 +1933,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paid {paid} of {price}'**
   String planPaidOf(String paid, String price);
+
+  /// No description provided for @freezeByYou.
+  ///
+  /// In en, this message translates to:
+  /// **'you froze it in the app'**
+  String get freezeByYou;
+
+  /// No description provided for @freezeByGym.
+  ///
+  /// In en, this message translates to:
+  /// **'frozen by the gym'**
+  String get freezeByGym;
 }
 
 class _AppLocalizationsDelegate

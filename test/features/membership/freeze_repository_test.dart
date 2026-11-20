@@ -114,6 +114,31 @@ void main() {
       expect(back.freezeDaysLeft, 7);
     });
 
+    test('refuses in the API\'s words', () async {
+      final freezes = await repository();
+      Future<String> message(Future<Membership> attempt) async {
+        try {
+          await attempt;
+        } on ValidationFailure catch (failure) {
+          return failure.fieldErrors.values.single.single;
+        }
+        fail('The freeze was not refused');
+      }
+
+      expect(await message(freezes.freeze('101', startsOn: today.addDays(-1), endsOn: today)),
+          'A freeze can start today at the earliest.');
+      expect(await message(freezes.freeze('101', startsOn: today, endsOn: today.addDays(7))),
+          'This membership can be frozen for 7 more days.');
+      await freezes.freeze('101', startsOn: today, endsOn: today.addDays(1));
+      expect(await message(freezes.freeze('101', startsOn: today.addDays(1), endsOn: today.addDays(2))),
+          'This membership is already frozen from 14 October 2026 to 15 October 2026.');
+    });
+
+    test('marks a freeze made in the app', () async {
+      final frozen = await (await repository()).freeze('101', startsOn: today, endsOn: today);
+      expect(frozen.freezes.single.inApp, isTrue);
+    });
+
     test('refuses a past start, more days than are left, and a freeze over another', () async {
       final freezes = await repository();
 

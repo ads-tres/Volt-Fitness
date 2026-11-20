@@ -67,6 +67,7 @@ void main() {
     expect(find.text('Frozen'), findsOneWidget, reason: 'the status');
     await showInMiddle(tester, find.text("I'm back"));
     expect(find.text('Frozen from Oct 14, 2026 to Oct 20, 2026'), findsOneWidget);
+    expect(find.text('7 days · you froze it in the app'), findsOneWidget);
     expect(find.text('0 of 7 left'), findsOneWidget);
     expect(find.text('Freeze my membership'), findsNothing, reason: 'no freeze days left');
 
@@ -85,7 +86,7 @@ void main() {
     await openMembership(tester, phone: '0944444444', scrollTo: 'Freeze my membership');
 
     expect(find.text('Frozen from Oct 14, 2026 to Oct 21, 2026'), findsOneWidget);
-    expect(find.text('8 days'), findsOneWidget);
+    expect(find.text('8 days · frozen by the gym'), findsOneWidget);
     expect(find.text('2 of 10 left'), findsOneWidget);
     expect(find.text("I'm back"), findsOneWidget);
 

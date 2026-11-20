@@ -1073,4 +1073,10 @@ class AppLocalizationsAm extends AppLocalizations {
   String planPaidOf(String paid, String price) {
     return 'ከ$price $paid ተከፍሏል';
   }
+
+  @override
+  String get freezeByYou => 'በመተግበሪያው እርስዎ ያቆሙት';
+
+  @override
+  String get freezeByGym => 'ጂሙ ያቆመው';
 }

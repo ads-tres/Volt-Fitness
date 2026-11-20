@@ -90,12 +90,21 @@ final class Membership {
 /// A stretch of days the membership is paused, both days included. Its
 /// days are added to the membership's end date.
 final class MembershipFreeze {
-  const MembershipFreeze({required this.id, required this.startsOn, required this.endsOn, required this.days});
+  const MembershipFreeze({
+    required this.id,
+    required this.startsOn,
+    required this.endsOn,
+    required this.days,
+    this.inApp = false,
+  });
 
   final String id;
   final LocalDate startsOn;
   final LocalDate endsOn;
   final int days;
+
+  /// The member made it in the app; otherwise the gym did.
+  final bool inApp;
 
   /// It started on or before [today], so ending it keeps the days used.
   bool hasStarted(LocalDate today) => startsOn.compareTo(today) <= 0;
