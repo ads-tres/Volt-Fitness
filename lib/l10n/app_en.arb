@@ -430,5 +430,11 @@
   "numbersNew": "New",
   "numbersSoldAtDesk": "Plans sold at the desk",
   "numbersSoldInApp": "Plans sold in the app",
-  "numbersBusyHours": "Busy hours"
+  "numbersBusyHours": "Busy hours",
+  "numbersToCall": "Members to call",
+  "numbersNoOneToCall": "No one to call: no plan ends in the next days.",
+  "numbersEnds": "ends {date}",
+  "@numbersEnds": {"placeholders": {"date": {"type": "String"}}},
+  "numbersCall": "Call {phone}",
+  "@numbersCall": {"placeholders": {"phone": {"type": "String"}}}
 }

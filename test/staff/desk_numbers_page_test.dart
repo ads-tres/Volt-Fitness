@@ -51,4 +51,17 @@ void main() {
     expect(find.text('Money'), findsNothing);
     expect(find.text('Owed'), findsNothing);
   });
+
+  testWidgets('the members to call show their plan, end, visits and what they owe, with a call button', (tester) async {
+    await startDesk(tester);
+    await openScanner(tester);
+    await openNumbers(tester);
+
+    await tester.scrollUntilVisible(find.text('Members to call'), 200);
+    await tester.pumpAndSettle();
+    expect(find.text('Abebe Kebede'), findsOneWidget);
+    expect(find.text('Monthly · ends Oct 17, 2026 · Owes 1,000.00 ETB'), findsOneWidget);
+    expect(find.text('10 Visits · ends Nov 23, 2026 · 1 visit left'), findsOneWidget);
+    expect(find.byTooltip('Call +251\u00A091\u00A0123\u00A04567'), findsOneWidget);
+  });
 }

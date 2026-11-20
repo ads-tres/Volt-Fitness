@@ -1163,4 +1163,20 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get numbersBusyHours => 'የተጨናነቁ ሰዓታት';
+
+  @override
+  String get numbersToCall => 'የሚደወልላቸው አባላት';
+
+  @override
+  String get numbersNoOneToCall => 'የሚደወልለት የለም፤ በሚቀጥሉት ቀናት የሚያልቅ እቅድ የለም።';
+
+  @override
+  String numbersEnds(String date) {
+    return '$date ያልቃል';
+  }
+
+  @override
+  String numbersCall(String phone) {
+    return 'ወደ $phone ይደውሉ';
+  }
 }

@@ -1186,4 +1186,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get numbersBusyHours => 'Busy hours';
+
+  @override
+  String get numbersToCall => 'Members to call';
+
+  @override
+  String get numbersNoOneToCall =>
+      'No one to call: no plan ends in the next days.';
+
+  @override
+  String numbersEnds(String date) {
+    return 'ends $date';
+  }
+
+  @override
+  String numbersCall(String phone) {
+    return 'Call $phone';
+  }
 }

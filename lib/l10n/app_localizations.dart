@@ -2065,6 +2065,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Busy hours'**
   String get numbersBusyHours;
+
+  /// No description provided for @numbersToCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Members to call'**
+  String get numbersToCall;
+
+  /// No description provided for @numbersNoOneToCall.
+  ///
+  /// In en, this message translates to:
+  /// **'No one to call: no plan ends in the next days.'**
+  String get numbersNoOneToCall;
+
+  /// No description provided for @numbersEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'ends {date}'**
+  String numbersEnds(String date);
+
+  /// No description provided for @numbersCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Call {phone}'**
+  String numbersCall(String phone);
 }
 
 class _AppLocalizationsDelegate

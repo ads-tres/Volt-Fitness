@@ -342,5 +342,9 @@
   "numbersNew": "አዲስ",
   "numbersSoldAtDesk": "በዴስክ የተሸጡ እቅዶች",
   "numbersSoldInApp": "በመተግበሪያው የተሸጡ እቅዶች",
-  "numbersBusyHours": "የተጨናነቁ ሰዓታት"
+  "numbersBusyHours": "የተጨናነቁ ሰዓታት",
+  "numbersToCall": "የሚደወልላቸው አባላት",
+  "numbersNoOneToCall": "የሚደወልለት የለም፤ በሚቀጥሉት ቀናት የሚያልቅ እቅድ የለም።",
+  "numbersEnds": "{date} ያልቃል",
+  "numbersCall": "ወደ {phone} ይደውሉ"
 }
