@@ -5,4 +5,5 @@ abstract final class StaffRoutes {
   static const scan = '/scan';
   static const desk = '/desk';
   static const today = '/today';
+  static const inbox = '/inbox';
 }

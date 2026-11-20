@@ -1004,4 +1004,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskDismiss => 'Dismiss';
+
+  @override
+  String get deskInboxTitle => 'Messages';
+
+  @override
+  String get deskMarkAllRead => 'Mark all read';
+
+  @override
+  String get deskInboxEmpty =>
+      'No messages yet. Online payments, refunds to make, freezes made in the app and the members to call show here.';
+
+  @override
+  String get deskOpenPanel => 'Open in the staff panel';
 }

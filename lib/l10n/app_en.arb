@@ -373,5 +373,9 @@
   "deskOfflineChip": "Scanned offline",
   "deskDroppedNotice": "{count, plural, =1{1 scan couldn't be sent, as it was more than a day old.} other{{count} scans couldn't be sent, as they were more than a day old.}}",
   "@deskDroppedNotice": {"placeholders": {"count": {"type": "int"}}},
-  "deskDismiss": "Dismiss"
+  "deskDismiss": "Dismiss",
+  "deskInboxTitle": "Messages",
+  "deskMarkAllRead": "Mark all read",
+  "deskInboxEmpty": "No messages yet. Online payments, refunds to make, freezes made in the app and the members to call show here.",
+  "deskOpenPanel": "Open in the staff panel"
 }

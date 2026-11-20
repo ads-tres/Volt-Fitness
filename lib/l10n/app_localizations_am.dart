@@ -981,4 +981,17 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get deskDismiss => 'ዝጋ';
+
+  @override
+  String get deskInboxTitle => 'መልዕክቶች';
+
+  @override
+  String get deskMarkAllRead => 'ሁሉንም እንደተነበበ ምልክት አድርግ';
+
+  @override
+  String get deskInboxEmpty =>
+      'እስካሁን መልዕክት የለም። የኦንላይን ክፍያዎች፣ የሚመለሱ ገንዘቦች፣ በመተግበሪያው የቆሙ አባልነቶች እና የሚደወልላቸው አባላት እዚህ ይታያሉ።';
+
+  @override
+  String get deskOpenPanel => 'በሰራተኞች ፓነል ክፈት';
 }

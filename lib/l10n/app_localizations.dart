@@ -1771,6 +1771,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dismiss'**
   String get deskDismiss;
+
+  /// No description provided for @deskInboxTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get deskInboxTitle;
+
+  /// No description provided for @deskMarkAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all read'**
+  String get deskMarkAllRead;
+
+  /// No description provided for @deskInboxEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet. Online payments, refunds to make, freezes made in the app and the members to call show here.'**
+  String get deskInboxEmpty;
+
+  /// No description provided for @deskOpenPanel.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in the staff panel'**
+  String get deskOpenPanel;
 }
 
 class _AppLocalizationsDelegate
