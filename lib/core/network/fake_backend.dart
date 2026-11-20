@@ -38,6 +38,11 @@ final class FakeBackend implements HttpClientAdapter {
   /// In the gym's "Student" discount group: 20% off every plan.
   static const studentPhone = '+251977777777';
 
+  /// A promo code: 10% off Monthly and Quarterly, not Annual. [usedCode]
+  /// is one the member has used; any other code doesn't exist.
+  static const promoCode = 'NEWYEAR';
+  static const usedCode = 'USED';
+
   static const _tokenPrefix = 'fake-token:';
   static const _maxWrongCodes = 5;
 
@@ -103,7 +108,15 @@ final class FakeBackend implements HttpClientAdapter {
       ('POST', '/access-credential') => _inGym(request, (phone, gym) => _issueCredential(request, phone, gym)),
       ('GET', '/access-credential') => _inGym(request, (phone, gym) => _currentCredential(request, phone, gym)),
       ('GET', '/devices') => _signedIn(request, (phone) => _listDevices(request, phone)),
-      ('GET', '/plans') => _inGym(request, (phone, gym) => _json(200, {'data': _plans(phone, gym)})),
+      ('GET', '/plans') => _inGym(request, (phone, gym) {
+        final code = request.query['promo_code'];
+        if (code != null && code.isNotEmpty) {
+          if (_codeRefusal(code) case final reason?) {
+            return _error(422, 'VALIDATION_FAILED', reason, request, errors: {'promo_code': [reason]});
+          }
+        }
+        return _json(200, {'data': _plans(phone, gym, code: code)});
+      }),
       ('POST', final path) when _purchase.hasMatch(path) => _inGym(
         request,
         (phone, gym) => _buyPlan(request, phone, gym, _purchase.firstMatch(path)!.group(1)!),
@@ -392,20 +405,36 @@ final class FakeBackend implements HttpClientAdapter {
   static final _checkLink = RegExp(r'^/payment-links/(\d+)/check$');
   static final _receipt = RegExp(r'^/payments/(\d+)$');
 
-  /// What [phone] pays instead of [listMinor], with why: the Student group's
-  /// 20% off. Null at full price, as the API leaves `your_price` null.
-  Map<String, Object?>? _memberPrice(String phone, int listMinor) {
+  /// Why [code] can't be used, as the API says it, or null for [promoCode].
+  static String? _codeRefusal(String code) => switch (code.toUpperCase()) {
+    promoCode => null,
+    usedCode => 'You have already used this code.',
+    _ => "This code doesn't exist.",
+  };
+
+  /// What [phone] pays for [name] instead of [listMinor], with why: the
+  /// Student group's 20% off, or [code]'s 10% on Monthly and Quarterly,
+  /// whichever is lower, never both. `your_price` is null at full price.
+  Map<String, Object?> _memberPrice(String phone, String name, int listMinor, {String? code}) {
     final student = phone == studentPhone ? listMinor * 80 ~/ 100 : null;
+    final codeApplies = code != null && _codeRefusal(code) == null && name != 'Annual';
+    final withCode = codeApplies ? listMinor * 90 ~/ 100 : null;
+    final (yours, discount) = switch ((student, withCode)) {
+      (final s?, final c?) when c < s => (c, {'source': 'promo_code', 'name': promoCode}),
+      (final s?, _) => (s, {'source': 'discount_group', 'name': 'Student'}),
+      (null, final c?) => (c, {'source': 'promo_code', 'name': promoCode}),
+      _ => (null, null),
+    };
     return {
-      'price_with_code': null,
-      'your_price': student == null ? null : _money(student),
-      'your_discount': student == null ? null : {'source': 'discount_group', 'name': 'Student'},
+      'price_with_code': withCode == null ? null : _money(withCode),
+      'your_price': yours == null ? null : _money(yours),
+      'your_discount': discount,
     };
   }
 
   /// The plans on sale, cheapest first, with the dates each would run if
   /// bought now: from the day after the member's plan ends, or today.
-  List<Map<String, Object?>> _plans(String phone, String gym) {
+  List<Map<String, Object?>> _plans(String phone, String gym, {String? code}) {
     final held = _held(phone, gym);
     final startsIn = held != null && held.status != 'expired' && held.end >= 0 ? held.end + 1 : 0;
     Map<String, Object?> plan(String name, int days, int priceMinor) => {
@@ -414,7 +443,7 @@ final class FakeBackend implements HttpClientAdapter {
       'description': null,
       'price': _money(priceMinor),
       'duration': {'count': days, 'unit': 'day'},
-      ...?_memberPrice(phone, priceMinor),
+      ..._memberPrice(phone, name, priceMinor, code: code),
       'freeze_days_allowed': 7,
       'valid_at_all_branches': true,
       'starts_on': _iso(_today.add(Duration(days: startsIn))),
@@ -475,18 +504,32 @@ final class FakeBackend implements HttpClientAdapter {
 
   /// One purchase at a time: choosing another plan cancels the unpaid one.
   ResponseBody _buyPlan(_Request request, String phone, String gym, String planId) {
-    final plan = _plans(phone, gym).where((plan) => '${plan['id']}' == planId).firstOrNull;
+    final code = request.body['promo_code'] is String ? request.body['promo_code'] as String : null;
+    if (code != null) {
+      if (_codeRefusal(code) case final reason?) {
+        return _error(422, 'VALIDATION_FAILED', reason, request, errors: {'promo_code': [reason]});
+      }
+    }
+    final plan = _plans(phone, gym, code: code).where((plan) => '${plan['id']}' == planId).firstOrNull;
     if (plan == null) return _error(404, 'NOT_FOUND', 'Not found.', request);
+    if (code != null && plan['price_with_code'] == null) {
+      const reason = "This code can't be used for this plan.";
+      return _error(422, 'VALIDATION_FAILED', reason, request, errors: {'promo_code': [reason]});
+    }
     for (final link in _links.values.where((link) => _isOpen(link, phone, gym) && link.plan != null).toList()) {
-      if (link.plan!['id'] == plan['id']) return _json(200, {'data': link.toJson()});
+      if (link.plan!['id'] == plan['id'] && link.promoCode == code) return _json(200, {'data': link.toJson()});
       link.state = 'cancelled';
     }
     final price = plan['price']! as Map<String, Object?>;
+    final pays = (plan['your_price'] ?? price) as Map<String, Object?>;
+    final usesCode = (plan['your_discount'] as Map<String, Object?>?)?['source'] == 'promo_code';
     final link = _Link(
       id: 700 + _links.length,
       phone: phone,
       gym: gym,
-      amountMinor: price['amount_minor']! as int,
+      amountMinor: pays['amount_minor']! as int,
+      listAmountMinor: usesCode ? price['amount_minor']! as int : null,
+      promoCode: usesCode ? promoCode : null,
       plan: plan,
       createdAt: _now(),
     );
@@ -1113,6 +1156,8 @@ final class _Link {
     required this.createdAt,
     this.plan,
     this.membershipId,
+    this.listAmountMinor,
+    this.promoCode,
   });
 
   final int id;
@@ -1120,6 +1165,10 @@ final class _Link {
   final String gym;
   final int amountMinor;
   final DateTime createdAt;
+
+  /// The plan's price when a promo code made [amountMinor] lower.
+  final int? listAmountMinor;
+  final String? promoCode;
 
   /// The plan being bought, or null when paying what a membership owes.
   final Map<String, Object?>? plan;
@@ -1138,6 +1187,8 @@ final class _Link {
       final other => other,
     },
     'amount': FakeBackend._money(amountMinor),
+    'list_amount': listAmountMinor == null ? null : FakeBackend._money(listAmountMinor!),
+    'promo_code': promoCode,
     'checkout_url': state == 'paid' || state == 'cancelled' ? null : 'https://checkout.chapa.co/checkout/payment/fake-$id',
     'return_url': state == 'paid' || state == 'cancelled' ? null : 'https://api.test/payments/returned',
     'membership_id': membershipId,

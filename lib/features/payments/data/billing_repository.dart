@@ -21,9 +21,11 @@ final class BillingRepository {
 
   String _path(String path) => gymPath(_gym(), path);
 
-  /// The plans the member can buy at their home branch, cheapest first.
-  Future<List<Plan>> plans() async {
-    final response = await _api.get(_path('/plans'));
+  /// The plans the member can buy at their home branch, cheapest first,
+  /// each with what this member pays. With [promoCode], also with the code;
+  /// a code that can't be used is a [ValidationFailure] on `promo_code`.
+  Future<List<Plan>> plans({String? promoCode}) async {
+    final response = await _api.get(_path('/plans'), query: {'promo_code': ?promoCode});
     return readResponse(() => [for (final plan in (response! as Map<String, dynamic>).objects('data')) planFromJson(plan)]);
   }
 
@@ -44,10 +46,14 @@ final class BillingRepository {
   /// membership, see [OutstandingInvoice]), or buying a plan. The API works
   /// out the amount and asks Chapa for a checkout page. Asking again gives
   /// the same open link, so a retry never charges twice.
-  Future<PaymentAttempt> startPayment({String? invoiceId, String? planId}) async {
+  ///
+  /// A plan bought with [promoCode] is charged the code's price.
+  Future<PaymentAttempt> startPayment({String? invoiceId, String? planId, String? promoCode}) async {
     assert((invoiceId == null) != (planId == null), 'Pay a membership or a plan, not both');
     final path = invoiceId != null ? '/memberships/$invoiceId/payment-link' : '/plans/$planId/purchase';
-    final data = dataObject(await _api.post(_path(path)));
+    final data = dataObject(
+      await _api.post(_path(path), body: planId != null && promoCode != null ? {'promo_code': promoCode} : null),
+    );
     return readResponse(() => paymentAttemptFromJson(data));
   }
 
@@ -69,9 +75,32 @@ final billingRepositoryProvider = Provider<BillingRepository>(
   (ref) => BillingRepository(ref.watch(apiClientProvider), () => ref.read(selectedOrganizationProvider)?.id),
 );
 
+/// The promo code the member applied at the selected gym: kept while the
+/// app runs, forgotten when the gym changes, never stored on the phone.
+final class PromoCodeController extends Notifier<String?> {
+  @override
+  String? build() {
+    ref.watch(selectedOrganizationProvider.select((organization) => organization?.id));
+    return null;
+  }
+
+  /// Checks [code] with the API and applies it. Throws the API's
+  /// [ValidationFailure] when it can't be used; the code stays as it was.
+  Future<void> apply(String code) async {
+    final trimmed = code.trim().toUpperCase();
+    if (trimmed.isEmpty) return;
+    await ref.read(billingRepositoryProvider).plans(promoCode: trimmed);
+    state = trimmed;
+  }
+
+  void remove() => state = null;
+}
+
+final promoCodeProvider = NotifierProvider<PromoCodeController, String?>(PromoCodeController.new);
+
 final plansProvider = FutureProvider.autoDispose<List<Plan>>((ref) {
   ref.watch(selectedOrganizationProvider.select((organization) => organization?.id));
-  return ref.watch(billingRepositoryProvider).plans();
+  return ref.watch(billingRepositoryProvider).plans(promoCode: ref.watch(promoCodeProvider));
 });
 
 final invoicesProvider = FutureProvider.autoDispose<List<Invoice>>((ref) {
