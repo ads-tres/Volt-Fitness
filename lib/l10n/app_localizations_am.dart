@@ -1210,4 +1210,9 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get deskNoInternetDemo => 'ኢንተርኔት የለም (ሙከራ)';
+
+  @override
+  String deskServerDisagrees(String reason) {
+    return 'ሰርቨር፦ $reason፤ በፓነሉ ይመልከቱ';
+  }
 }

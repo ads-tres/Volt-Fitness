@@ -1235,4 +1235,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskNoInternetDemo => 'No internet (demo)';
+
+  @override
+  String deskServerDisagrees(String reason) {
+    return 'Server: $reason, review in the panel';
+  }
 }

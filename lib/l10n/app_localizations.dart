@@ -2119,6 +2119,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No internet (demo)'**
   String get deskNoInternetDemo;
+
+  /// No description provided for @deskServerDisagrees.
+  ///
+  /// In en, this message translates to:
+  /// **'Server: {reason}, review in the panel'**
+  String deskServerDisagrees(String reason);
 }
 
 class _AppLocalizationsDelegate

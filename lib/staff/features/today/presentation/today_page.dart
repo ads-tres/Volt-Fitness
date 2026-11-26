@@ -96,11 +96,16 @@ class TodayPage extends ConsumerWidget {
                     color: checkIn.letIn ? CheckInResultView.letInColor : CheckInResultView.turnedAwayColor,
                   ),
                   title: Text(checkIn.memberName ?? l10n.deskUnknownMember),
-                  subtitle: switch ((checkIn.letIn, checkIn.offline)) {
-                    (true, false) => null,
-                    (true, true) => Text(l10n.deskOfflineChip),
-                    (false, false) => Text(deskReason(l10n, checkIn.reasonCode)),
-                    (false, true) => Text('${deskReason(l10n, checkIn.reasonCode)} · ${l10n.deskOfflineChip}'),
+                  subtitle: switch ([
+                    if (!checkIn.letIn) deskReason(l10n, checkIn.reasonCode),
+                    if (checkIn.offline) l10n.deskOfflineChip,
+                    if (checkIn.serverDisagrees)
+                      l10n.deskServerDisagrees(
+                        checkIn.serverReasonCode == null ? l10n.deskLetIn : deskReason(l10n, checkIn.serverReasonCode),
+                      ),
+                  ]) {
+                    [] => null,
+                    final parts => Text(parts.join(' · ')),
                   },
                   trailing: Text(DateFormat.Hm().format(checkIn.checkedInAt.toLocal()), style: textTheme.bodySmall),
                 ),
