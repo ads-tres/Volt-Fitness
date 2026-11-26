@@ -346,5 +346,10 @@
   "numbersToCall": "የሚደወልላቸው አባላት",
   "numbersNoOneToCall": "የሚደወልለት የለም፤ በሚቀጥሉት ቀናት የሚያልቅ እቅድ የለም።",
   "numbersEnds": "{date} ያልቃል",
-  "numbersCall": "ወደ {phone} ይደውሉ"
+  "numbersCall": "ወደ {phone} ይደውሉ",
+  "branchClosedToday": "ዛሬ ዝግ ነው፦ {reason}",
+  "branchOtherHoursToday": "ዛሬ ሌላ ሰዓት፦ {hours} · {reason}",
+  "branchHoursNextDay": "{hours} (በማግስቱ)",
+  "branchClosuresComing": "የሚዘጋባቸው ቀናት እና ሌላ ሰዓት",
+  "branchEveryYear": "በየዓመቱ"
 }
