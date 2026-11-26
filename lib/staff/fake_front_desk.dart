@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:io' show HttpDate;
 import 'dart:typed_data';
 
+import 'package:cryptography/cryptography.dart';
 import 'package:dio/dio.dart';
 
+import '../core/access/gq1.dart';
 import '../core/network/api_headers.dart';
 
 /// Answers the front desk app's calls in dev builds, with the paths and JSON
@@ -53,6 +55,19 @@ final class FakeFrontDesk implements HttpClientAdapter {
       _ => const <String, dynamic>{},
     };
     final gymPath = RegExp(r'^/organizations/([^/]+)(/.*)$').firstMatch(options.path);
+    // Signing takes a moment, so the door list is answered here.
+    if (gymPath != null && options.method == 'GET' && gymPath.group(2)!.startsWith('/door-list')) {
+      final authorization = options.headers[ApiHeaders.authorization];
+      final token = authorization is String && authorization.startsWith('Bearer ') ? authorization.substring(7) : null;
+      if (token == null || !token.startsWith(_tokenPrefix)) return _json(401, {'message': 'Unauthenticated.'});
+      return gymPath.group(2) == '/door-list/public-key'
+          ? _publicKey()
+          : _doorList(
+              token.substring(_tokenPrefix.length),
+              gymPath.group(1)!,
+              int.tryParse('${options.queryParameters['branch_id'] ?? ''}'),
+            );
+    }
     return switch ((options.method, options.path)) {
       ('POST', '/auth/tokens') => _signIn(body),
       ('GET', '/me') => _signedIn(options, (phone) => _json(200, {'data': _me(phone)})),
@@ -124,6 +139,93 @@ final class FakeFrontDesk implements HttpClientAdapter {
       ('PATCH', '/notification-preferences') => _choose(options, phone, gym),
       _ => _json(404, {'message': 'Not found.'}),
     };
+  }
+
+  // Offline: the door list
+
+  /// The seed of the fake's Ed25519 signing key; dev builds fetch its public
+  /// key and keep it, as with a gym platform that has no key built in.
+  static final _signingSeed = List<int>.generate(32, (index) => index + 1);
+
+  /// Each member's QR credential: an id as in the code, and a secret only
+  /// the fake and tests know. Hana's pack has one visit left, at Main.
+  static const doorCredentials = {
+    1: '01K7Z3M6Q8V2N4R5T9W1X0YAB1',
+    2: '01K7Z3M6Q8V2N4R5T9W1X0YAB2',
+    3: '01K7Z3M6Q8V2N4R5T9W1X0YAB3',
+  };
+
+  static List<int> doorSecret(int memberId) => List<int>.filled(32, memberId * 7);
+
+  /// The code member [memberId] shows at [now], as the member app makes it.
+  static String doorCode(int memberId, DateTime now) =>
+      Gq1.payload(doorSecret(memberId), doorCredentials[memberId]!, Gq1.stepAt(now));
+
+  Future<SimpleKeyPair> _keyPair() => Ed25519().newKeyPairFromSeed(_signingSeed);
+
+  Future<String> _keyId() async {
+    final publicKey = await (await _keyPair()).extractPublicKey();
+    return base64.encode(publicKey.bytes).substring(0, 16);
+  }
+
+  Future<ResponseBody> _publicKey() async {
+    final publicKey = await (await _keyPair()).extractPublicKey();
+    return _json(200, {
+      'data': {'algorithm': 'Ed25519', 'public_key': base64.encode(publicKey.bytes), 'key_id': await _keyId()},
+    });
+  }
+
+  /// Today's and tomorrow's list, signed: the three members' credentials
+  /// with their day keys, Abebe's Monthly plan, Tigist's ended one and Hana's
+  /// pack, and Main Branch open 05:00 to 23:00, Bole Branch 06:00 to 22:00.
+  Future<ResponseBody> _doorList(String phone, String gym, int? branchId) async {
+    final now = _now();
+    String date(int days) => DateTime(now.year, now.month, now.day + days).toIso8601String().substring(0, 10);
+    final dates = [date(0), date(1)];
+    final firstUtcDay = now.toUtc().millisecondsSinceEpoch ~/ 86400000;
+    final utcDays = [firstUtcDay, firstUtcDay + 1];
+    final branches = [
+      for (final branch in _branches(phone, gym))
+        if (branchId == null || branch['id'] == branchId) branch,
+    ];
+    final members = {1: _abebe, 2: _tigist, 3: _hana};
+    Map<String, Object?> day(int memberId) => switch (memberId) {
+      1 => {'allowed': true, 'reason_code': null, 'membership': {'id': 101, 'plan': 'Monthly'}, 'branch_ids': null, 'visits_left': null},
+      2 => {'allowed': false, 'reason_code': 'MEMBERSHIP_EXPIRED', 'membership': {'id': 102, 'plan': 'Monthly'}, 'branch_ids': null, 'visits_left': null},
+      _ => {'allowed': true, 'reason_code': null, 'membership': {'id': 103, 'plan': '10 Visits'}, 'branch_ids': [1], 'visits_left': 1},
+    };
+    final list = jsonEncode({
+      'gym': {'id': 1, 'slug': gym, 'name': gym == 'bole-fitness' ? 'Bole Fitness' : 'Demo Gym', 'timezone': 'Africa/Addis_Ababa'},
+      'generated_at': now.toUtc().toIso8601String(),
+      'valid_until': DateTime.fromMillisecondsSinceEpoch((firstUtcDay + 2) * 86400000, isUtc: true).toIso8601String(),
+      'utc_days': utcDays,
+      'dates': dates,
+      'branches': [
+        for (final branch in branches)
+          {
+            'id': branch['id'],
+            'name': branch['name'],
+            'hours': {
+              for (final each in dates)
+                each: branch['id'] == 1 ? {'opens_at': '05:00', 'closes_at': '23:00'} : {'opens_at': '06:00', 'closes_at': '22:00'},
+            },
+          },
+      ],
+      'credentials': [
+        for (final MapEntry(key: memberId, value: id) in doorCredentials.entries)
+          {
+            'id': id,
+            'last_used_step': null,
+            'day_keys': {for (final utcDay in utcDays) '$utcDay': base64.encode(Gq1.dayKey(doorSecret(memberId), utcDay))},
+            'member': {'id': memberId, 'full_name': members[memberId]!['full_name'], 'photo_url': null},
+            'days': {for (final each in dates) each: day(memberId)},
+          },
+      ],
+    });
+    final signature = await Ed25519().sign(utf8.encode(list), keyPair: await _keyPair());
+    return _json(200, {
+      'data': {'list': list, 'signature': base64.encode(signature.bytes), 'key_id': await _keyId()},
+    });
   }
 
   // Numbers
