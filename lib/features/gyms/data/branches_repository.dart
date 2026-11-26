@@ -5,6 +5,7 @@ import '../../../core/network/api_client.dart';
 import '../../../core/network/json.dart';
 import '../../../core/tenant/gym_path.dart';
 import '../../../core/tenant/selected_organization.dart';
+import '../../../core/time/local_date.dart';
 import '../domain/gym_branch.dart';
 
 /// The selected gym's branches, by name, with their opening hours
@@ -35,6 +36,25 @@ GymBranch gymBranchFromJson(Map<String, dynamic> json) => GymBranch(
         closesAt: _minutes(day.field<String>('closes_at')),
       ),
   ],
+  closures: [
+    for (final closure in json.objects('closures'))
+      BranchClosure(
+        id: '${closure.field<Object>('id')}',
+        startsOn: LocalDate.parse(closure.field<String>('starts_on')),
+        endsOn: LocalDate.parse(closure.field<String>('ends_on')),
+        reason: closure.optional<String>('reason'),
+        opensAt: switch (closure.optional<String>('opens_at')) {
+          final time? => _minutes(time),
+          null => null,
+        },
+        closesAt: switch (closure.optional<String>('closes_at')) {
+          final time? => _minutes(time),
+          null => null,
+        },
+        repeatsYearly: closure.optional<bool>('repeats_yearly') ?? false,
+        ethiopianDate: closure.optional<String>('ethiopian_date'),
+      ),
+  ]..sort((a, b) => a.startsOn.compareTo(b.startsOn)),
 );
 
 /// `06:30` as minutes after midnight.
