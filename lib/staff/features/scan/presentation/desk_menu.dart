@@ -4,11 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../core/config/env.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/push/push_service.dart';
 import '../../../app/staff_routes.dart';
 import '../../../core/desk_session.dart';
+import '../../../fake_front_desk.dart';
 import '../../auth/data/desk_auth_repository.dart';
 
 /// The branch this desk is at, and the menu to change it or sign out.
@@ -24,6 +27,8 @@ class DeskMenu extends ConsumerWidget {
         switch (choice) {
           case 'branch':
             await ref.read(deskSessionProvider.notifier).chooseAgain();
+          case 'no-internet':
+            if (ref.read(fakeBackendProvider) case final FakeFrontDesk fake) fake.noInternet = !fake.noInternet;
           case 'numbers':
             unawaited(context.push(StaffRoutes.numbers));
           case 'notifications':
@@ -43,6 +48,9 @@ class DeskMenu extends ConsumerWidget {
       itemBuilder: (context) => [
         PopupMenuItem(value: 'branch', child: Text(l10n.deskChangeBranch)),
         PopupMenuItem(value: 'numbers', child: Text(l10n.numbersTitle)),
+        // Dev builds only: try the door list without turning the Wi-Fi off.
+        if (ref.read(fakeBackendProvider) case final FakeFrontDesk fake when ref.read(envProvider).usesFakeBackend)
+          CheckedPopupMenuItem(value: 'no-internet', checked: fake.noInternet, child: Text(l10n.deskNoInternetDemo)),
         PopupMenuItem(value: 'notifications', child: Text(l10n.deskNotificationSettings)),
         PopupMenuItem(value: 'sign-out', child: Text(l10n.signOut)),
       ],

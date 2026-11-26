@@ -436,5 +436,12 @@
   "numbersEnds": "ends {date}",
   "@numbersEnds": {"placeholders": {"date": {"type": "String"}}},
   "numbersCall": "Call {phone}",
-  "@numbersCall": {"placeholders": {"phone": {"type": "String"}}}
+  "@numbersCall": {"placeholders": {"phone": {"type": "String"}}},
+  "deskDecidedOffline": "Decided offline",
+  "deskReasonNoDoorList": "No internet, and no door list to check with",
+  "deskOfflineRefused": "{count, plural, =1{The server didn't record 1 offline scan.} other{The server didn't record {count} offline scans.}}",
+  "@deskOfflineRefused": {"placeholders": {"count": {"type": "int"}}},
+  "deskOfflineToReview": "{count, plural, =1{1 offline check-in to review in the panel.} other{{count} offline check-ins to review in the panel.}}",
+  "@deskOfflineToReview": {"placeholders": {"count": {"type": "int"}}},
+  "deskNoInternetDemo": "No internet (demo)"
 }

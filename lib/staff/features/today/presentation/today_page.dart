@@ -36,18 +36,26 @@ class TodayPage extends ConsumerWidget {
             padding: const EdgeInsets.all(20),
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
-              if (outbox.dropped > 0)
+              if (outbox.refused > 0 || outbox.toReview > 0)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Row(
                     children: [
                       const Icon(Icons.error_outline_rounded, color: CheckInResultView.turnedAwayColor),
                       const SizedBox(width: 10),
-                      Expanded(child: Text(l10n.deskDroppedNotice(outbox.dropped), style: textTheme.bodyMedium)),
+                      Expanded(
+                        child: Text(
+                          [
+                            if (outbox.refused > 0) l10n.deskOfflineRefused(outbox.refused),
+                            if (outbox.toReview > 0) l10n.deskOfflineToReview(outbox.toReview),
+                          ].join(' '),
+                          style: textTheme.bodyMedium,
+                        ),
+                      ),
                       IconButton(
                         tooltip: l10n.deskDismiss,
                         icon: const Icon(Icons.close_rounded),
-                        onPressed: ref.read(scanOutboxProvider.notifier).dismissDropped,
+                        onPressed: ref.read(scanOutboxProvider.notifier).dismissCounts,
                       ),
                     ],
                   ),
@@ -63,7 +71,7 @@ class TodayPage extends ConsumerWidget {
                         onPressed: ref.read(scanOutboxProvider.notifier).flush,
                         icon: const Icon(Icons.cloud_upload_rounded),
                         label: Text(l10n.deskSendNow),
-                        style: TextButton.styleFrom(foregroundColor: SavedOfflineView.color),
+                        style: TextButton.styleFrom(foregroundColor: offlineColor),
                       ),
                   ],
                 ),
@@ -71,7 +79,7 @@ class TodayPage extends ConsumerWidget {
                 for (final scan in outbox.pending)
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.cloud_off_rounded, color: SavedOfflineView.color),
+                    leading: const Icon(Icons.cloud_off_rounded, color: offlineColor),
                     title: Text(l10n.deskWaitingRow(DateFormat.Hm().format(scan.scannedAt.toLocal()))),
                   ),
                 const SizedBox(height: 20),
@@ -88,7 +96,7 @@ class TodayPage extends ConsumerWidget {
                     color: checkIn.letIn ? CheckInResultView.letInColor : CheckInResultView.turnedAwayColor,
                   ),
                   title: Text(checkIn.memberName ?? l10n.deskUnknownMember),
-                  subtitle: switch ((checkIn.letIn, checkIn.scannedOffline)) {
+                  subtitle: switch ((checkIn.letIn, checkIn.offline)) {
                     (true, false) => null,
                     (true, true) => Text(l10n.deskOfflineChip),
                     (false, false) => Text(deskReason(l10n, checkIn.reasonCode)),

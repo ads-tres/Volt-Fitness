@@ -12,9 +12,9 @@ import '../../../core/desk_session.dart';
 import '../../today/data/today_check_ins.dart';
 import 'check_in_repository.dart';
 
-/// A scan the desk couldn't send, kept until it can. It keeps its own
-/// Idempotency-Key, so sending it twice never makes two check-ins, and the
-/// gym, branch and time it was scanned at, so the API judges it as of then.
+/// A scan the desk decided offline, kept until the server has answered for
+/// it. Its [id] is made here and sent again after a lost answer, so the
+/// server records it once.
 final class PendingScan {
   const PendingScan({
     required this.id,
@@ -22,7 +22,8 @@ final class PendingScan {
     required this.gymSlug,
     required this.branchId,
     required this.scannedAt,
-    required this.idempotencyKey,
+    required this.letIn,
+    this.reasonCode,
   });
 
   final String id;
@@ -32,16 +33,22 @@ final class PendingScan {
 
   /// In UTC.
   final DateTime scannedAt;
-  final String idempotencyKey;
 
-  Map<String, Object?> toJson() => {
+  /// What the door decided, and why not.
+  final bool letIn;
+  final String? reasonCode;
+
+  /// As `POST check-ins/offline` takes it.
+  Map<String, Object?> toApi() => {
     'id': id,
     'payload': payload,
-    'gym': gymSlug,
     'branch_id': branchId,
     'scanned_at': scannedAt.toUtc().toIso8601String(),
-    'idempotency_key': idempotencyKey,
+    'decision': letIn ? 'allow' : 'deny',
+    'reason_code': ?(letIn ? null : reasonCode),
   };
+
+  Map<String, Object?> toJson() => {...toApi(), 'gym': gymSlug};
 
   static PendingScan fromJson(Map<String, dynamic> json) => PendingScan(
     id: json.field<String>('id'),
@@ -49,34 +56,44 @@ final class PendingScan {
     gymSlug: json.field<String>('gym'),
     branchId: json.field<int>('branch_id'),
     scannedAt: DateTime.parse(json.field<String>('scanned_at')).toUtc(),
-    idempotencyKey: json.field<String>('idempotency_key'),
+    letIn: json.field<String>('decision') == 'allow',
+    reasonCode: json.optional<String>('reason_code'),
   );
 }
 
 final class OutboxState {
-  const OutboxState({this.pending = const [], this.dropped = 0, this.isSending = false});
+  const OutboxState({this.pending = const [], this.refused = 0, this.toReview = 0, this.isSending = false});
 
   /// Oldest first, the order they are sent in.
   final List<PendingScan> pending;
 
-  /// Scans the API refused to take, such as ones over a day old. They
-  /// can't be sent again, so they are let go and counted.
-  final int dropped;
+  /// Scans the server wouldn't record: a code that doesn't match its time,
+  /// one over 3 days old, or at a branch the staff member doesn't work at.
+  final int refused;
+
+  /// Scans recorded as the door decided, where the server would have
+  /// decided otherwise; staff review them in the panel.
+  final int toReview;
   final bool isSending;
 
-  OutboxState copyWith({List<PendingScan>? pending, int? dropped, bool? isSending}) => OutboxState(
+  OutboxState copyWith({List<PendingScan>? pending, int? refused, int? toReview, bool? isSending}) => OutboxState(
     pending: pending ?? this.pending,
-    dropped: dropped ?? this.dropped,
+    refused: refused ?? this.refused,
+    toReview: toReview ?? this.toReview,
     isSending: isSending ?? this.isSending,
   );
 }
 
-/// The scans waiting for the internet, kept on the phone under
-/// `desk.outbox` (QR codes expire, so this is no secret; signing out wipes
-/// it with the rest of the desk's keys). [flush] sends them oldest first and
-/// stops at the first failure that a later try could get past.
+/// The scans decided offline, kept on the phone under `desk.outbox` until
+/// the server answers for each (signing out wipes them with the rest of the
+/// desk's keys). [flush] sends them to `POST check-ins/offline`, oldest
+/// first, up to 200 a request, and stops at the first failure a later try
+/// could get past.
 final class ScanOutbox extends Notifier<OutboxState> {
   static const storageKey = '${DeskSessionController.prefix}outbox';
+
+  /// The most the server takes in one request.
+  static const batchSize = 200;
 
   @override
   OutboxState build() {
@@ -110,8 +127,9 @@ final class ScanOutbox extends Notifier<OutboxState> {
     }
   }
 
-  /// Keeps [payload], scanned now at the desk's gym and branch.
-  Future<PendingScan> add(String payload, {String? idempotencyKey}) async {
+  /// Keeps what the door decided for [payload], scanned now at the desk's
+  /// gym and branch.
+  Future<PendingScan> add(String payload, {required bool letIn, String? reasonCode}) async {
     final session = ref.read(deskSessionProvider);
     if (session is! DeskSignedIn || session.gym == null || session.branch == null) {
       throw StateError('No branch is chosen');
@@ -122,52 +140,54 @@ final class ScanOutbox extends Notifier<OutboxState> {
       gymSlug: session.gym!.slug,
       branchId: session.branch!.id,
       scannedAt: ref.read(clockProvider)().toUtc(),
-      idempotencyKey: idempotencyKey ?? uuidV4(),
+      letIn: letIn,
+      reasonCode: reasonCode,
     );
     await _save([...state.pending, scan]);
     return scan;
   }
 
-  /// Sends what is waiting, oldest first. Each answer, let in or turned
-  /// away, takes its scan off the list. A network or server failure stops
-  /// here, to try again later; a refusal lets that scan go. Returns how many
-  /// were sent.
+  /// Sends what is waiting and counts the answers. Returns how many the
+  /// server recorded.
   Future<int> flush() async {
     if (state.isSending || state.pending.isEmpty) return 0;
     state = state.copyWith(isSending: true);
-    var sent = 0;
-    var dropped = 0;
+    var recorded = 0;
+    var refused = 0;
+    var toReview = 0;
     try {
-      for (final scan in state.pending) {
+      while (state.pending.isNotEmpty) {
+        final gym = state.pending.first.gymSlug;
+        final batch = state.pending.where((scan) => scan.gymSlug == gym).take(batchSize).toList();
+        final List<OfflineScanAnswer> answers;
         try {
-          await ref.read(checkInRepositoryProvider).scan(
-            scan.payload,
-            idempotencyKey: scan.idempotencyKey,
-            scannedAt: scan.scannedAt,
-            gymSlug: scan.gymSlug,
-            branchId: scan.branchId,
-          );
-          sent++;
-        } on ValidationFailure {
-          dropped++;
-        } on NotFoundFailure {
-          dropped++;
-        } on ForbiddenFailure {
-          dropped++;
+          answers = await ref.read(checkInRepositoryProvider).sendOffline(gym, batch);
         } on Failure {
           break;
         }
-        await _save(state.pending.where((waiting) => waiting.id != scan.id).toList());
+        final answered = <String>{};
+        for (final answer in answers) {
+          answered.add(answer.id);
+          switch (answer.status) {
+            case 'refused':
+              refused++;
+            case 'recorded' || 'already_recorded':
+              recorded++;
+              if (answer.serverDisagrees) toReview++;
+          }
+        }
+        if (answered.isEmpty) break;
+        await _save(state.pending.where((scan) => !answered.contains(scan.id)).toList());
       }
     } finally {
-      state = state.copyWith(isSending: false, dropped: state.dropped + dropped);
+      state = state.copyWith(isSending: false, refused: state.refused + refused, toReview: state.toReview + toReview);
     }
-    if (sent > 0) unawaited(ref.read(todayProvider.notifier).refresh());
-    return sent;
+    if (recorded > 0) unawaited(ref.read(todayProvider.notifier).refresh());
+    return recorded;
   }
 
-  /// Clears the count of scans let go, once the desk has seen it.
-  void dismissDropped() => state = state.copyWith(dropped: 0);
+  /// Clears the counts once the desk has seen them.
+  void dismissCounts() => state = state.copyWith(refused: 0, toReview: 0);
 }
 
 final scanOutboxProvider = NotifierProvider<ScanOutbox, OutboxState>(ScanOutbox.new);

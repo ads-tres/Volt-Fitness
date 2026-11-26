@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/failure.dart';
+import '../../../../core/storage/preferences_store.dart';
 import '../../../../core/time/clock.dart' show clockProvider;
 import '../../../core/desk_session.dart';
+import '../domain/door_check.dart';
 import '../domain/door_list.dart';
 import 'door_list_repository.dart';
 
@@ -65,6 +68,34 @@ final class DoorListController extends Notifier<DoorListState> {
 
   /// The list to scan offline with right now, or null.
   DoorList? usable() => state.usableAt(ref.read(clockProvider)().toUtc());
+
+  static const _memoryKey = '${DeskSessionController.prefix}door_memory';
+
+  /// Decides [payload] at the desk's branch from the door list, as the
+  /// server would, and remembers what it must for the next scans. Null when
+  /// there is no list good now.
+  Future<DoorDecision?> decide(String payload) async {
+    final list = usable();
+    final branchId = _branchId;
+    if (list == null || branchId == null) return null;
+    final preferences = ref.read(preferencesStoreProvider);
+    DoorMemory memory;
+    try {
+      final stored = preferences.getString(_memoryKey);
+      memory = stored == null ? DoorMemory() : DoorMemory.fromJson(jsonDecode(stored) as Map<String, dynamic>);
+    } on Object {
+      memory = DoorMemory();
+    }
+    final decision = DoorCheck.decide(
+      list: list,
+      payload: payload,
+      branchId: branchId,
+      now: ref.read(clockProvider)(),
+      memory: memory,
+    );
+    await preferences.setString(_memoryKey, jsonEncode(memory.toJson()));
+    return decision;
+  }
 }
 
 final doorListProvider = NotifierProvider<DoorListController, DoorListState>(DoorListController.new);

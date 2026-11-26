@@ -12,14 +12,6 @@ import '../support/test_doubles.dart';
 void main() {
   const demoGym = DeskGym(slug: 'demo-gym', name: 'Demo Gym', role: 'receptionist', worksAtAllBranches: false);
 
-  Map<String, Object?> checkIn(int id) => {
-    'id': id,
-    'decision': 'allow',
-    'reason_code': null,
-    'method': 'qr',
-    'checked_in_at': '2026-10-14T06:30:00Z',
-  };
-
   Future<ProviderContainer> desk(StubAdapter adapter, {InMemoryPreferencesStore? preferences}) async {
     final container = ProviderContainer.test(overrides: await testOverrides(preferences: preferences));
     container.read(dioProvider).httpClientAdapter = adapter;
@@ -29,67 +21,116 @@ void main() {
     return container;
   }
 
-  test('keeps scans on the phone and sends them oldest first, each with its key, time, gym and branch', () async {
+  /// Answers each offline scan as [status], disagreeing for [disagreeWith].
+  ResponseBody answer(RequestOptions request, String Function(Map<String, dynamic> scan) status, {String? disagreeWith}) =>
+      jsonResponse(200, {
+        'data': [
+          for (final scan in ((request.data as Map)['scans'] as List).cast<Map<String, dynamic>>())
+            {
+              'id': scan['id'],
+              'status': status(scan),
+              'check_in_id': 900,
+              'server_disagrees': scan['payload'] == disagreeWith,
+              'server_reason_code': scan['payload'] == disagreeWith ? 'MEMBERSHIP_EXPIRED' : null,
+              'message': status(scan) == 'refused' ? "The code doesn't match the time it was scanned." : null,
+            },
+        ],
+      });
+
+  test('keeps the door\'s decisions on the phone and sends them to check-ins/offline, each with its own id', () async {
     final preferences = InMemoryPreferencesStore();
-    final adapter = StubAdapter((request) => jsonResponse(200, {'data': checkIn(1)}));
+    final adapter = StubAdapter(
+      (request) => request.path.endsWith('/check-ins/offline')
+          ? answer(request, (_) => 'recorded')
+          : jsonResponse(200, {'data': <Object?>[]}),
+    );
     final container = await desk(adapter, preferences: preferences);
     final outbox = container.read(scanOutboxProvider.notifier);
 
-    final first = await outbox.add('GQ1:FIRST');
-    await outbox.add('GQ1:SECOND');
+    final first = await outbox.add('GQ1:FIRST', letIn: true);
+    await outbox.add('GQ1:SECOND', letIn: false, reasonCode: 'MEMBERSHIP_EXPIRED');
     expect(preferences.values[ScanOutbox.storageKey], contains('GQ1:FIRST'));
 
     final restarted = await desk(adapter, preferences: preferences);
-    expect(restarted.read(scanOutboxProvider).pending.map((scan) => scan.payload), ['GQ1:FIRST', 'GQ1:SECOND']);
-
+    expect(restarted.read(scanOutboxProvider).pending, hasLength(2));
     expect(await restarted.read(scanOutboxProvider.notifier).flush(), 2);
-    final scans = adapter.requests.where((request) => request.path.endsWith('/check-ins/scan')).toList();
-    expect(scans.map((request) => (request.data as Map)['payload']), ['GQ1:FIRST', 'GQ1:SECOND']);
-    expect(scans.first.path, '/organizations/demo-gym/check-ins/scan');
-    expect(scans.first.data, {
-      'payload': 'GQ1:FIRST',
-      'branch_id': 1,
-      'scanned_at': testNow.toUtc().toIso8601String(),
-    });
-    expect(scans.first.headers['Idempotency-Key'], first.idempotencyKey);
+
+    final sent = adapter.requests.singleWhere((request) => request.path.endsWith('/check-ins/offline'));
+    expect(sent.path, '/organizations/demo-gym/check-ins/offline');
+    expect((sent.data as Map)['scans'], [
+      {'id': first.id, 'payload': 'GQ1:FIRST', 'branch_id': 1, 'scanned_at': testNow.toUtc().toIso8601String(), 'decision': 'allow'},
+      {
+        'id': isA<String>(),
+        'payload': 'GQ1:SECOND',
+        'branch_id': 1,
+        'scanned_at': testNow.toUtc().toIso8601String(),
+        'decision': 'deny',
+        'reason_code': 'MEMBERSHIP_EXPIRED',
+      },
+    ]);
     expect(restarted.read(scanOutboxProvider).pending, isEmpty);
     expect(preferences.values.containsKey(ScanOutbox.storageKey), isFalse);
   });
 
-  test('stops at a network failure and keeps the rest; a refused scan is let go and counted', () async {
+  test('stops at a network failure and keeps everything; counts refused scans and those to review', () async {
     var networkUp = false;
     final adapter = StubAdapter((request) {
-      if (!request.path.endsWith('/check-ins/scan')) return jsonResponse(200, {'data': <Object?>[]});
+      if (!request.path.endsWith('/check-ins/offline')) return jsonResponse(200, {'data': <Object?>[]});
       if (!networkUp) {
         throw DioException.connectionError(requestOptions: request, reason: 'offline', error: const SocketException('offline'));
       }
-      return (request.data as Map)['payload'] == 'GQ1:OLD'
-          ? jsonResponse(422, {
-              'message': 'A scan can be sent up to 24 hours late.',
-              'errors': {
-                'scanned_at': ['A scan can be sent up to 24 hours late.'],
-              },
-            })
-          : jsonResponse(200, {'data': checkIn(2)});
+      return answer(request, (scan) => scan['payload'] == 'GQ1:FORGED' ? 'refused' : 'recorded', disagreeWith: 'GQ1:TIGIST');
     });
     final container = await desk(adapter);
     final outbox = container.read(scanOutboxProvider.notifier);
-    await outbox.add('GQ1:OLD');
-    await outbox.add('GQ1:NEW');
+    await outbox.add('GQ1:FORGED', letIn: true);
+    await outbox.add('GQ1:TIGIST', letIn: true);
+    await outbox.add('GQ1:ABEBE', letIn: true);
 
     expect(await outbox.flush(), 0);
-    expect(container.read(scanOutboxProvider).pending, hasLength(2), reason: 'nothing is lost while offline');
+    expect(container.read(scanOutboxProvider).pending, hasLength(3), reason: 'nothing is lost while offline');
 
     networkUp = true;
-    expect(await outbox.flush(), 1);
-    expect(container.read(scanOutboxProvider).pending, isEmpty);
-    expect(container.read(scanOutboxProvider).dropped, 1);
+    expect(await outbox.flush(), 2);
+    final state = container.read(scanOutboxProvider);
+    expect(state.pending, isEmpty);
+    expect((state.refused, state.toReview), (1, 1));
+
+    outbox.dismissCounts();
+    expect((container.read(scanOutboxProvider).refused, container.read(scanOutboxProvider).toReview), (0, 0));
+  });
+
+  test('sends 200 at a time, and keeps the scans the server didn\'t answer for', () async {
+    final adapter = StubAdapter((request) {
+      if (!request.path.endsWith('/check-ins/offline')) return jsonResponse(200, {'data': <Object?>[]});
+      final scans = ((request.data as Map)['scans'] as List).cast<Map<String, dynamic>>();
+      return jsonResponse(200, {
+        'data': [
+          for (final scan in scans.take(scans.length - 1))
+            {'id': scan['id'], 'status': 'recorded', 'server_disagrees': false},
+        ],
+      });
+    });
+    final container = await desk(adapter);
+    final outbox = container.read(scanOutboxProvider.notifier);
+    for (var index = 0; index < 201; index++) {
+      await outbox.add('GQ1:$index', letIn: true);
+    }
+
+    await outbox.flush();
+
+    final batches = [
+      for (final request in adapter.requests)
+        if (request.path.endsWith('/check-ins/offline')) ((request.data as Map)['scans'] as List).length,
+    ];
+    expect(batches.first, 200);
+    expect(container.read(scanOutboxProvider).pending, isNotEmpty, reason: 'unanswered scans stay to send again');
   });
 
   test('signing out empties the queue', () async {
     final preferences = InMemoryPreferencesStore();
-    final container = await desk(StubAdapter((_) => jsonResponse(204, null)), preferences: preferences);
-    await container.read(scanOutboxProvider.notifier).add('GQ1:WAITING');
+    final container = await desk(StubAdapter((_) => ResponseBody.fromString('', 204)), preferences: preferences);
+    await container.read(scanOutboxProvider.notifier).add('GQ1:WAITING', letIn: true);
 
     await container.read(deskSessionProvider.notifier).signOut();
 

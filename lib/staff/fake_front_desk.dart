@@ -17,10 +17,10 @@ import '../core/network/api_headers.dart';
 /// Any GQ1 code lets Hana Girma in; one with `EXPIRED` in it is Tigist
 /// Haile's ended membership, and one with `OWES` lets Abebe Kebede in with
 /// 1,000.00 ETB still to pay. A code scanned twice is `CODE_ALREADY_USED`.
-/// One with `OFFLINE` in it fails as if the desk had no internet, until it
-/// is sent again from the desk's queue (with `scanned_at`). A scan sent
-/// late is recorded at the time it was scanned, flagged `scanned_offline`,
-/// and refused when that was more than a day ago.
+/// While [noInternet] is on, every call fails as if the desk had no
+/// internet, so the desk decides from its door list; offline scans sent
+/// later are recorded at the time they were made, flagged for review when
+/// the fake would have decided otherwise.
 /// At the desk, Tigist is turned away and anyone else let in. Today's list
 /// holds every check-in made here, newest first, after two from earlier.
 ///
@@ -37,6 +37,9 @@ final class FakeFrontDesk implements HttpClientAdapter {
   static const _tokenPrefix = 'fake-desk-token:';
 
   final Duration latency;
+
+  /// Dev builds' "No internet" switch in the desk menu, and tests'.
+  bool noInternet = false;
   final DateTime Function() _now;
   final _scanned = <String>{};
   var _checkIns = 0;
@@ -50,6 +53,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
   @override
   Future<ResponseBody> fetch(RequestOptions options, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async {
     await Future<void>.delayed(latency);
+    if (noInternet) throw DioException.connectionError(requestOptions: options, reason: 'No internet at the desk (demo)');
     final body = switch (options.data) {
       final Map<String, dynamic> map => map,
       _ => const <String, dynamic>{},
@@ -132,6 +136,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
       ),
       ('GET', '/check-ins') => _today(options),
       ('GET', '/dashboard') => _dashboard(options, phone),
+      ('POST', '/check-ins/offline') => _offline(options, phone, gym),
       ('GET', '/notifications') => _inbox(phone, gym),
       ('POST', '/notifications/read-all') => _readAll(phone, gym),
       ('POST', final path) when RegExp(r'^/notifications/[^/]+/read$').hasMatch(path) => _read(phone, gym, path.split('/')[2]),
@@ -160,6 +165,63 @@ final class FakeFrontDesk implements HttpClientAdapter {
   /// The code member [memberId] shows at [now], as the member app makes it.
   static String doorCode(int memberId, DateTime now) =>
       Gq1.payload(doorSecret(memberId), doorCredentials[memberId]!, Gq1.stepAt(now));
+
+  final _offlineIds = <String>{};
+
+  /// Records scans the desk decided offline, at the time they were made, as
+  /// the door decided; refuses a code that doesn't match its time or isn't
+  /// one of the fake's, one over 3 days old or in the future, or at a branch
+  /// the staff member doesn't work at. Tigist's ended plan is where the fake
+  /// would disagree with a door that let her in.
+  ResponseBody _offline(RequestOptions options, String phone, String gym) {
+    final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
+    final scans = [for (final scan in (body['scans'] as List<dynamic>? ?? const [])) if (scan is Map<String, dynamic>) scan];
+    Map<String, Object?> answer(String id, String status, {int? checkInId, bool disagrees = false, String? reason, String? message}) => {
+      'id': id,
+      'status': status,
+      'check_in_id': checkInId,
+      'server_disagrees': disagrees,
+      'server_reason_code': reason,
+      'message': message,
+    };
+    return _json(200, {
+      'data': [
+        for (final scan in scans)
+          () {
+            final id = '${scan['id']}';
+            if (!_offlineIds.add(id)) return answer(id, 'already_recorded');
+            final at = DateTime.tryParse('${scan['scanned_at']}')?.toUtc();
+            final branch = _branches(phone, gym).where((branch) => branch['id'] == scan['branch_id']).firstOrNull;
+            final match = RegExp(r'^GQ1:([0-9A-Z]{26}):(\d+):([0-9A-F]{16})$').firstMatch('${scan['payload']}');
+            final memberId = doorCredentials.entries.where((entry) => entry.value == match?.group(1)).firstOrNull?.key;
+            if (branch == null) return answer(id, 'refused', message: "You don't work at this branch.");
+            if (at == null || at.isAfter(_now().toUtc().add(const Duration(minutes: 2))) || _now().toUtc().difference(at) > const Duration(days: 3)) {
+              return answer(id, 'refused', message: 'The scan is dated too far from now.');
+            }
+            if (match == null || memberId == null || (int.parse(match.group(2)!) - Gq1.stepAt(at)).abs() > 1 ||
+                Gq1.code(doorSecret(memberId), match.group(1)!, int.parse(match.group(2)!)) != match.group(3)) {
+              return answer(id, 'refused', message: "The code doesn't match the time it was scanned.");
+            }
+            final serverDeny = memberId == 2 ? 'MEMBERSHIP_EXPIRED' : null;
+            final doorDeny = scan['decision'] == 'deny' ? '${scan['reason_code']}' : null;
+            final disagrees = serverDeny != doorDeny;
+            final member = {1: _abebe, 2: _tigist, 3: _hana}[memberId];
+            final checkIn = _checkIn(
+              branch,
+              deny: doorDeny,
+              member: member,
+              owedMinor: 0,
+              endsOn: '2026-11-01',
+              scannedAt: at,
+              serverDisagrees: disagrees,
+              serverReasonCode: disagrees ? serverDeny : null,
+            );
+            _history.add(checkIn);
+            return answer(id, 'recorded', checkInId: checkIn['id'] as int?, disagrees: disagrees, reason: disagrees ? serverDeny : null);
+          }(),
+      ],
+    });
+  }
 
   Future<SimpleKeyPair> _keyPair() => Ed25519().newKeyPairFromSeed(_signingSeed);
 
@@ -402,20 +464,8 @@ final class FakeFrontDesk implements HttpClientAdapter {
         },
       });
     }
-    if (payload.contains('OFFLINE') && body['scanned_at'] == null) {
-      throw DioException.connectionError(requestOptions: options, reason: 'No internet at the desk (demo)');
-    }
-    final scannedAt = body['scanned_at'] is String ? DateTime.tryParse(body['scanned_at']! as String) : null;
-    if (scannedAt != null && _now().difference(scannedAt) > const Duration(hours: 24)) {
-      return _json(422, {
-        'message': 'A scan can be sent up to 24 hours late.',
-        'errors': {
-          'scanned_at': ['A scan can be sent up to 24 hours late.'],
-        },
-      });
-    }
     Map<String, Object?> checkIn(String? deny, {Map<String, Object?>? member, int owedMinor = 0, String? endsOn}) =>
-        _checkIn(branch, deny: deny, member: member, owedMinor: owedMinor, endsOn: endsOn, scannedAt: scannedAt);
+        _checkIn(branch, deny: deny, member: member, owedMinor: owedMinor, endsOn: endsOn);
     if (!payload.startsWith('GQ1:')) return _record(checkIn('CREDENTIAL_INVALID'));
     if (!_scanned.add(payload)) return _record(checkIn('CODE_ALREADY_USED'));
     if (payload.contains('EXPIRED')) {
@@ -498,13 +548,17 @@ final class FakeFrontDesk implements HttpClientAdapter {
     String method = 'qr',
     int minutesAgo = 0,
     DateTime? scannedAt,
+    bool serverDisagrees = false,
+    String? serverReasonCode,
   }) => {
     'id': 800 + _checkIns++,
     'decision': deny == null ? 'allow' : 'deny',
     'reason_code': deny,
     'method': method,
     'checked_in_at': (scannedAt ?? _now().subtract(Duration(minutes: minutesAgo))).toUtc().toIso8601String(),
-    'scanned_offline': scannedAt != null,
+    'offline': scannedAt != null,
+    'server_disagrees': serverDisagrees,
+    'server_reason_code': serverReasonCode,
     'branch': branch,
     'member': member,
     'membership': member == null
