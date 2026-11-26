@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gym_mobile/core/network/api_client.dart';
 import 'package:gym_mobile/staff/core/desk_session.dart';
 import 'package:gym_mobile/staff/fake_front_desk.dart';
 import 'package:gym_mobile/staff/features/offline/data/door_list_repository.dart';
