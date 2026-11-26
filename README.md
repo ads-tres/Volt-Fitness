@@ -94,14 +94,19 @@ Paid receipts come from `GET /me/gyms/{gym}/payments`. Amounts are always
 
 Profile, then **Branches and hours** lists the gym's branches
 (`GET branches`) with each one's week and whether it is open now, by the
-same rule as the door: no hours means always open, and a weekday without
-hours is closed. The Membership tab lists the member's other plans, coming
+same rule as the door: a closure (a holiday, or other hours) decides its
+dates; otherwise no hours means always open, and a weekday without hours is
+closed. Hours that close before they open run past midnight ("18:00 – 02:00
+(next day)"). Coming closures show with their Ethiopian date, and
+`branch_closed`, `branch_hours_changed` and `branch_reopened` messages open
+the page. The Membership tab lists the member's other plans, coming
 and past (`GET memberships`). The app tells the API the member's language
 (`PUT /me/language`) after sign-in and when it changes, so texts from the
 gym come in Amharic or English to match.
 
 In the fake, Bole opens Monday to Saturday 06:00 to 22:00 and Sunday 08:00
-to 14:00, Megenagna is always open, and every member has last month's plan
+to 14:00, closes tomorrow for Timket and keeps short hours in five days,
+Megenagna is always open, and every member has last month's plan
 behind the current one.
 
 ### Discounts and promo codes
