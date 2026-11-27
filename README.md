@@ -106,14 +106,19 @@ as a data link.
 
 Profile, then **Branches and hours** lists the gym's branches
 (`GET branches`) with each one's week and whether it is open now, by the
-same rule as the door: no hours means always open, and a weekday without
-hours is closed. The Membership tab lists the member's other plans, coming
+same rule as the door: a closure (a holiday, or other hours) decides its
+dates; otherwise no hours means always open, and a weekday without hours is
+closed. Hours that close before they open run past midnight ("18:00 – 02:00
+(next day)"). Coming closures show with their Ethiopian date, and
+`branch_closed`, `branch_hours_changed` and `branch_reopened` messages open
+the page. The Membership tab lists the member's other plans, coming
 and past (`GET memberships`). The app tells the API the member's language
 (`PUT /me/language`) after sign-in and when it changes, so texts from the
 gym come in Amharic or English to match.
 
 In the fake, Bole opens Monday to Saturday 06:00 to 22:00 and Sunday 08:00
-to 14:00, Megenagna is always open, and every member has last month's plan
+to 14:00, closes tomorrow for Timket and keeps short hours in five days,
+Megenagna is always open, and every member has last month's plan
 behind the current one.
 
 ### Discounts and promo codes
@@ -211,16 +216,32 @@ platform's ADR 0035); signing out removes it first, for shared desk
 phones. A push arriving shows a banner; a tapped one opens its message.
 Real builds have no Firebase yet, so for now they only see the inbox.
 
-**Without internet.** A scan that can't reach the API is kept on the phone
-(`desk.outbox` in preferences) with the time it was scanned, its gym and
-branch, and its own `Idempotency-Key`, and an amber screen says it is
-saved: the desk decides at the door. The top bar counts what waits; Today
-lists it with **Send now**. The app sends the queue oldest first every 30
-seconds, when it comes back to the front, and after any scan that gets
-through, with `scanned_at` so the API judges each scan as of then and marks
-it `scanned_offline`. The API takes scans up to a day late; older ones are
-let go and Today says how many. Desk check-in by search needs the internet.
-Signing out empties the queue.
+**Without internet.** The desk keeps a door list from the gym platform
+(`GET door-list`, its ADR 0038): today's and tomorrow's day keys for every
+member's QR credential, what each membership allows each date, and each
+branch's hours. The app checks the list's Ed25519 signature before using
+it and keeps it in secure storage; it downloads a new one when it opens a
+branch and every 15 minutes. When a scan can't reach the API, the desk
+decides it from the list exactly as the server would (the code, its time,
+the day key, a fresh step, the hours, the membership, the 5-minute rule)
+and shows the usual green or red screen, marked **Decided offline**.
+Without a list it says it can't check. The decisions are kept on the phone
+and sent to `POST check-ins/offline` once online; Today marks offline
+check-ins and those the server would have decided otherwise, to review in
+the panel. Desk check-in by search needs the internet. Signing out wipes
+the list and the queue.
+
+Staging and prod builds need the gym platform's door list key, so they
+refuse a list signed with any other:
+
+```sh
+flutter run --flavor staffStaging -t lib/main_staff.dart \
+  --dart-define=DOOR_LIST_PUBLIC_KEY=<public_key> --dart-define=DOOR_LIST_KEY_ID=<key_id>
+```
+
+Both come from `GET /organizations/{gym}/door-list/public-key` once the
+server has `DOOR_LIST_SIGNING_KEY`. Without them (dev builds) the app
+fetches the key once and keeps it.
 
 **The camera.** Scanning needs a phone or tablet with a back camera; the
 app asks for the camera permission the first time and says so if it was
@@ -247,7 +268,11 @@ the API's shapes, as the member app's fake does
 | a `GQ1:` code containing `EXPIRED` | Tigist Haile turned away, plan ended |
 | a `GQ1:` code containing `OWES` | Abebe Kebede let in, owing 1,000 ETB    |
 | the same code twice             | turned away, code already used          |
-| a `GQ1:` code containing `OFFLINE` | fails as if offline; sent from the queue it lets Hana in, marked offline |
+
+The menu's **No internet (demo)** switch makes every call fail, so the
+desk decides from the fake's signed door list (Abebe let in, Tigist's plan
+ended, Hana with one visit left at Main Branch); turn it off and the scans
+are sent.
 
 Each gym's inbox starts with one unread message of each kind, and the
 choices start with push on and SMS off. Numbers counts the check-ins made

@@ -1205,6 +1205,64 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get deskDecidedOffline => 'Decided offline';
+
+  @override
+  String get deskReasonNoDoorList =>
+      'No internet, and no door list to check with';
+
+  @override
+  String deskOfflineRefused(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'The server didn\'t record $count offline scans.',
+      one: 'The server didn\'t record 1 offline scan.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskOfflineToReview(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count offline check-ins to review in the panel.',
+      one: '1 offline check-in to review in the panel.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskNoInternetDemo => 'No internet (demo)';
+
+  @override
+  String deskServerDisagrees(String reason) {
+    return 'Server: $reason, review in the panel';
+  }
+
+  @override
+  String branchClosedToday(String reason) {
+    return 'Closed today: $reason';
+  }
+
+  @override
+  String branchOtherHoursToday(String hours, String reason) {
+    return 'Other hours today: $hours · $reason';
+  }
+
+  @override
+  String branchHoursNextDay(String hours) {
+    return '$hours (next day)';
+  }
+
+  @override
+  String get branchClosuresComing => 'Closures and other hours';
+
+  @override
+  String get branchEveryYear => 'Every year';
+
+  @override
   String get photoChange => 'Change your photo';
 
   @override

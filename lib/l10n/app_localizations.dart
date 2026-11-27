@@ -2090,6 +2090,72 @@ abstract class AppLocalizations {
   /// **'Call {phone}'**
   String numbersCall(String phone);
 
+  /// No description provided for @deskDecidedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decided offline'**
+  String get deskDecidedOffline;
+
+  /// No description provided for @deskReasonNoDoorList.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet, and no door list to check with'**
+  String get deskReasonNoDoorList;
+
+  /// No description provided for @deskOfflineRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{The server didn\'t record 1 offline scan.} other{The server didn\'t record {count} offline scans.}}'**
+  String deskOfflineRefused(int count);
+
+  /// No description provided for @deskOfflineToReview.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 offline check-in to review in the panel.} other{{count} offline check-ins to review in the panel.}}'**
+  String deskOfflineToReview(int count);
+
+  /// No description provided for @deskNoInternetDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet (demo)'**
+  String get deskNoInternetDemo;
+
+  /// No description provided for @deskServerDisagrees.
+  ///
+  /// In en, this message translates to:
+  /// **'Server: {reason}, review in the panel'**
+  String deskServerDisagrees(String reason);
+
+  /// No description provided for @branchClosedToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed today: {reason}'**
+  String branchClosedToday(String reason);
+
+  /// No description provided for @branchOtherHoursToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Other hours today: {hours} · {reason}'**
+  String branchOtherHoursToday(String hours, String reason);
+
+  /// No description provided for @branchHoursNextDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} (next day)'**
+  String branchHoursNextDay(String hours);
+
+  /// No description provided for @branchClosuresComing.
+  ///
+  /// In en, this message translates to:
+  /// **'Closures and other hours'**
+  String get branchClosuresComing;
+
+  /// No description provided for @branchEveryYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Every year'**
+  String get branchEveryYear;
+
   /// No description provided for @photoChange.
   ///
   /// In en, this message translates to:

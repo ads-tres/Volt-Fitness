@@ -7,46 +7,12 @@ import '../../../../core/time/date_text.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../domain/desk_check_in.dart';
 
-/// No internet: the scan is kept and will be sent later, so nobody knows
-/// yet whether the member may come in. Amber, for the desk to decide.
-class SavedOfflineView extends StatelessWidget {
-  const SavedOfflineView({super.key, required this.onDone});
+/// The reason shown when the desk has no internet and no door list good
+/// now, so it can't decide.
+const noDoorList = 'NO_DOOR_LIST';
 
-  static const color = Color(0xFFB54708);
-
-  final VoidCallback onDone;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final textTheme = Theme.of(context).textTheme.apply(bodyColor: Colors.white, displayColor: Colors.white);
-    return GestureDetector(
-      key: const Key('saved-offline'),
-      onTap: onDone,
-      child: ColoredBox(
-        color: color,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(28),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Spacer(),
-                const Icon(Icons.cloud_off_rounded, color: Colors.white, size: 72),
-                const SizedBox(height: 16),
-                Text(l10n.deskSavedOffline, style: textTheme.headlineMedium),
-                const SizedBox(height: 8),
-                Text(l10n.deskSavedOfflineBody, style: textTheme.titleMedium),
-                const Spacer(),
-                Text(l10n.deskTapToContinue, style: textTheme.bodySmall),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+/// Amber, for scans waiting for the internet.
+const offlineColor = Color(0xFFB54708);
 
 /// The answer at the door, big enough to read from the desk: green and
 /// who it is when let in, red and why when turned away. What the member
@@ -82,6 +48,16 @@ class CheckInResultView extends ConsumerWidget {
                 Icon(checkIn.letIn ? Icons.check_circle_rounded : Icons.block_rounded, color: Colors.white, size: 72),
                 const SizedBox(height: 16),
                 Text(checkIn.letIn ? l10n.deskLetIn : l10n.deskTurnedAway, style: textTheme.headlineMedium),
+                if (checkIn.offline) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const Icon(Icons.cloud_off_rounded, color: Colors.white, size: 18),
+                      const SizedBox(width: 6),
+                      Text(l10n.deskDecidedOffline, style: textTheme.labelLarge),
+                    ],
+                  ),
+                ],
                 if (!checkIn.letIn) ...[
                   const SizedBox(height: 8),
                   Text(deskReason(l10n, checkIn.reasonCode), style: textTheme.titleMedium),
@@ -94,6 +70,10 @@ class CheckInResultView extends ConsumerWidget {
                 if ((checkIn.planName, checkIn.endsOn) case (final plan?, final endsOn?)) ...[
                   const SizedBox(height: 8),
                   Text(l10n.deskPlanUntil(plan, dates.date(endsOn)), style: textTheme.bodyLarge),
+                ],
+                if ((checkIn.planName, checkIn.endsOn) case (final plan?, null)) ...[
+                  const SizedBox(height: 8),
+                  Text(plan, style: textTheme.bodyLarge),
                 ],
                 if (checkIn.owes) ...[
                   const SizedBox(height: 16),
@@ -127,6 +107,7 @@ String deskReason(AppLocalizations l10n, String? reasonCode) => switch (reasonCo
   'CODE_EXPIRED' => l10n.deskReasonCodeExpired,
   'CODE_ALREADY_USED' => l10n.deskReasonCodeAlreadyUsed,
   'OUTSIDE_HOURS' => l10n.deskReasonOutsideHours,
+  noDoorList => l10n.deskReasonNoDoorList,
   'MEMBERSHIP_NONE' => l10n.deskReasonMembershipNone,
   'MEMBERSHIP_EXPIRED' => l10n.deskReasonMembershipExpired,
   'MEMBERSHIP_FROZEN' => l10n.deskReasonMembershipFrozen,

@@ -2,7 +2,8 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 
-/// The rotating QR code agreed with the backend (the "GQ1" section of the
+/// The rotating QR code agreed with the backend, shared by the member app
+/// (which makes it) and the desk (which checks it offline) (the "GQ1" section of the
 /// contract doc): a new code every 30 seconds, made from the credential's
 /// secret and the time, so a screenshot stops working within a minute.
 abstract final class Gq1 {
@@ -16,8 +17,19 @@ abstract final class Gq1 {
 
   /// The 16-character code for [step]: HMAC-SHA256 of the credential and
   /// step, keyed by the day key, as uppercase hex of the first 8 bytes.
-  static String code(List<int> secret, String credentialId, int step) {
-    final dayKey = Hmac(sha256, secret).convert(ascii.encode('GQ1-DAY|${step ~/ _stepsPerDay}')).bytes;
+  static String code(List<int> secret, String credentialId, int step) =>
+      codeWithDayKey(dayKey(secret, utcDayOf(step)), credentialId, step);
+
+  /// The UTC day a step falls in, whose day key signs it.
+  static int utcDayOf(int step) => step ~/ _stepsPerDay;
+
+  /// The key for one UTC day: what the server gives a scanner instead of
+  /// the secret, so it can check that day's codes offline.
+  static List<int> dayKey(List<int> secret, int utcDay) =>
+      Hmac(sha256, secret).convert(ascii.encode('GQ1-DAY|$utcDay')).bytes;
+
+  /// The code for [step] from its day key.
+  static String codeWithDayKey(List<int> dayKey, String credentialId, int step) {
     final mac = Hmac(sha256, dayKey).convert(ascii.encode('GQ1|${credentialId.toUpperCase()}|$step')).bytes;
     return [for (final byte in mac.take(8)) byte.toRadixString(16).padLeft(2, '0')].join().toUpperCase();
   }

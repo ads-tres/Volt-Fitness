@@ -384,9 +384,37 @@ final class FakeBackend implements HttpClientAdapter {
       _megenagnaBranch['id']: const [],
       _kazanchisBranch['id']: [for (final weekday in weekdays) day(weekday, '05:30', '21:00')],
     };
+    // Bole closes tomorrow for Timket, every year on Tir 11, and keeps
+    // short hours in five days.
+    final closures = <Object?, List<Map<String, Object?>>>{
+      _boleBranch['id']: [
+        {
+          'id': 41,
+          'branch_id': _boleBranch['id'],
+          'starts_on': _iso(_today.add(const Duration(days: 1))),
+          'ends_on': _iso(_today.add(const Duration(days: 1))),
+          'reason': 'Timket',
+          'opens_at': null,
+          'closes_at': null,
+          'repeats_yearly': true,
+          'ethiopian_date': 'Tir 11',
+        },
+        {
+          'id': 42,
+          'branch_id': _boleBranch['id'],
+          'starts_on': _iso(_today.add(const Duration(days: 5))),
+          'ends_on': _iso(_today.add(const Duration(days: 5))),
+          'reason': 'Staff training',
+          'opens_at': '08:00',
+          'closes_at': '12:00',
+          'repeats_yearly': false,
+          'ethiopian_date': null,
+        },
+      ],
+    };
     return [
       for (final branch in _branchesOf(gym)..sort((a, b) => '${a['name']}'.compareTo('${b['name']}')))
-        {...branch, 'opening_hours': hours[branch['id']]},
+        {...branch, 'opening_hours': hours[branch['id']], 'closures': closures[branch['id']] ?? const <Object?>[]},
     ];
   }
 
@@ -940,7 +968,7 @@ final class FakeBackend implements HttpClientAdapter {
       final Object id => '$id',
       null => null,
     };
-    final notification = switch (_testPushes++ % 3) {
+    final notification = switch (_testPushes++ % 4) {
       0 => _notify(
         phone,
         gym,
@@ -949,6 +977,14 @@ final class FakeBackend implements HttpClientAdapter {
         'This came from the fake backend. News opens in full in the inbox.',
       ),
       1 => _notify(phone, gym, 'membership_expiring', 'Test: your plan', 'Tap to open your membership.'),
+      3 => _notify(
+        phone,
+        gym,
+        'branch_closed',
+        'Test: Bole is closed tomorrow',
+        'Bole is closed tomorrow for Timket. Tap to see its hours.',
+        data: {'branch_id': '1'},
+      ),
       _ => _notify(
         phone,
         gym,

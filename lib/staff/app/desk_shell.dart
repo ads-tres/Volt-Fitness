@@ -10,6 +10,7 @@ import '../core/desk_push.dart';
 import '../core/desk_session.dart';
 import '../features/messages/data/staff_inbox.dart';
 import '../features/messages/presentation/inbox_page.dart';
+import '../features/offline/data/door_list_controller.dart';
 import '../features/scan/data/scan_outbox.dart';
 import 'staff_routes.dart';
 
@@ -27,6 +28,9 @@ class DeskShell extends ConsumerStatefulWidget {
   static const retryEvery = Duration(seconds: 30);
   static const checkMessagesEvery = Duration(minutes: 2);
 
+  /// How often the door list is downloaded again, as the API asks.
+  static const refreshDoorListEvery = Duration(minutes: 15);
+
   final String location;
   final Widget child;
 
@@ -37,6 +41,7 @@ class DeskShell extends ConsumerStatefulWidget {
 class _DeskShellState extends ConsumerState<DeskShell> {
   late final Timer _retry;
   late final Timer _checkMessages;
+  late final Timer _refreshDoorList;
   late final AppLifecycleListener _lifecycle;
   final _pushes = <StreamSubscription<PushMessage>>[];
 
@@ -45,6 +50,10 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     super.initState();
     _retry = Timer.periodic(DeskShell.retryEvery, (_) => _sendWaiting());
     _checkMessages = Timer.periodic(DeskShell.checkMessagesEvery, (_) => _refreshMessages());
+    _refreshDoorList = Timer.periodic(
+      DeskShell.refreshDoorListEvery,
+      (_) => unawaited(ref.read(doorListProvider.notifier).refresh()),
+    );
     _lifecycle = AppLifecycleListener(
       onResume: () {
         _sendWaiting();
@@ -110,6 +119,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   void dispose() {
     _retry.cancel();
     _checkMessages.cancel();
+    _refreshDoorList.cancel();
     for (final subscription in _pushes) {
       unawaited(subscription.cancel());
     }
@@ -119,7 +129,10 @@ class _DeskShellState extends ConsumerState<DeskShell> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(deskPushTokenSyncProvider);
+    ref
+      ..watch(deskPushTokenSyncProvider)
+      // Keeps the door list loaded and fresh while the desk is open.
+      ..listen(doorListProvider, (_, _) {});
     final l10n = context.l10n;
     return Scaffold(
       body: widget.child,

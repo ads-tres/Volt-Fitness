@@ -7,6 +7,8 @@ enum NotificationTopic { membership, payments, visits, announcements }
 /// app doesn't know.
 NotificationTopic? topicOf(String type) => switch (type) {
   'announcement' => NotificationTopic.announcements,
+  // A branch closing or keeping other hours is gym news (ADR 0037).
+  _ when type.startsWith('branch_') => NotificationTopic.announcements,
   // A visit pack running low is about the membership (ADR 0016).
   'visits_running_low' => NotificationTopic.membership,
   _ when type.startsWith('membership_') => NotificationTopic.membership,

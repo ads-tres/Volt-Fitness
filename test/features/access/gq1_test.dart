@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_mobile/features/access/domain/access_credential.dart';
-import 'package:gym_mobile/features/access/domain/gq1.dart';
+import 'package:gym_mobile/core/access/gq1.dart';
 
 /// The test vectors from the backend contract doc. If these pass here and
 /// in the Laravel tests, the app and the scanner agree on every code.

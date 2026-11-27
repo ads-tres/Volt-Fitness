@@ -11,6 +11,8 @@ import '../../../core/errors/failure.dart';
 import '../../../core/localization/l10n.dart';
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/time/clock.dart';
+import '../../../core/time/date_text.dart';
+import '../../../core/time/local_date.dart';
 import '../../home/data/dashboard_repository.dart';
 import '../../membership/domain/membership.dart' show Branch;
 import '../data/branches_repository.dart';
@@ -87,11 +89,14 @@ class _BranchCard extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final locale = ref.watch(languageCodeProvider);
     final now = ref.watch(clockProvider)();
+    final dates = ref.watch(dateTextProvider);
     final time = DateFormat.Hm(locale);
     String day(DateTime date) => DateFormat.E(locale).format(date);
 
     final open = branch.isOpenAt(now);
-    final status = switch ((branch.alwaysOpen, open)) {
+    final todayClosure = branch.closureOn(LocalDate.of(now));
+    String minutes(int minute) => time.format(DateTime(2026).add(Duration(minutes: minute)));
+    final status = switch ((branch.alwaysOpen && todayClosure == null, open)) {
       (true, _) => l10n.branchAlwaysOpen,
       (false, true) => l10n.branchOpenUntil(time.format(branch.closesAfter(now)!)),
       (false, false) => switch (branch.nextOpening(now)) {
@@ -128,6 +133,18 @@ class _BranchCard extends ConsumerWidget {
               Expanded(child: Text(status, style: textTheme.titleSmall)),
             ],
           ),
+          if (todayClosure != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              todayClosure.closedAllDay
+                  ? l10n.branchClosedToday(todayClosure.reason ?? '')
+                  : l10n.branchOtherHoursToday(
+                      '${minutes(todayClosure.opensAt!)}–${minutes(todayClosure.closesAt!)}',
+                      todayClosure.reason ?? '',
+                    ),
+              style: textTheme.bodyMedium?.copyWith(color: AppColors.danger),
+            ),
+          ],
           if (!branch.alwaysOpen) ...[
             const Divider(height: 24, color: AppColors.line),
             for (var weekday = 1; weekday <= 7; weekday++)
@@ -141,13 +158,46 @@ class _BranchCard extends ConsumerWidget {
                     children: [
                       Expanded(child: Text(day(monday.add(Duration(days: weekday - 1))))),
                       Text(switch (branch.hoursOn(weekday)) {
-                        final hours? =>
-                          '${time.format(monday.add(Duration(minutes: hours.opensAt)))} – '
-                              '${time.format(monday.add(Duration(minutes: hours.closesAt)))}',
+                        final hours? when hours.pastMidnight =>
+                          l10n.branchHoursNextDay('${minutes(hours.opensAt)} – ${minutes(hours.closesAt)}'),
+                        final hours? => '${minutes(hours.opensAt)} – ${minutes(hours.closesAt)}',
                         null => l10n.branchClosed,
                       }),
                     ],
                   ),
+                ),
+              ),
+          ],
+          if (branch.closures.where((closure) => closure != todayClosure).toList() case final coming
+              when coming.isNotEmpty) ...[
+            const Divider(height: 24, color: AppColors.line),
+            Text(l10n.branchClosuresComing, style: textTheme.titleSmall),
+            for (final closure in coming)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      [
+                        closure.startsOn == closure.endsOn
+                            ? dates.date(closure.startsOn)
+                            : '${dates.date(closure.startsOn)} – ${dates.date(closure.endsOn)}',
+                        if (closure.reason case final reason? when reason.isNotEmpty) reason,
+                      ].join(' · '),
+                      style: textTheme.bodyMedium,
+                    ),
+                    Text(
+                      [
+                        closure.closedAllDay
+                            ? l10n.branchClosed
+                            : '${minutes(closure.opensAt!)}–${minutes(closure.closesAt!)}',
+                        ?closure.ethiopianDate,
+                        if (closure.repeatsYearly) l10n.branchEveryYear,
+                      ].join(' · '),
+                      style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                    ),
+                  ],
                 ),
               ),
           ],

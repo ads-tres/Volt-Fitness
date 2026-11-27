@@ -1181,6 +1181,63 @@ class AppLocalizationsAm extends AppLocalizations {
   }
 
   @override
+  String get deskDecidedOffline => 'ያለ ኢንተርኔት የተወሰነ';
+
+  @override
+  String get deskReasonNoDoorList => 'ኢንተርኔት የለም፤ ለማረጋገጥ የበር ዝርዝርም የለም';
+
+  @override
+  String deskOfflineRefused(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ሰርቨሩ $count ያለ ኢንተርኔት የተስካኑ አልመዘገበም።',
+      one: 'ሰርቨሩ 1 ያለ ኢንተርኔት የተስካነ አልመዘገበም።',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskOfflineToReview(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'በፓነሉ የሚታዩ $count ያለ ኢንተርኔት የገቡ።',
+      one: 'በፓነሉ የሚታይ 1 ያለ ኢንተርኔት የገባ።',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskNoInternetDemo => 'ኢንተርኔት የለም (ሙከራ)';
+
+  @override
+  String deskServerDisagrees(String reason) {
+    return 'ሰርቨር፦ $reason፤ በፓነሉ ይመልከቱ';
+  }
+
+  @override
+  String branchClosedToday(String reason) {
+    return 'ዛሬ ዝግ ነው፦ $reason';
+  }
+
+  @override
+  String branchOtherHoursToday(String hours, String reason) {
+    return 'ዛሬ ሌላ ሰዓት፦ $hours · $reason';
+  }
+
+  @override
+  String branchHoursNextDay(String hours) {
+    return '$hours (በማግስቱ)';
+  }
+
+  @override
+  String get branchClosuresComing => 'የሚዘጋባቸው ቀናት እና ሌላ ሰዓት';
+
+  @override
+  String get branchEveryYear => 'በየዓመቱ';
+
+  @override
   String get photoChange => 'ፎቶዎን ይቀይሩ';
 
   @override

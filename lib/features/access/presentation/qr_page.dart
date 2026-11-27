@@ -18,7 +18,7 @@ import '../../../core/localization/language_menu.dart';
 import '../../../core/time/clock.dart';
 import '../../profile/data/my_photo.dart';
 import '../data/access_card_controller.dart';
-import '../domain/gq1.dart';
+import '../../../core/access/gq1.dart';
 import 'qr_code_view.dart';
 
 /// The member's check-in QR. A new code appears every 30 seconds, and the
