@@ -1,4 +1,4 @@
-import 'gq1.dart';
+import '../../../core/access/gq1.dart';
 
 /// What the phone needs to make QR codes on its own, offline included.
 final class AccessCredential {

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/token_store.dart';
 import '../../core/network/json.dart';
 import '../../core/storage/preferences_store.dart';
+import '../../core/storage/secure_store.dart';
 
 /// A gym the staff member works at, as `GET /me` lists it.
 final class DeskGym {
@@ -96,6 +97,7 @@ final class DeskSessionController extends Notifier<DeskSession> {
   Future<void> signOut() async {
     await ref.read(tokenStoreProvider).clear();
     await ref.read(preferencesStoreProvider).removePrefixed(prefix);
+    await ref.read(secureStoreProvider).deletePrefixed(prefix);
     state = const DeskSignedOut();
   }
 
