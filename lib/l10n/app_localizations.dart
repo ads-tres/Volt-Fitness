@@ -2221,6 +2221,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name}\'s photo is removed.'**
   String deskPhotoRemoved(String name);
+
+  /// No description provided for @deskTakePayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Take payment'**
+  String get deskTakePayment;
+
+  /// No description provided for @payTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment from {name}'**
+  String payTitle(String name);
+
+  /// No description provided for @payBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Record money the member paid at the desk, or text them a link to pay online.'**
+  String get payBody;
+
+  /// No description provided for @payWhichMembership.
+  ///
+  /// In en, this message translates to:
+  /// **'Which membership'**
+  String get payWhichMembership;
+
+  /// No description provided for @payAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get payAmountLabel;
+
+  /// No description provided for @payAmountHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {due} is due'**
+  String payAmountHelp(String due);
+
+  /// No description provided for @payAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount like 500 or 500.50.'**
+  String get payAmountInvalid;
+
+  /// No description provided for @payMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'How they paid'**
+  String get payMethod;
+
+  /// No description provided for @payCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get payCash;
+
+  /// No description provided for @payTelebirr.
+  ///
+  /// In en, this message translates to:
+  /// **'telebirr'**
+  String get payTelebirr;
+
+  /// No description provided for @payCbeBirr.
+  ///
+  /// In en, this message translates to:
+  /// **'CBE Birr'**
+  String get payCbeBirr;
+
+  /// No description provided for @payBankTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank transfer'**
+  String get payBankTransfer;
+
+  /// No description provided for @payReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction number'**
+  String get payReference;
+
+  /// No description provided for @payReferenceHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'From the payment confirmation'**
+  String get payReferenceHelp;
+
+  /// No description provided for @payPaidOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid on'**
+  String get payPaidOn;
+
+  /// No description provided for @payToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get payToday;
+
+  /// No description provided for @paySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} by {method} from {name} · {left} left'**
+  String paySummary(String amount, String method, String name, String left);
+
+  /// No description provided for @paySummaryPaidOff.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} by {method} from {name} · paid in full'**
+  String paySummaryPaidOff(String amount, String method, String name);
+
+  /// No description provided for @payRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Record payment'**
+  String get payRecord;
+
+  /// No description provided for @payRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt {receipt} · {amount}'**
+  String payRecorded(String receipt, String amount);
+
+  /// No description provided for @payTextLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Text a pay link instead'**
+  String get payTextLink;
+
+  /// No description provided for @payTextAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Text the pay link again'**
+  String get payTextAgain;
+
+  /// No description provided for @payLinkOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'A pay link for this membership is already open.'**
+  String get payLinkOpen;
+
+  /// No description provided for @payLinkTexted.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay link texted to {phone}'**
+  String payLinkTexted(String phone);
+
+  /// No description provided for @payNothingDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is due for {name}.'**
+  String payNothingDue(String name);
 }
 
 class _AppLocalizationsDelegate
