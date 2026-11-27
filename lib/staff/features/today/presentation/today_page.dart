@@ -3,9 +3,11 @@ import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/design/tokens.dart';
+import '../../../../core/design/widgets/member_photo.dart';
 import '../../../../core/design/widgets/feedback.dart';
 import '../../../../core/localization/l10n.dart';
 import '../../scan/data/scan_outbox.dart';
+import '../../scan/domain/desk_check_in.dart';
 import '../../scan/presentation/check_in_result.dart';
 import '../../scan/presentation/desk_app_bar.dart';
 import '../data/today_check_ins.dart';
@@ -91,10 +93,7 @@ class TodayPage extends ConsumerWidget {
               for (final checkIn in state.checkIns)
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: Icon(
-                    checkIn.letIn ? Icons.check_circle_rounded : Icons.block_rounded,
-                    color: checkIn.letIn ? CheckInResultView.letInColor : CheckInResultView.turnedAwayColor,
-                  ),
+                  leading: _RowLeading(checkIn: checkIn),
                   title: Text(checkIn.memberName ?? l10n.deskUnknownMember),
                   subtitle: switch ([
                     if (!checkIn.letIn) deskReason(l10n, checkIn.reasonCode),
@@ -118,6 +117,43 @@ class TodayPage extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The member's photo with the door's answer in its corner, or just the
+/// answer when there is no photo.
+class _RowLeading extends StatelessWidget {
+  const _RowLeading({required this.checkIn});
+
+  final DeskCheckIn checkIn;
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = Icon(
+      checkIn.letIn ? Icons.check_circle_rounded : Icons.block_rounded,
+      color: checkIn.letIn ? CheckInResultView.letInColor : CheckInResultView.turnedAwayColor,
+      size: checkIn.memberPhotoUrl == null ? null : 16,
+    );
+    final photo = checkIn.memberPhotoUrl;
+    if (photo == null) return icon;
+    return SizedBox(
+      width: 40,
+      height: 40,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          MemberPhoto(url: photo, size: 40, fallback: InitialsCircle(name: checkIn.memberName ?? '', size: 40)),
+          Positioned(
+            right: -4,
+            bottom: -4,
+            child: DecoratedBox(
+              decoration: const BoxDecoration(color: AppColors.surface, shape: BoxShape.circle),
+              child: Padding(padding: const EdgeInsets.all(1), child: icon),
+            ),
+          ),
+        ],
       ),
     );
   }
