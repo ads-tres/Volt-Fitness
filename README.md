@@ -90,6 +90,18 @@ proves nothing, so the result screen then has the API ask Chapa
 Paid receipts come from `GET /me/gyms/{gym}/payments`. Amounts are always
 `Money` in minor units.
 
+### My photo
+
+Profile's avatar opens **Take a photo**, **Choose from gallery** and
+**Remove photo** (`PUT` and `DELETE /me/photo`, the gym platform's ADR 0036).
+The picture comes from the phone's camera app or gallery through
+image_picker, so the member app still asks for no camera permission of its
+own. The photo is kept at every gym where the member's number is
+registered and shows on the QR screen, so the desk can see it's them. Its
+link (`photo_url` in `GET /me/gyms`) works for 10 minutes, so the app reads
+it when a screen shows it and never stores it. The fake keeps the picture
+as a data link.
+
 ### Branches, past plans and language
 
 Profile, then **Branches and hours** lists the gym's branches
