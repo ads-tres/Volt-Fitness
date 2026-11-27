@@ -20,7 +20,10 @@ const offlineColor = Color(0xFFB54708);
 /// owes shows either way, for the desk to ask for. Tapping it, or waiting,
 /// goes back to scanning.
 class CheckInResultView extends ConsumerWidget {
-  const CheckInResultView({super.key, required this.checkIn, required this.onDone, this.onTakePayment});
+  const CheckInResultView({super.key, required this.checkIn, required this.onDone, this.onTakePayment, this.onRenew});
+
+  /// The reasons a new plan would let the member in.
+  static const renewable = {'MEMBERSHIP_EXPIRED', 'MEMBERSHIP_NONE', 'VISITS_USED_UP'};
 
   static const letInColor = Color(0xFF12805C);
   static const turnedAwayColor = Color(0xFFC0262D);
@@ -31,6 +34,10 @@ class CheckInResultView extends ConsumerWidget {
   /// Opens the payment sheet for what the member owes; only online, when
   /// the API named the member.
   final VoidCallback? onTakePayment;
+
+  /// Opens the sheet to sell a plan, for a member turned away for having
+  /// none that lets them in; only online, when the API named the member.
+  final VoidCallback? onRenew;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -66,6 +73,21 @@ class CheckInResultView extends ConsumerWidget {
                 if (!checkIn.letIn) ...[
                   const SizedBox(height: 8),
                   Text(deskReason(l10n, checkIn.reasonCode), style: textTheme.titleMedium),
+                  if (onRenew case final renew?
+                      when !checkIn.offline && checkIn.memberId != null && renewable.contains(checkIn.reasonCode)) ...[
+                    const SizedBox(height: 12),
+                    FilledButton.icon(
+                      key: const Key('result-renew'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: turnedAwayColor,
+                        minimumSize: const Size(0, 44),
+                      ),
+                      onPressed: renew,
+                      icon: const Icon(Icons.autorenew_rounded),
+                      label: Text(l10n.deskRenew),
+                    ),
+                  ],
                 ],
                 if (checkIn.memberName case final name?) ...[
                   // Large, so the desk sees the person is the member.

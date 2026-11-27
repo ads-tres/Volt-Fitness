@@ -70,6 +70,7 @@ class _DeskPageState extends ConsumerState<DeskPage> {
         if (navigator.canPop()) navigator.pop();
       });
       var takePayment = false;
+      var renew = false;
       await showGeneralDialog<void>(
         context: context,
         pageBuilder: (context, _, _) => CheckInResultView(
@@ -79,9 +80,21 @@ class _DeskPageState extends ConsumerState<DeskPage> {
             takePayment = true;
             Navigator.of(context).pop();
           },
+          onRenew: () {
+            renew = true;
+            Navigator.of(context).pop();
+          },
         ),
       );
       hide.cancel();
+      if (renew && mounted) {
+        await showSellPlanSheet(
+          context,
+          (id: member.id, name: member.name, phone: member.phone),
+          currentPlanName: member.planName,
+          onSold: () => ref.invalidate(memberSearchProvider(_typed)),
+        );
+      }
       if (takePayment && mounted) {
         await showTakePaymentSheet(
           context,

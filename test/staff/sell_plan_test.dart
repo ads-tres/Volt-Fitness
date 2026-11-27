@@ -107,4 +107,35 @@ void main() {
     expect(find.byKey(const Key('sell-promo-code')), findsOneWidget);
     expect(find.byKey(const Key('sell-discount')), findsNothing);
   });
+
+  testWidgets('a member turned away for an ended plan is renewed from the result', (tester) async {
+    final camera = FakeCamera();
+    await startDesk(tester, camera: camera);
+    await openScanner(tester);
+    camera.show('GQ1:EXPIRED00000000000000000:1:00');
+    await tester.pumpAndSettle();
+    expect(find.text('Turned away'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('result-renew')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('check-in-result')), findsNothing);
+    expect(find.text('A plan for Tigist Haile'), findsOneWidget);
+    await tapVisible(tester, find.text('Sell plan'));
+    expect(find.text('Payment from Tigist Haile'), findsOneWidget);
+  });
+
+  testWidgets('the desk renews from a turned-away desk check-in too', (tester) async {
+    await startDesk(tester);
+    await openScanner(tester);
+    await search(tester, 'tig');
+    await tester.tap(find.text('Check in'));
+    await tester.pumpAndSettle();
+    expect(find.text('The membership has ended'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('result-renew')));
+    await tester.pumpAndSettle();
+    await tapVisible(tester, find.text('Sell plan'));
+    await tapVisible(tester, find.text('Record payment'));
+    expect(find.text('Receipt R-000001 · 1,500.00 ETB'), findsOneWidget);
+  });
 }
