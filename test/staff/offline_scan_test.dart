@@ -1,82 +1,67 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_mobile/staff/app/desk_shell.dart';
 import 'package:gym_mobile/staff/app/staff_app.dart';
+import 'package:gym_mobile/staff/fake_front_desk.dart';
 import 'package:gym_mobile/staff/features/scan/data/scan_outbox.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../support/desk_driver.dart';
+import '../support/test_doubles.dart';
 
 void main() {
-  const offlineCode = 'GQ1:OFFLINE0000000000000000:1:00';
-
   ProviderContainer containerOf(WidgetTester tester) => ProviderScope.containerOf(tester.element(find.byType(StaffApp)));
 
-  testWidgets('without internet the scan is kept, amber says so, and it is sent when the desk retries', (tester) async {
+  Future<void> dismiss(WidgetTester tester) async {
+    await tester.tap(find.byKey(const Key('check-in-result')));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('without internet the door list decides: green for a member, red with the reason, sent once online', (tester) async {
     final camera = FakeCamera();
-    await startDesk(tester, camera: camera);
+    final fake = FakeFrontDesk(latency: Duration.zero, now: () => testNow);
+    await startDesk(tester, camera: camera, backend: fake);
     await openScanner(tester);
+    fake.noInternet = true;
 
-    camera.show(offlineCode);
+    camera.show(FakeFrontDesk.doorCode(1, testNow));
     await tester.pumpAndSettle();
+    expect(find.text('Let in'), findsOneWidget);
+    expect(find.text('Abebe Kebede'), findsOneWidget);
+    expect(find.text('Decided offline'), findsOneWidget);
+    await dismiss(tester);
 
-    expect(find.text('Saved, will check when back online'), findsOneWidget);
-    expect(find.text('Let in'), findsNothing);
+    camera.show(FakeFrontDesk.doorCode(2, testNow));
+    await tester.pumpAndSettle();
+    expect(find.text('Turned away'), findsOneWidget);
+    expect(find.text('The membership has ended'), findsOneWidget);
+    await dismiss(tester);
+
+    expect(find.text('2 waiting'), findsOneWidget);
     final waiting = containerOf(tester).read(scanOutboxProvider).pending;
-    expect(waiting.single.payload, offlineCode);
-    expect(waiting.single.branchId, 1);
+    expect([for (final scan in waiting) (scan.letIn, scan.reasonCode)], [(true, null), (false, 'MEMBERSHIP_EXPIRED')]);
 
-    await tester.tap(find.byKey(const Key('saved-offline')));
-    await tester.pumpAndSettle();
-    expect(find.text('Saved, will check when back online'), findsNothing);
-
+    fake.noInternet = false;
     await tester.pump(DeskShell.retryEvery);
     await tester.pumpAndSettle();
     expect(containerOf(tester).read(scanOutboxProvider).pending, isEmpty);
+    expect(find.text('2 waiting'), findsNothing);
   });
 
-  testWidgets('a scan that gets through sends what was waiting', (tester) async {
+  testWidgets('without internet and without a door list, the desk says it can\'t check', (tester) async {
     final camera = FakeCamera();
-    await startDesk(tester, camera: camera);
-    await openScanner(tester);
-
-    camera.show(offlineCode);
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('saved-offline')));
-    await tester.pumpAndSettle();
-    expect(containerOf(tester).read(scanOutboxProvider).pending, hasLength(1));
-
-    camera.show('GQ1:01K7Z3M6Q8V2N4R5T9W1X0Y2AB:59275728:4F1A2B3C4D5E6F70');
+    final fake = FakeFrontDesk(latency: Duration.zero, now: () => testNow);
+    await startDesk(tester, camera: camera, backend: fake);
+    await signInAtDesk(tester);
+    fake.noInternet = true;
+    await tester.tap(find.text('Main Branch'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Let in'), findsOneWidget);
-    expect(containerOf(tester).read(scanOutboxProvider).pending, isEmpty);
-    await tester.tap(find.byKey(const Key('check-in-result')));
-    await tester.pumpAndSettle();
-  });
-
-  testWidgets('the top bar counts what waits; Today lists it, sends it, and marks it once sent', (tester) async {
-    final camera = FakeCamera();
-    await startDesk(tester, camera: camera);
-    await openScanner(tester);
-    camera.show(offlineCode);
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('saved-offline')));
+    camera.show(FakeFrontDesk.doorCode(1, testNow));
     await tester.pumpAndSettle();
 
-    expect(find.text('1 waiting'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('waiting-scans')));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Waiting to send'), findsOneWidget);
-    expect(find.text('Scanned at 09:30'), findsOneWidget);
-    expect(find.text('Scanned offline'), findsNothing);
-
-    await tester.tap(find.text('Send now'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Waiting to send'), findsNothing);
-    expect(find.text('1 waiting'), findsNothing);
-    expect(find.text('Scanned offline'), findsOneWidget, reason: 'Hana, let in as of 09:30');
+    expect(find.text('Turned away'), findsOneWidget);
+    expect(find.text('No internet, and no door list to check with'), findsOneWidget);
+    expect(containerOf(tester).read(scanOutboxProvider).pending, isEmpty, reason: 'nothing was decided');
   });
 }

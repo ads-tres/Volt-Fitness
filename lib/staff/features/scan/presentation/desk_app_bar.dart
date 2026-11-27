@@ -39,7 +39,7 @@ class DeskAppBar extends ConsumerWidget implements PreferredSizeWidget {
               avatar: const Icon(Icons.cloud_off_rounded, size: 18, color: Colors.white),
               label: Text(context.l10n.deskWaitingBadge(waiting)),
               labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.white),
-              backgroundColor: SavedOfflineView.color,
+              backgroundColor: offlineColor,
               side: BorderSide.none,
               onPressed: () => context.go(StaffRoutes.today),
             ),

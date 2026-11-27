@@ -16,7 +16,9 @@ final class DeskCheckIn {
     this.endsOn,
     this.balanceDue,
     this.branchName,
-    this.scannedOffline = false,
+    this.offline = false,
+    this.serverDisagrees = false,
+    this.serverReasonCode,
   });
 
   final int id;
@@ -36,9 +38,13 @@ final class DeskCheckIn {
   final Money? balanceDue;
   final String? branchName;
 
-  /// Scanned without internet and sent later: the API judged it as of the
-  /// time it was scanned, after the member was already at the door.
-  final bool scannedOffline;
+  /// Decided at the door from the door list, without internet.
+  final bool offline;
+
+  /// The server, deciding again for that moment, would have answered
+  /// [serverReasonCode] (or let them in); staff review it in the panel.
+  final bool serverDisagrees;
+  final String? serverReasonCode;
 
   bool get owes => (balanceDue?.amountMinor ?? 0) > 0;
 }
@@ -53,7 +59,9 @@ DeskCheckIn deskCheckInFromJson(Map<String, dynamic> json) {
     letIn: json.optional<String>('decision') == 'allow',
     reasonCode: json.optional<String>('reason_code'),
     checkedInAt: DateTime.parse(json.field<String>('checked_in_at')).toUtc(),
-    scannedOffline: json.optional<bool>('scanned_offline') ?? false,
+    offline: json.optional<bool>('offline') ?? false,
+    serverDisagrees: json.optional<bool>('server_disagrees') ?? false,
+    serverReasonCode: json.optional<String>('server_reason_code'),
     memberName: member?.optional<String>('full_name'),
     memberPhone: member?.optional<String>('phone'),
     planName: membership?.optional<Map<String, dynamic>>('plan')?.optional<String>('name'),

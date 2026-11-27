@@ -2089,6 +2089,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Call {phone}'**
   String numbersCall(String phone);
+
+  /// No description provided for @deskDecidedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decided offline'**
+  String get deskDecidedOffline;
+
+  /// No description provided for @deskReasonNoDoorList.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet, and no door list to check with'**
+  String get deskReasonNoDoorList;
+
+  /// No description provided for @deskOfflineRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{The server didn\'t record 1 offline scan.} other{The server didn\'t record {count} offline scans.}}'**
+  String deskOfflineRefused(int count);
+
+  /// No description provided for @deskOfflineToReview.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 offline check-in to review in the panel.} other{{count} offline check-ins to review in the panel.}}'**
+  String deskOfflineToReview(int count);
+
+  /// No description provided for @deskNoInternetDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet (demo)'**
+  String get deskNoInternetDemo;
+
+  /// No description provided for @deskServerDisagrees.
+  ///
+  /// In en, this message translates to:
+  /// **'Server: {reason}, review in the panel'**
+  String deskServerDisagrees(String reason);
 }
 
 class _AppLocalizationsDelegate

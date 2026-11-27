@@ -346,5 +346,11 @@
   "numbersToCall": "የሚደወልላቸው አባላት",
   "numbersNoOneToCall": "የሚደወልለት የለም፤ በሚቀጥሉት ቀናት የሚያልቅ እቅድ የለም።",
   "numbersEnds": "{date} ያልቃል",
-  "numbersCall": "ወደ {phone} ይደውሉ"
+  "numbersCall": "ወደ {phone} ይደውሉ",
+  "deskDecidedOffline": "ያለ ኢንተርኔት የተወሰነ",
+  "deskReasonNoDoorList": "ኢንተርኔት የለም፤ ለማረጋገጥ የበር ዝርዝርም የለም",
+  "deskOfflineRefused": "{count, plural, =1{ሰርቨሩ 1 ያለ ኢንተርኔት የተስካነ አልመዘገበም።} other{ሰርቨሩ {count} ያለ ኢንተርኔት የተስካኑ አልመዘገበም።}}",
+  "deskOfflineToReview": "{count, plural, =1{በፓነሉ የሚታይ 1 ያለ ኢንተርኔት የገባ።} other{በፓነሉ የሚታዩ {count} ያለ ኢንተርኔት የገቡ።}}",
+  "deskNoInternetDemo": "ኢንተርኔት የለም (ሙከራ)",
+  "deskServerDisagrees": "ሰርቨር፦ {reason}፤ በፓነሉ ይመልከቱ"
 }

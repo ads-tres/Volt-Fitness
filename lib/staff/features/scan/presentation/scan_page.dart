@@ -6,7 +6,9 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_messages.dart';
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/time/clock.dart' show clockProvider;
 import '../../../../core/utils/uuid.dart';
+import '../../offline/data/door_list_controller.dart';
 import '../data/check_in_repository.dart';
 import '../data/scan_outbox.dart';
 import '../domain/desk_check_in.dart';
@@ -16,7 +18,8 @@ import 'desk_app_bar.dart';
 
 /// Where the front desk scans members' QR codes. Each GQ1 code goes to the
 /// API once; the answer fills the screen, then the camera is back. Without
-/// internet the scan is kept to send later, and an amber screen says so.
+/// internet the desk decides from its door list, as the server would, and
+/// keeps the scan to send later.
 class ScanPage extends ConsumerStatefulWidget {
   const ScanPage({super.key});
 
@@ -33,7 +36,6 @@ class ScanPage extends ConsumerStatefulWidget {
 class _ScanPageState extends ConsumerState<ScanPage> {
   var _sending = false;
   DeskCheckIn? _result;
-  bool _savedOffline = false;
   Timer? _hideResult;
   String? _lastCode;
   DateTime? _lastCodeAt;
@@ -45,7 +47,7 @@ class _ScanPageState extends ConsumerState<ScanPage> {
   }
 
   Future<void> _onCode(String code) async {
-    if (!code.startsWith('GQ1:') || _sending || _result != null || _savedOffline) return;
+    if (!code.startsWith('GQ1:') || _sending || _result != null) return;
     final now = DateTime.now();
     if (code == _lastCode && now.difference(_lastCodeAt!) < ScanPage.sameCodeIgnoredFor) return;
     _lastCode = code;
@@ -59,11 +61,27 @@ class _ScanPageState extends ConsumerState<ScanPage> {
       setState(() => _result = checkIn);
       _hideResult = Timer(ScanPage.resultShownFor, _done);
     } on NetworkFailure {
-      // The same key: if the scan did reach the API, sending it again gets
-      // that answer back.
-      await ref.read(scanOutboxProvider.notifier).add(code, idempotencyKey: idempotencyKey);
+      final now = ref.read(clockProvider)().toUtc();
+      final decision = await ref.read(doorListProvider.notifier).decide(code);
+      if (decision != null) {
+        await ref
+            .read(scanOutboxProvider.notifier)
+            .add(code, letIn: decision.letIn, reasonCode: decision.reasonCode);
+      }
       if (!mounted) return;
-      setState(() => _savedOffline = true);
+      setState(
+        () => _result = decision == null
+            ? DeskCheckIn(id: 0, letIn: false, reasonCode: noDoorList, checkedInAt: now, offline: true)
+            : DeskCheckIn(
+                id: 0,
+                letIn: decision.letIn,
+                reasonCode: decision.reasonCode,
+                checkedInAt: now,
+                memberName: decision.credential?.memberName,
+                planName: decision.day?.planName,
+                offline: true,
+              ),
+      );
       _hideResult = Timer(ScanPage.resultShownFor, _done);
     } on Failure catch (failure) {
       if (mounted) {
@@ -77,10 +95,7 @@ class _ScanPageState extends ConsumerState<ScanPage> {
   void _done() {
     _hideResult?.cancel();
     if (mounted) {
-      setState(() {
-        _result = null;
-        _savedOffline = false;
-      });
+      setState(() => _result = null);
     }
   }
 
@@ -109,7 +124,6 @@ class _ScanPageState extends ConsumerState<ScanPage> {
           ),
           if (_sending) const ColoredBox(color: Colors.black26, child: Center(child: CircularProgressIndicator())),
           if (result != null) CheckInResultView(checkIn: result, onDone: _done),
-          if (_savedOffline) SavedOfflineView(onDone: _done),
         ],
       ),
     );
