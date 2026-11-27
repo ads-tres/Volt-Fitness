@@ -255,6 +255,18 @@ member (`payment-links`, then `sms`), or texts the open one again. The
 API's refusals (more than is due, no Chapa account, texted a moment ago)
 show where they belong.
 
+**Selling plans.** Every member in Desk search has **Sell a plan**, and a
+member turned away for an ended plan, no plan or used-up visits gets
+**Renew** on the result. The sheet lists the gym's plans (`GET plans`) with
+their price, length and branches, marks the current one, and starts the new
+plan on the member's first free day unless staff pick another (owners and
+managers may pick a past day). A promo code applies, or owners and managers
+type a discount ("500" or "10%") with a reason. Selling calls `POST
+members/{id}/memberships`; the member pays the lowest of the plan's price,
+their discount group's and the promo code's, which the payment sheet then
+shows as due. A clashing start day, an unknown code and the other refusals
+show under their field.
+
 **Members' photos.** The scan and desk results show the member's photo
 large, so the desk can see the person is the member; desk search and Today
 show it small (`photo_url`, the gym platform's ADR 0036). At the desk,
@@ -305,7 +317,9 @@ ended) and Hana. Nobody has a photo until one is taken; the fake keeps it
 until the app restarts and refuses one over 5 MB. Abebe's 1,000 ETB can be
 paid in parts, with receipts from R-000001. Demo Gym has Chapa connected, so
 pay links work and a second text within 5 minutes is refused; Bole Fitness
-doesn't. Today starts with two earlier check-ins at Main Branch and
+doesn't. The plans are Monthly (1,500 ETB), 3 months (4,000 ETB) and 10
+visits (1,200 ETB, Main Branch only); `VOLT10` takes 10% off. Selling
+Tigist a plan lets her in again. Today starts with two earlier check-ins at Main Branch and
 lists every one made since; the fake forgets them when the app restarts.
 
 To scan for real, run a staging build of each app and point the desk at the
