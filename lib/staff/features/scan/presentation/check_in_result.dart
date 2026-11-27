@@ -20,13 +20,17 @@ const offlineColor = Color(0xFFB54708);
 /// owes shows either way, for the desk to ask for. Tapping it, or waiting,
 /// goes back to scanning.
 class CheckInResultView extends ConsumerWidget {
-  const CheckInResultView({super.key, required this.checkIn, required this.onDone});
+  const CheckInResultView({super.key, required this.checkIn, required this.onDone, this.onTakePayment});
 
   static const letInColor = Color(0xFF12805C);
   static const turnedAwayColor = Color(0xFFC0262D);
 
   final DeskCheckIn checkIn;
   final VoidCallback onDone;
+
+  /// Opens the payment sheet for what the member owes; only online, when
+  /// the API named the member.
+  final VoidCallback? onTakePayment;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -93,6 +97,20 @@ class CheckInResultView extends ConsumerWidget {
                       ),
                     ),
                   ),
+                  if (onTakePayment case final takePayment? when !checkIn.offline && checkIn.memberId != null) ...[
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      key: const Key('result-take-payment'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.white),
+                        minimumSize: const Size(0, 44),
+                      ),
+                      onPressed: takePayment,
+                      icon: const Icon(Icons.payments_rounded),
+                      label: Text(l10n.deskTakePayment),
+                    ),
+                  ],
                 ],
                 const Spacer(),
                 Text(l10n.deskTapToContinue, style: textTheme.bodySmall),

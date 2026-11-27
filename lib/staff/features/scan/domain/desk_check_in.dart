@@ -10,6 +10,7 @@ final class DeskCheckIn {
     required this.letIn,
     required this.checkedInAt,
     this.reasonCode,
+    this.memberId,
     this.memberName,
     this.memberPhone,
     this.planName,
@@ -30,6 +31,7 @@ final class DeskCheckIn {
 
   /// In UTC; shown in the phone's timezone.
   final DateTime checkedInAt;
+  final int? memberId;
   final String? memberName;
   final String? memberPhone;
 
@@ -67,6 +69,7 @@ DeskCheckIn deskCheckInFromJson(Map<String, dynamic> json) {
     offline: json.optional<bool>('offline') ?? false,
     serverDisagrees: json.optional<bool>('server_disagrees') ?? false,
     serverReasonCode: json.optional<String>('server_reason_code'),
+    memberId: member?.optional<int>('id'),
     memberName: member?.optional<String>('full_name'),
     memberPhone: member?.optional<String>('phone'),
     memberPhotoUrl: member?.optional<String>('photo_url'),

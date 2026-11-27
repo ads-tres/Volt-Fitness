@@ -61,11 +61,26 @@ class _DeskPageState extends ConsumerState<DeskPage> {
       final hide = Timer(ScanPage.resultShownFor, () {
         if (navigator.canPop()) navigator.pop();
       });
+      var takePayment = false;
       await showGeneralDialog<void>(
         context: context,
-        pageBuilder: (context, _, _) => CheckInResultView(checkIn: checkIn, onDone: () => Navigator.of(context).pop()),
+        pageBuilder: (context, _, _) => CheckInResultView(
+          checkIn: checkIn,
+          onDone: () => Navigator.of(context).pop(),
+          onTakePayment: () {
+            takePayment = true;
+            Navigator.of(context).pop();
+          },
+        ),
       );
       hide.cancel();
+      if (takePayment && mounted) {
+        await showTakePaymentSheet(
+          context,
+          (id: member.id, name: member.name, phone: member.phone),
+          onPaid: () => ref.invalidate(memberSearchProvider(_typed)),
+        );
+      }
     } on Failure catch (failure) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failureMessage(context.l10n, failure))));
