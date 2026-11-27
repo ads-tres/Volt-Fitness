@@ -1286,4 +1286,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get photoRemoved => 'Your photo is removed.';
+
+  @override
+  String deskMemberPhoto(String name) {
+    return '$name\'s photo';
+  }
+
+  @override
+  String deskPhotoSaved(String name) {
+    return '$name\'s photo is saved.';
+  }
+
+  @override
+  String deskPhotoRemoved(String name) {
+    return '$name\'s photo is removed.';
+  }
 }

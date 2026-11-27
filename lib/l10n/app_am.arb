@@ -365,5 +365,8 @@
   "photoChoose": "ከጋለሪ ምረጥ",
   "photoRemove": "ፎቶውን አስወግድ",
   "photoSaved": "ፎቶዎ ተቀምጧል።",
-  "photoRemoved": "ፎቶዎ ተወግዷል።"
+  "photoRemoved": "ፎቶዎ ተወግዷል።",
+  "deskMemberPhoto": "የ{name} ፎቶ",
+  "deskPhotoSaved": "የ{name} ፎቶ ተቀምጧል።",
+  "deskPhotoRemoved": "የ{name} ፎቶ ተወግዷል።"
 }

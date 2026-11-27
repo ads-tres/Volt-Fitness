@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_mobile/app/bootstrap.dart';
 import 'package:gym_mobile/core/network/api_client.dart';
@@ -15,7 +16,12 @@ import 'test_doubles.dart';
 
 /// The front desk app on a 360×780 phone, signed out, talking to its fake,
 /// or to [backend] when a test needs answers the fake doesn't give.
-Future<void> startDesk(WidgetTester tester, {CodeCamera? camera, HttpClientAdapter? backend}) async {
+Future<void> startDesk(
+  WidgetTester tester, {
+  CodeCamera? camera,
+  HttpClientAdapter? backend,
+  List<Override> extraOverrides = const [],
+}) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
@@ -33,6 +39,7 @@ Future<void> startDesk(WidgetTester tester, {CodeCamera? camera, HttpClientAdapt
           (ref) =>
               () => unawaited(ref.read(deskSessionProvider.notifier).signOut()),
         ),
+        ...extraOverrides,
       ],
       child: const StaffApp(),
     ),

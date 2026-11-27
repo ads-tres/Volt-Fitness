@@ -1260,4 +1260,19 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get photoRemoved => 'ፎቶዎ ተወግዷል።';
+
+  @override
+  String deskMemberPhoto(String name) {
+    return 'የ$name ፎቶ';
+  }
+
+  @override
+  String deskPhotoSaved(String name) {
+    return 'የ$name ፎቶ ተቀምጧል።';
+  }
+
+  @override
+  String deskPhotoRemoved(String name) {
+    return 'የ$name ፎቶ ተወግዷል።';
+  }
 }

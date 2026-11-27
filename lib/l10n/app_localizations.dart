@@ -2203,6 +2203,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your photo is removed.'**
   String get photoRemoved;
+
+  /// No description provided for @deskMemberPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s photo'**
+  String deskMemberPhoto(String name);
+
+  /// No description provided for @deskPhotoSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s photo is saved.'**
+  String deskPhotoSaved(String name);
+
+  /// No description provided for @deskPhotoRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s photo is removed.'**
+  String deskPhotoRemoved(String name);
 }
 
 class _AppLocalizationsDelegate
