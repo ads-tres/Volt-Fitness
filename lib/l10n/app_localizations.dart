@@ -2371,6 +2371,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing is due for {name}.'**
   String payNothingDue(String name);
+
+  /// No description provided for @deskSellPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell a plan'**
+  String get deskSellPlan;
+
+  /// No description provided for @deskRenew.
+  ///
+  /// In en, this message translates to:
+  /// **'Renew'**
+  String get deskRenew;
+
+  /// No description provided for @sellTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A plan for {name}'**
+  String sellTitle(String name);
+
+  /// No description provided for @sellBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Renew the member or sell them another plan. Payment comes next.'**
+  String get sellBody;
+
+  /// No description provided for @sellPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan'**
+  String get sellPlan;
+
+  /// No description provided for @sellCurrentPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Current plan'**
+  String get sellCurrentPlan;
+
+  /// No description provided for @sellNoPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'This gym has no plans on sale. Add one in the staff panel.'**
+  String get sellNoPlans;
+
+  /// No description provided for @sellLengthDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String sellLengthDays(int count);
+
+  /// No description provided for @sellLengthWeeks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 week} other{{count} weeks}}'**
+  String sellLengthWeeks(int count);
+
+  /// No description provided for @sellLengthMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 month} other{{count} months}}'**
+  String sellLengthMonths(int count);
+
+  /// No description provided for @sellLengthYears.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 year} other{{count} years}}'**
+  String sellLengthYears(int count);
+
+  /// No description provided for @sellVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 visit} other{{count} visits}}'**
+  String sellVisits(int count);
+
+  /// No description provided for @sellStarts.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts'**
+  String get sellStarts;
+
+  /// No description provided for @sellFirstFreeDay.
+  ///
+  /// In en, this message translates to:
+  /// **'The first free day'**
+  String get sellFirstFreeDay;
+
+  /// No description provided for @sellStartsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Today, or the day after their current plan ends.'**
+  String get sellStartsHelp;
+
+  /// No description provided for @sellPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get sellPrice;
+
+  /// No description provided for @sellPromoCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Promo code'**
+  String get sellPromoCode;
+
+  /// No description provided for @sellPromoCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If they have one'**
+  String get sellPromoCodeHint;
+
+  /// No description provided for @sellDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get sellDiscount;
+
+  /// No description provided for @sellDiscountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'500 or 10%'**
+  String get sellDiscountHint;
+
+  /// No description provided for @sellDiscountHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Instead of a promo code; owners and managers only.'**
+  String get sellDiscountHelp;
+
+  /// No description provided for @sellDiscountReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why the discount'**
+  String get sellDiscountReason;
+
+  /// No description provided for @sellSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{plan} for {name} · {price}, or less with their discount group or promo code'**
+  String sellSummary(String plan, String name, String price);
+
+  /// No description provided for @sellSummaryDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'{plan} for {name} · {price}, less your discount'**
+  String sellSummaryDiscount(String plan, String name, String price);
+
+  /// No description provided for @sellConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell plan'**
+  String get sellConfirm;
+
+  /// No description provided for @sellDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{plan} sold to {name} · {from} – {to} · {price}'**
+  String sellDone(
+    String plan,
+    String name,
+    String from,
+    String to,
+    String price,
+  );
 }
 
 class _AppLocalizationsDelegate

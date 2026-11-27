@@ -1365,4 +1365,136 @@ class AppLocalizationsAm extends AppLocalizations {
   String payNothingDue(String name) {
     return '$name የሚከፍሉት ነገር የለም።';
   }
+
+  @override
+  String get deskSellPlan => 'ዕቅድ ሽጥ';
+
+  @override
+  String get deskRenew => 'አድስ';
+
+  @override
+  String sellTitle(String name) {
+    return 'ዕቅድ ለ$name';
+  }
+
+  @override
+  String get sellBody => 'አባሉን ያድሱ ወይም ሌላ ዕቅድ ይሽጡላቸው። ክፍያው ቀጥሎ ይመጣል።';
+
+  @override
+  String get sellPlan => 'ዕቅድ';
+
+  @override
+  String get sellCurrentPlan => 'የአሁኑ ዕቅድ';
+
+  @override
+  String get sellNoPlans => 'ይህ ጂም የሚሸጥ ዕቅድ የለውም። በሰራተኞች ፓነል ላይ ይጨምሩ።';
+
+  @override
+  String sellLengthDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ቀናት',
+      one: '1 ቀን',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sellLengthWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ሳምንታት',
+      one: '1 ሳምንት',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sellLengthMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ወራት',
+      one: '1 ወር',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sellLengthYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ዓመታት',
+      one: '1 ዓመት',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sellVisits(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ጉብኝቶች',
+      one: '1 ጉብኝት',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sellStarts => 'የሚጀምርበት';
+
+  @override
+  String get sellFirstFreeDay => 'የመጀመሪያው ክፍት ቀን';
+
+  @override
+  String get sellStartsHelp => 'ዛሬ፣ ወይም የአሁኑ ዕቅዳቸው ካለቀ በኋላ ባለው ቀን።';
+
+  @override
+  String get sellPrice => 'ዋጋ';
+
+  @override
+  String get sellPromoCode => 'የፕሮሞ ኮድ';
+
+  @override
+  String get sellPromoCodeHint => 'ካላቸው';
+
+  @override
+  String get sellDiscount => 'ቅናሽ';
+
+  @override
+  String get sellDiscountHint => '500 ወይም 10%';
+
+  @override
+  String get sellDiscountHelp => 'በፕሮሞ ኮድ ምትክ፤ ለባለቤቶችና ለአስተዳዳሪዎች ብቻ።';
+
+  @override
+  String get sellDiscountReason => 'የቅናሹ ምክንያት';
+
+  @override
+  String sellSummary(String plan, String name, String price) {
+    return '$plan ለ$name · $price፣ ወይም በቅናሽ ቡድናቸው ወይም በፕሮሞ ኮድ ያነሰ';
+  }
+
+  @override
+  String sellSummaryDiscount(String plan, String name, String price) {
+    return '$plan ለ$name · $price፣ ቅናሽዎ ተቀንሶ';
+  }
+
+  @override
+  String get sellConfirm => 'ዕቅዱን ሽጥ';
+
+  @override
+  String sellDone(
+    String plan,
+    String name,
+    String from,
+    String to,
+    String price,
+  ) {
+    return '$plan ለ$name ተሽጧል · $from – $to · $price';
+  }
 }

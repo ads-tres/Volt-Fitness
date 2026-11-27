@@ -135,6 +135,8 @@ final class FakeFrontDesk implements HttpClientAdapter {
     if (!gyms.contains(gym)) return _json(404, {'message': 'Not found.'});
     return switch ((options.method, path)) {
       ('GET', '/branches') => _json(200, {'data': _branches(phone, gym)}),
+      ('GET', '/plans') => _planList(phone, gym),
+      ('POST', final path) when RegExp(r'^/members/\d+/memberships$').hasMatch(path) => _sell(options, phone, int.parse(path.split('/')[2])),
       ('POST', '/check-ins/scan') => _scan(options, phone, gym),
       ('GET', '/members') => _json(200, {'data': _search('${options.queryParameters['search'] ?? ''}')}),
       ('POST', final path) when RegExp(r'^/members/\d+/check-ins$').hasMatch(path) => _atDesk(
@@ -207,42 +209,166 @@ final class FakeFrontDesk implements HttpClientAdapter {
 
   // Payments
 
-  /// What each member still owes on their membership (id 100 + member id),
-  /// in santim: Abebe starts owing 1,000 ETB.
-  final _owedMinor = <int, int>{1: 100000};
+  /// Every membership, oldest first. Abebe's started this month and he
+  /// owes 1,000 ETB of it; Tigist's ended last week; Hana's is current.
+  final _sold = <_FakeMembership>[
+    _FakeMembership(id: 101, memberId: 1, plan: _plans[0], startsOn: DateTime(2026, 10, 2), endsOn: DateTime(2026, 11, 1), priceMinor: 150000, owedMinor: 100000),
+    _FakeMembership(id: 102, memberId: 2, plan: _plans[0], startsOn: DateTime(2026, 9, 9), endsOn: DateTime(2026, 10, 8), priceMinor: 150000),
+    _FakeMembership(id: 103, memberId: 3, plan: _plans[0], startsOn: DateTime(2026, 10, 2), endsOn: DateTime(2026, 11, 1), priceMinor: 150000),
+  ];
   var _receipts = 0;
 
   /// Pay-online links not paid yet, by id: the membership's id and when the
   /// link was last texted.
   final _links = <int, ({int membershipId, int amountMinor, DateTime? textedAt})>{};
 
-  int _owed(Map<String, Object?> member) => _owedMinor[member['id']] ?? 0;
+  DateTime get _todayDate => DateTime(_now().year, _now().month, _now().day);
 
-  Map<String, Object?>? _memberOfMembership(int membershipId) =>
-      [_abebe, _tigist, _hana].where((member) => 100 + (member['id']! as int) == membershipId).firstOrNull;
+  /// Everything [member] owes, across their memberships.
+  int _owed(Map<String, Object?> member) =>
+      _sold.where((each) => each.memberId == member['id']).fold(0, (sum, each) => sum + each.owedMinor);
+
+  /// The member's membership today, or else their latest.
+  _FakeMembership? _currentOf(Map<String, Object?> member) {
+    final theirs = _sold.where((each) => each.memberId == member['id']).toList();
+    return theirs.where((each) => each.covers(_todayDate)).firstOrNull ?? theirs.lastOrNull;
+  }
+
+  Map<String, Object?> _membershipJson(_FakeMembership membership, {bool withMoney = false}) {
+    final link = _links.entries.where((entry) => entry.value.membershipId == membership.id).firstOrNull;
+    return {
+      'id': membership.id,
+      'member_id': membership.memberId,
+      'plan': {'id': membership.plan.id, 'name': membership.plan.name},
+      'status': membership.statusOn(_todayDate),
+      'starts_on': _iso(membership.startsOn),
+      'ends_on': _iso(membership.endsOn),
+      if (withMoney) ...{
+        'list_price': _money(membership.plan.priceMinor),
+        'price': _money(membership.priceMinor),
+        'discount': membership.discountReason == null
+            ? null
+            : {'amount': _money(membership.plan.priceMinor - membership.priceMinor), 'reason': membership.discountReason},
+        'balance_due': _money(membership.owedMinor),
+        'cancellation': null,
+        'open_payment_link': link == null
+            ? null
+            : {'id': link.key, 'amount': _money(link.value.amountMinor), 'checkout_url': 'https://checkout.chapa.co/demo'},
+      },
+    };
+  }
+
+  static String _iso(DateTime day) => day.toIso8601String().substring(0, 10);
+
+  static const _months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  /// As the API writes dates in its messages: "2 November 2026".
+  static String _longDate(DateTime day) => '${day.day} ${_months[day.month - 1]} ${day.year}';
 
   ResponseBody _memberships(int memberId) {
-    final member = [_abebe, _tigist, _hana].where((member) => member['id'] == memberId).firstOrNull;
-    if (member == null) return _json(404, {'message': 'Not found.'});
-    final membershipId = 100 + memberId;
-    final link = _links.entries.where((entry) => entry.value.membershipId == membershipId).firstOrNull;
+    if (![_abebe, _tigist, _hana].any((member) => member['id'] == memberId)) return _json(404, {'message': 'Not found.'});
     return _json(200, {
       'data': [
-        {
-          'id': membershipId,
-          'plan': {'id': 2, 'name': 'Monthly'},
-          'status': member == _tigist ? 'expired' : 'active',
-          'starts_on': '2026-10-02',
-          'ends_on': member == _tigist ? '2026-10-08' : '2026-11-01',
-          'price': _money(150000),
-          'balance_due': _money(_owed(member)),
-          'cancellation': null,
-          'open_payment_link': link == null
-              ? null
-              : {'id': link.key, 'amount': _money(link.value.amountMinor), 'checkout_url': 'https://checkout.chapa.co/demo'},
-        },
+        for (final membership in _sold.reversed)
+          if (membership.memberId == memberId) _membershipJson(membership, withMoney: true),
       ],
     });
+  }
+
+  // Plans
+
+  static const _plans = [
+    _FakePlan(id: 2, name: 'Monthly', priceMinor: 150000, months: 1),
+    _FakePlan(id: 3, name: '3 months', priceMinor: 400000, months: 3),
+    _FakePlan(id: 4, name: '10 visits', priceMinor: 120000, months: 2, visitLimit: 10, branchIds: [1]),
+  ];
+
+  ResponseBody _planList(String phone, String gym) => _json(200, {
+    'data': [
+      for (final plan in _plans)
+        {
+          'id': plan.id,
+          'name': plan.name,
+          'description': null,
+          'price': _money(plan.priceMinor),
+          'duration': {'count': plan.visitLimit == null ? plan.months : plan.months, 'unit': 'month'},
+          'freeze_days_allowed': 7,
+          'visit_limit': plan.visitLimit,
+          'available_at_all_branches': plan.branchIds == null,
+          'branches': [
+            if (plan.branchIds case final ids?)
+              for (final branch in _branches(phone, gym))
+                if (ids.contains(branch['id'])) branch,
+          ],
+        },
+    ],
+  });
+
+  /// Sells a plan, with the API's rules: the first free day unless one is
+  /// given, past days and typed discounts only for owners, the promo code
+  /// VOLT10 for 10% off.
+  ResponseBody _sell(RequestOptions options, String phone, int memberId) {
+    final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
+    final member = [_abebe, _tigist, _hana].where((member) => member['id'] == memberId).firstOrNull;
+    if (member == null) return _json(404, {'message': 'Not found.'});
+    final plan = _plans.where((plan) => plan.id == body['plan_id']).firstOrNull;
+    if (plan == null) return _refuse('plan_id', 'Choose a plan of this gym that is still on sale.');
+    final owner = phone == staffPhone;
+    final theirs = _sold.where((each) => each.memberId == memberId).toList();
+    final lastEnd = theirs.map((each) => each.endsOn).fold<DateTime?>(null, (latest, end) => latest == null || end.isAfter(latest) ? end : latest);
+    final firstFree = lastEnd == null || lastEnd.isBefore(_todayDate) ? _todayDate : lastEnd.add(const Duration(days: 1));
+    final startsOn = switch (body['starts_on']) {
+      final String day => DateTime.parse(day),
+      _ => firstFree,
+    };
+    if (startsOn.isBefore(_todayDate) && !owner) {
+      return _refuse('starts_on', 'Only owners and managers can start a membership on a past date.');
+    }
+    final discount = '${body['discount'] ?? ''}'.trim();
+    final promo = '${body['promo_code'] ?? ''}'.trim();
+    if (discount.isNotEmpty && !owner) return _refuse('discount', 'Only owners and managers can give a discount.');
+    if (discount.isNotEmpty && promo.isNotEmpty) return _refuse('promo_code', 'The promo code field prohibits discount from being present.');
+    if (discount.isNotEmpty && '${body['discount_reason'] ?? ''}'.trim().isEmpty) {
+      return _refuse('discount_reason', 'The discount reason field is required when discount is present.');
+    }
+    var price = plan.priceMinor;
+    String? reason;
+    if (discount.isNotEmpty) {
+      final percent = RegExp(r'^(\d+)%$').firstMatch(discount);
+      final off = percent == null ? _minorOf(discount) : plan.priceMinor * int.parse(percent.group(1)!) ~/ 100;
+      if (off == null) {
+        return _refuse('discount', 'Cannot read [$discount] as a discount. Expected an amount like 500 or a percentage like 10%.');
+      }
+      if (off <= 0) return _refuse('discount', 'A discount must be more than zero, not [$discount].');
+      if (off > plan.priceMinor) return _refuse('discount', 'The discount is more than the price of ${_money(plan.priceMinor)['formatted']}.');
+      price -= off;
+      reason = '${body['discount_reason']}'.trim();
+    } else if (promo.isNotEmpty) {
+      if (promo.toUpperCase() != 'VOLT10') return _refuse('promo_code', "This promo code doesn't exist. Check how it is spelled.");
+      price -= plan.priceMinor ~/ 10;
+      reason = 'Promo code VOLT10';
+    }
+    final endsOn = DateTime(startsOn.year, startsOn.month + plan.months, startsOn.day).subtract(const Duration(days: 1));
+    final clash = theirs.where((each) => !startsOn.isAfter(each.endsOn) && !endsOn.isBefore(each.startsOn)).firstOrNull;
+    if (clash != null) {
+      return _refuse(
+        'starts_on',
+        'The member already has a membership from ${_longDate(clash.startsOn)} to ${_longDate(clash.endsOn)}. '
+            'The first free start date is ${_longDate(firstFree)}.',
+      );
+    }
+    final membership = _FakeMembership(
+      id: 200 + _sold.length,
+      memberId: memberId,
+      plan: plan,
+      startsOn: startsOn,
+      endsOn: endsOn,
+      priceMinor: price,
+      owedMinor: price,
+      discountReason: reason,
+    );
+    _sold.add(membership);
+    return _json(201, {'data': _membershipJson(membership, withMoney: true)});
   }
 
   /// "1,000.50" as santim, or null when it isn't an amount.
@@ -262,8 +388,8 @@ final class FakeFrontDesk implements HttpClientAdapter {
   /// Records cash or a transfer, with the API's rules.
   ResponseBody _pay(RequestOptions options, String phone, String gym, int membershipId) {
     final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
-    final member = _memberOfMembership(membershipId);
-    if (member == null) return _json(404, {'message': 'Not found.'});
+    final membership = _sold.where((each) => each.id == membershipId).firstOrNull;
+    if (membership == null) return _json(404, {'message': 'Not found.'});
     final amount = _minorOf(body['amount']);
     if (amount == null) return _refuse('amount', 'The amount must be an amount written as text, like "2,500" or "2500.50".');
     if (amount <= 0) return _refuse('amount', 'The amount must be more than zero.');
@@ -285,14 +411,14 @@ final class FakeFrontDesk implements HttpClientAdapter {
         return _refuse('paid_on', 'Only owners, managers and accountants can date a payment in the past.');
       }
     }
-    final owed = _owed(member);
+    final owed = membership.owedMinor;
     if (amount > owed) {
       return _refuse(
         'amount',
         owed > 0 ? 'Only ${_money(owed)['formatted']} is still due on this membership.' : 'Nothing is due on this membership.',
       );
     }
-    _owedMinor[member['id']! as int] = owed - amount;
+    membership.owedMinor = owed - amount;
     if (owed == amount) _links.removeWhere((_, link) => link.membershipId == membershipId);
     return _json(201, {
       'data': {
@@ -310,13 +436,13 @@ final class FakeFrontDesk implements HttpClientAdapter {
   /// Opens a pay-online link; only Demo Gym has connected Chapa.
   ResponseBody _openLink(RequestOptions options, String phone, String gym, int membershipId) {
     final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
-    final member = _memberOfMembership(membershipId);
-    if (member == null) return _json(404, {'message': 'Not found.'});
+    final membership = _sold.where((each) => each.id == membershipId).firstOrNull;
+    if (membership == null) return _json(404, {'message': 'Not found.'});
     if (gym != 'demo-gym') return _refuse('chapa_account', "Connect the gym's Chapa account first.");
     if (_links.values.any((link) => link.membershipId == membershipId)) {
       return _refuse('membership', 'This membership already has an open payment link. Cancel it to create a new one.');
     }
-    final owed = _owed(member);
+    final owed = membership.owedMinor;
     final amount = body['amount'] == null ? owed : _minorOf(body['amount']);
     if (amount == null) return _refuse('amount', 'The amount must be an amount written as text, like "2,500" or "2500.50".');
     if (amount <= 0 || owed <= 0) return _refuse('amount', 'Nothing is due on this membership.');
@@ -692,12 +818,9 @@ final class FakeFrontDesk implements HttpClientAdapter {
           {
             ...member,
             'photo_url': _photos[member['id']],
-            'membership': {
-              'id': 100 + (member['id']! as int),
-              'plan': {'id': 2, 'name': 'Monthly'},
-              'status': member == _tigist ? 'expired' : 'active',
-              'starts_on': '2026-10-02',
-              'ends_on': member == _tigist ? '2026-10-08' : '2026-11-01',
+            'membership': switch (_currentOf(member)) {
+              final membership? => _membershipJson(membership),
+              null => null,
             },
             'balance_due': _money(_owed(member)),
           },
@@ -709,12 +832,14 @@ final class FakeFrontDesk implements HttpClientAdapter {
     final branch = _branches(phone, gym).where((branch) => branch['id'] == body['branch_id']).firstOrNull;
     final member = [_abebe, _tigist, _hana].where((member) => member['id'] == memberId).firstOrNull;
     if (branch == null || member == null) return _json(404, {'message': 'Not found.'});
-    if (member == _tigist) {
-      return _record(_checkIn(branch, deny: 'MEMBERSHIP_EXPIRED', member: member, owedMinor: 0, endsOn: '2026-10-08', method: 'desk'));
+    final membership = _currentOf(member);
+    final endsOn = membership == null ? null : _iso(membership.endsOn);
+    if (membership == null || !membership.covers(_todayDate)) {
+      return _record(
+        _checkIn(branch, deny: 'MEMBERSHIP_EXPIRED', member: member, owedMinor: _owed(member), endsOn: endsOn, method: 'desk'),
+      );
     }
-    return _record(
-      _checkIn(branch, member: member, owedMinor: _owed(member), endsOn: '2026-11-01', method: 'desk'),
-    );
+    return _record(_checkIn(branch, member: member, owedMinor: _owed(member), endsOn: endsOn, method: 'desk'));
   }
 
   /// Today's check-ins at a branch, newest first, 25 a page.
@@ -807,4 +932,43 @@ final class FakeFrontDesk implements HttpClientAdapter {
 
   @override
   void close({bool force = false}) {}
+}
+
+/// A plan of the fake gym.
+final class _FakePlan {
+  const _FakePlan({required this.id, required this.name, required this.priceMinor, required this.months, this.visitLimit, this.branchIds});
+
+  final int id;
+  final String name;
+  final int priceMinor;
+  final int months;
+  final int? visitLimit;
+  final List<int>? branchIds;
+}
+
+/// A membership the fake sold, and what is still owed on it.
+final class _FakeMembership {
+  _FakeMembership({
+    required this.id,
+    required this.memberId,
+    required this.plan,
+    required this.startsOn,
+    required this.endsOn,
+    required this.priceMinor,
+    this.owedMinor = 0,
+    this.discountReason,
+  });
+
+  final int id;
+  final int memberId;
+  final _FakePlan plan;
+  final DateTime startsOn;
+  final DateTime endsOn;
+  final int priceMinor;
+  final String? discountReason;
+  int owedMinor;
+
+  bool covers(DateTime day) => !day.isBefore(startsOn) && !day.isAfter(endsOn);
+
+  String statusOn(DateTime day) => day.isBefore(startsOn) ? 'upcoming' : (day.isAfter(endsOn) ? 'expired' : 'active');
 }
