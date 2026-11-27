@@ -150,6 +150,20 @@ final class FakeFrontDesk implements HttpClientAdapter {
         return _empty();
       }(),
       ('POST', '/check-ins/offline') => _offline(options, phone, gym),
+      ('GET', final path) when RegExp(r'^/members/\d+/memberships$').hasMatch(path) => _memberships(int.parse(path.split('/')[2])),
+      ('POST', final path) when RegExp(r'^/memberships/\d+/payments$').hasMatch(path) => _pay(
+        options,
+        phone,
+        gym,
+        int.parse(path.split('/')[2]),
+      ),
+      ('POST', final path) when RegExp(r'^/memberships/\d+/payment-links$').hasMatch(path) => _openLink(
+        options,
+        phone,
+        gym,
+        int.parse(path.split('/')[2]),
+      ),
+      ('POST', final path) when RegExp(r'^/payment-links/\d+/sms$').hasMatch(path) => _textLink(int.parse(path.split('/')[2])),
       ('GET', '/notifications') => _inbox(phone, gym),
       ('POST', '/notifications/read-all') => _readAll(phone, gym),
       ('POST', final path) when RegExp(r'^/notifications/[^/]+/read$').hasMatch(path) => _read(phone, gym, path.split('/')[2]),
@@ -189,6 +203,146 @@ final class FakeFrontDesk implements HttpClientAdapter {
     }
     _photos[memberId] = 'data:image/jpeg;base64,${base64.encode(bytes)}';
     return _empty();
+  }
+
+  // Payments
+
+  /// What each member still owes on their membership (id 100 + member id),
+  /// in santim: Abebe starts owing 1,000 ETB.
+  final _owedMinor = <int, int>{1: 100000};
+  var _receipts = 0;
+
+  /// Pay-online links not paid yet, by id: the membership's id and when the
+  /// link was last texted.
+  final _links = <int, ({int membershipId, int amountMinor, DateTime? textedAt})>{};
+
+  int _owed(Map<String, Object?> member) => _owedMinor[member['id']] ?? 0;
+
+  Map<String, Object?>? _memberOfMembership(int membershipId) =>
+      [_abebe, _tigist, _hana].where((member) => 100 + (member['id']! as int) == membershipId).firstOrNull;
+
+  ResponseBody _memberships(int memberId) {
+    final member = [_abebe, _tigist, _hana].where((member) => member['id'] == memberId).firstOrNull;
+    if (member == null) return _json(404, {'message': 'Not found.'});
+    final membershipId = 100 + memberId;
+    final link = _links.entries.where((entry) => entry.value.membershipId == membershipId).firstOrNull;
+    return _json(200, {
+      'data': [
+        {
+          'id': membershipId,
+          'plan': {'id': 2, 'name': 'Monthly'},
+          'status': member == _tigist ? 'expired' : 'active',
+          'starts_on': '2026-10-02',
+          'ends_on': member == _tigist ? '2026-10-08' : '2026-11-01',
+          'price': _money(150000),
+          'balance_due': _money(_owed(member)),
+          'cancellation': null,
+          'open_payment_link': link == null
+              ? null
+              : {'id': link.key, 'amount': _money(link.value.amountMinor), 'checkout_url': 'https://checkout.chapa.co/demo'},
+        },
+      ],
+    });
+  }
+
+  /// "1,000.50" as santim, or null when it isn't an amount.
+  static int? _minorOf(Object? amount) {
+    final match = RegExp(r'^(\d+)(?:\.(\d{1,2}))?$').firstMatch('${amount ?? ''}'.replaceAll(',', ''));
+    if (match == null) return null;
+    return int.parse(match.group(1)!) * 100 + int.parse((match.group(2) ?? '0').padRight(2, '0'));
+  }
+
+  ResponseBody _refuse(String field, String message) => _json(422, {
+    'message': message,
+    'errors': {
+      field: [message],
+    },
+  });
+
+  /// Records cash or a transfer, with the API's rules.
+  ResponseBody _pay(RequestOptions options, String phone, String gym, int membershipId) {
+    final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
+    final member = _memberOfMembership(membershipId);
+    if (member == null) return _json(404, {'message': 'Not found.'});
+    final amount = _minorOf(body['amount']);
+    if (amount == null) return _refuse('amount', 'The amount must be an amount written as text, like "2,500" or "2500.50".');
+    if (amount <= 0) return _refuse('amount', 'The amount must be more than zero.');
+    final method = body['method'];
+    if (!const ['cash', 'telebirr', 'cbe_birr', 'bank_transfer'].contains(method)) {
+      return _refuse('method', 'The selected method is invalid.');
+    }
+    final reference = '${body['reference'] ?? ''}'.trim();
+    if (method != 'cash' && reference.isEmpty) return _refuse('reference', 'Enter the transaction number from the payment confirmation.');
+    if (method == 'cash' && reference.isNotEmpty) return _refuse('reference', 'A cash payment has no transaction number.');
+    if (!_branches(phone, gym).any((branch) => branch['id'] == body['branch_id'])) {
+      return _refuse('branch_id', 'Choose the branch where the money was taken.');
+    }
+    if (body['paid_on'] case final String paidOn) {
+      final today = DateTime(_now().year, _now().month, _now().day);
+      final day = DateTime.parse(paidOn);
+      if (day.isAfter(today)) return _refuse('paid_on', "A payment can't be dated in the future.");
+      if (day.isBefore(today) && phone != staffPhone) {
+        return _refuse('paid_on', 'Only owners, managers and accountants can date a payment in the past.');
+      }
+    }
+    final owed = _owed(member);
+    if (amount > owed) {
+      return _refuse(
+        'amount',
+        owed > 0 ? 'Only ${_money(owed)['formatted']} is still due on this membership.' : 'Nothing is due on this membership.',
+      );
+    }
+    _owedMinor[member['id']! as int] = owed - amount;
+    if (owed == amount) _links.removeWhere((_, link) => link.membershipId == membershipId);
+    return _json(201, {
+      'data': {
+        'id': 900 + _receipts,
+        'receipt_number': 'R-${(++_receipts).toString().padLeft(6, '0')}',
+        'type': 'payment',
+        'amount': _money(amount),
+        'method': method,
+        'reference': method == 'cash' ? null : reference,
+        'paid_on': '${body['paid_on'] ?? _now().toIso8601String().substring(0, 10)}',
+      },
+    });
+  }
+
+  /// Opens a pay-online link; only Demo Gym has connected Chapa.
+  ResponseBody _openLink(RequestOptions options, String phone, String gym, int membershipId) {
+    final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
+    final member = _memberOfMembership(membershipId);
+    if (member == null) return _json(404, {'message': 'Not found.'});
+    if (gym != 'demo-gym') return _refuse('chapa_account', "Connect the gym's Chapa account first.");
+    if (_links.values.any((link) => link.membershipId == membershipId)) {
+      return _refuse('membership', 'This membership already has an open payment link. Cancel it to create a new one.');
+    }
+    final owed = _owed(member);
+    final amount = body['amount'] == null ? owed : _minorOf(body['amount']);
+    if (amount == null) return _refuse('amount', 'The amount must be an amount written as text, like "2,500" or "2500.50".');
+    if (amount <= 0 || owed <= 0) return _refuse('amount', 'Nothing is due on this membership.');
+    if (amount > owed) return _refuse('amount', 'Only ${_money(owed)['formatted']} is still due on this membership.');
+    final id = 700 + _links.length;
+    _links[id] = (membershipId: membershipId, amountMinor: amount, textedAt: null);
+    return _json(201, {
+      'data': {'id': id, 'status': 'pending', 'amount': _money(amount), 'checkout_url': 'https://checkout.chapa.co/demo'},
+    });
+  }
+
+  /// Texts a link, at most once every 5 minutes.
+  ResponseBody _textLink(int linkId) {
+    final link = _links[linkId];
+    if (link == null) return _refuse('payment_link', 'This payment link is no longer open.');
+    final texted = link.textedAt;
+    if (texted != null && _now().difference(texted) < const Duration(minutes: 5)) {
+      return _refuse(
+        'payment_link',
+        'The link was texted to the member a moment ago. Wait a few minutes before sending it again.',
+      );
+    }
+    _links[linkId] = (membershipId: link.membershipId, amountMinor: link.amountMinor, textedAt: _now());
+    return _json(202, {
+      'data': {'id': linkId, 'status': 'pending', 'amount': _money(link.amountMinor)},
+    });
   }
 
   // Offline: the door list
@@ -517,7 +671,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
       return _record(checkIn('MEMBERSHIP_EXPIRED', member: _tigist, endsOn: '2026-10-08'));
     }
     if (payload.contains('OWES')) {
-      return _record(checkIn(null, member: _abebe, owedMinor: 100000, endsOn: '2026-11-01'));
+      return _record(checkIn(null, member: _abebe, owedMinor: _owed(_abebe), endsOn: '2026-11-01'));
     }
     return _record(checkIn(null, member: _hana, endsOn: '2026-11-01'));
   }
@@ -545,7 +699,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
               'starts_on': '2026-10-02',
               'ends_on': member == _tigist ? '2026-10-08' : '2026-11-01',
             },
-            'balance_due': _money(member == _abebe ? 100000 : 0),
+            'balance_due': _money(_owed(member)),
           },
     ];
   }
@@ -559,7 +713,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
       return _record(_checkIn(branch, deny: 'MEMBERSHIP_EXPIRED', member: member, owedMinor: 0, endsOn: '2026-10-08', method: 'desk'));
     }
     return _record(
-      _checkIn(branch, member: member, owedMinor: member == _abebe ? 100000 : 0, endsOn: '2026-11-01', method: 'desk'),
+      _checkIn(branch, member: member, owedMinor: _owed(member), endsOn: '2026-11-01', method: 'desk'),
     );
   }
 
