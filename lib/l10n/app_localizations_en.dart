@@ -1527,4 +1527,79 @@ class AppLocalizationsEn extends AppLocalizations {
   ) {
     return '$plan sold to $name · $from – $to · $price';
   }
+
+  @override
+  String get deskAddMember => 'Add member';
+
+  @override
+  String get deskNoMembersFoundAdd => 'Not a member yet? Add them.';
+
+  @override
+  String get newMemberTitle => 'New member';
+
+  @override
+  String newMemberBody(String branch) {
+    return 'Their home branch will be $branch. A plan and payment come next.';
+  }
+
+  @override
+  String get newMemberWho => 'Who they are';
+
+  @override
+  String get newMemberWhoHelp =>
+      'Their name and phone are needed; they sign in to the app with this phone.';
+
+  @override
+  String get newMemberName => 'Full name';
+
+  @override
+  String get newMemberPhone => 'Phone';
+
+  @override
+  String get newMemberPhoneHelp => 'Like 0911 234 567';
+
+  @override
+  String get newMemberFindThem => 'Find them instead';
+
+  @override
+  String get newMemberFemale => 'Female';
+
+  @override
+  String get newMemberMale => 'Male';
+
+  @override
+  String get newMemberBirthday => 'Date of birth';
+
+  @override
+  String get newMemberOptional => 'Optional';
+
+  @override
+  String get newMemberMessages => 'Messages';
+
+  @override
+  String get newMemberMessagesHelp =>
+      'The language of their texts and app notifications.';
+
+  @override
+  String get newMemberEmail => 'Email';
+
+  @override
+  String get newMemberEmergency => 'Emergency contact';
+
+  @override
+  String get newMemberEmergencyHelp => 'Optional; fill both or neither.';
+
+  @override
+  String get newMemberContactName => 'Contact\'s name';
+
+  @override
+  String get newMemberContactPhone => 'Contact\'s phone';
+
+  @override
+  String get newMemberAdd => 'Add member';
+
+  @override
+  String newMemberAdded(String name) {
+    return '$name is a member now.';
+  }
 }

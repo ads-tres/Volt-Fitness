@@ -2533,6 +2533,144 @@ abstract class AppLocalizations {
     String to,
     String price,
   );
+
+  /// No description provided for @deskAddMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Add member'**
+  String get deskAddMember;
+
+  /// No description provided for @deskNoMembersFoundAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a member yet? Add them.'**
+  String get deskNoMembersFoundAdd;
+
+  /// No description provided for @newMemberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New member'**
+  String get newMemberTitle;
+
+  /// No description provided for @newMemberBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Their home branch will be {branch}. A plan and payment come next.'**
+  String newMemberBody(String branch);
+
+  /// No description provided for @newMemberWho.
+  ///
+  /// In en, this message translates to:
+  /// **'Who they are'**
+  String get newMemberWho;
+
+  /// No description provided for @newMemberWhoHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Their name and phone are needed; they sign in to the app with this phone.'**
+  String get newMemberWhoHelp;
+
+  /// No description provided for @newMemberName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get newMemberName;
+
+  /// No description provided for @newMemberPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get newMemberPhone;
+
+  /// No description provided for @newMemberPhoneHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Like 0911 234 567'**
+  String get newMemberPhoneHelp;
+
+  /// No description provided for @newMemberFindThem.
+  ///
+  /// In en, this message translates to:
+  /// **'Find them instead'**
+  String get newMemberFindThem;
+
+  /// No description provided for @newMemberFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get newMemberFemale;
+
+  /// No description provided for @newMemberMale.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get newMemberMale;
+
+  /// No description provided for @newMemberBirthday.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of birth'**
+  String get newMemberBirthday;
+
+  /// No description provided for @newMemberOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get newMemberOptional;
+
+  /// No description provided for @newMemberMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get newMemberMessages;
+
+  /// No description provided for @newMemberMessagesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The language of their texts and app notifications.'**
+  String get newMemberMessagesHelp;
+
+  /// No description provided for @newMemberEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get newMemberEmail;
+
+  /// No description provided for @newMemberEmergency.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency contact'**
+  String get newMemberEmergency;
+
+  /// No description provided for @newMemberEmergencyHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional; fill both or neither.'**
+  String get newMemberEmergencyHelp;
+
+  /// No description provided for @newMemberContactName.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact\'s name'**
+  String get newMemberContactName;
+
+  /// No description provided for @newMemberContactPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact\'s phone'**
+  String get newMemberContactPhone;
+
+  /// No description provided for @newMemberAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add member'**
+  String get newMemberAdd;
+
+  /// No description provided for @newMemberAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is a member now.'**
+  String newMemberAdded(String name);
 }
 
 class _AppLocalizationsDelegate

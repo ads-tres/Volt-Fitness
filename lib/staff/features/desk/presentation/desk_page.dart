@@ -19,7 +19,10 @@ import '../../scan/presentation/check_in_result.dart';
 import '../../scan/presentation/desk_app_bar.dart';
 import '../../scan/presentation/scan_page.dart';
 import '../data/member_search.dart';
+import '../data/new_member_repository.dart';
 import 'member_photo_sheet.dart';
+import 'new_member_sheet.dart';
+import 'welcome_member_sheet.dart';
 
 /// Checking in a member without their phone: find them by name or phone,
 /// then tap to check them in at the desk's branch. The same rules apply as
@@ -111,12 +114,32 @@ class _DeskPageState extends ConsumerState<DeskPage> {
     }
   }
 
+  /// Shows [text] in search at once, without waiting for the debounce.
+  void _searchFor(String text) {
+    _debounce?.cancel();
+    _search.text = text;
+    setState(() => _typed = text);
+  }
+
+  Future<void> _addMember() async {
+    final outcome = await showNewMemberSheet(context, typed: _search.text);
+    if (outcome == null || !mounted) return;
+    if (outcome.findPhone case final phone?) {
+      _searchFor(phone);
+      return;
+    }
+    final member = outcome.added!;
+    _searchFor(member.name);
+    await welcomeNewMember(context, member, onChanged: () => ref.invalidate(memberSearchProvider(_typed)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final textTheme = Theme.of(context).textTheme;
     final languageCode = ref.watch(languageCodeProvider);
     final results = ref.watch(memberSearchProvider(_typed));
+    final mayAdd = ref.watch(mayAddMembersProvider);
     return Scaffold(
       appBar: const DeskAppBar(),
       body: ListView(
@@ -128,9 +151,30 @@ class _DeskPageState extends ConsumerState<DeskPage> {
             onChanged: _onTyped,
             decoration: InputDecoration(labelText: l10n.deskSearchMembers, prefixIcon: const Icon(Icons.search_rounded)),
           ),
-          const SizedBox(height: 16),
+          if (mayAdd)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                key: const Key('add-member'),
+                onPressed: _addMember,
+                icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
+                label: Text(l10n.deskAddMember),
+              ),
+            ),
+          const SizedBox(height: 8),
           switch (results) {
-            AsyncData(value: []) when _typed.trim().length >= 2 => Text(l10n.deskNoMembersFound, style: textTheme.bodyMedium),
+            AsyncData(value: []) when _typed.trim().length >= 2 => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n.deskNoMembersFound, style: textTheme.bodyMedium),
+                if (mayAdd)
+                  TextButton(
+                    style: _rowAction,
+                    onPressed: _addMember,
+                    child: Text(l10n.deskNoMembersFoundAdd),
+                  ),
+              ],
+            ),
             AsyncData(value: []) => Text(l10n.deskSearchHint, style: textTheme.bodyMedium),
             AsyncData(:final value) => Column(
               children: [
