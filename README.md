@@ -267,6 +267,16 @@ their discount group's and the promo code's, which the payment sheet then
 shows as due. A clashing start day, an unknown code and the other refusals
 show under their field.
 
+**New members.** Owners, managers and receptionists see **Add member** in
+Desk search, and under "no member matches". The form starts from what was
+typed (digits go in the phone, anything else in the name) and asks for the
+full name and phone, with optional gender, date of birth, message language,
+email and an emergency contact (both halves or neither). It sends `POST
+members` with the desk's branch as home branch; Ethiopian mobiles go as
+E.164. A phone another member has comes back with **Find them instead**.
+Once added, the desk takes their photo, sells a plan and takes the payment
+in one go, or does it later.
+
 **Members' photos.** The scan and desk results show the member's photo
 large, so the desk can see the person is the member; desk search and Today
 show it small (`photo_url`, the gym platform's ADR 0036). At the desk,
@@ -294,7 +304,8 @@ the API's shapes, as the member app's fake does
 | ------------------------------- | --------------- | ---------- |
 | Demo Gym, both branches         | `0911 00 00 01` | `password` |
 | Two gyms (Demo Gym, Bole Fitness) | `0911 00 00 02` | `password` |
-| Wrong password                  | either          | anything else |
+| Accountant at Demo Gym (can't add members) | `0911 00 00 03` | `password` |
+| Wrong password                  | any of these    | anything else |
 
 | Scanned code                    | Answer                                  |
 | ------------------------------- | --------------------------------------- |
@@ -319,7 +330,8 @@ paid in parts, with receipts from R-000001. Demo Gym has Chapa connected, so
 pay links work and a second text within 5 minutes is refused; Bole Fitness
 doesn't. The plans are Monthly (1,500 ETB), 3 months (4,000 ETB) and 10
 visits (1,200 ETB, Main Branch only); `VOLT10` takes 10% off. Selling
-Tigist a plan lets her in again. Today starts with two earlier check-ins at Main Branch and
+Tigist a plan lets her in again. Members added at the desk are kept until
+the app restarts; Abebe's number (0911 234 567) is taken. Today starts with two earlier check-ins at Main Branch and
 lists every one made since; the fake forgets them when the app restarts.
 
 To scan for real, run a staging build of each app and point the desk at the
