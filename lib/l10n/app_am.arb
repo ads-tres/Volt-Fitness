@@ -346,5 +346,13 @@
   "numbersToCall": "የሚደወልላቸው አባላት",
   "numbersNoOneToCall": "የሚደወልለት የለም፤ በሚቀጥሉት ቀናት የሚያልቅ እቅድ የለም።",
   "numbersEnds": "{date} ያልቃል",
-  "numbersCall": "ወደ {phone} ይደውሉ"
+  "numbersCall": "ወደ {phone} ይደውሉ",
+  "photoChange": "ፎቶዎን ይቀይሩ",
+  "photoTitle": "የእርስዎ ፎቶ",
+  "photoBody": "ሲገቡ ዴስኩ ያየዋል፤ ቁጥርዎ በተመዘገበባቸው ጂሞች ሁሉ።",
+  "photoTake": "ፎቶ አንሳ",
+  "photoChoose": "ከጋለሪ ምረጥ",
+  "photoRemove": "ፎቶውን አስወግድ",
+  "photoSaved": "ፎቶዎ ተቀምጧል።",
+  "photoRemoved": "ፎቶዎ ተወግዷል።"
 }

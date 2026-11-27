@@ -2089,6 +2089,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Call {phone}'**
   String numbersCall(String phone);
+
+  /// No description provided for @photoChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change your photo'**
+  String get photoChange;
+
+  /// No description provided for @photoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photo'**
+  String get photoTitle;
+
+  /// No description provided for @photoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The desk sees it when you check in, at every gym where your number is registered.'**
+  String get photoBody;
+
+  /// No description provided for @photoTake.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get photoTake;
+
+  /// No description provided for @photoChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get photoChoose;
+
+  /// No description provided for @photoRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove photo'**
+  String get photoRemove;
+
+  /// No description provided for @photoSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photo is saved.'**
+  String get photoSaved;
+
+  /// No description provided for @photoRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photo is removed.'**
+  String get photoRemoved;
 }
 
 class _AppLocalizationsDelegate

@@ -1203,4 +1203,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String numbersCall(String phone) {
     return 'Call $phone';
   }
+
+  @override
+  String get photoChange => 'Change your photo';
+
+  @override
+  String get photoTitle => 'Your photo';
+
+  @override
+  String get photoBody =>
+      'The desk sees it when you check in, at every gym where your number is registered.';
+
+  @override
+  String get photoTake => 'Take a photo';
+
+  @override
+  String get photoChoose => 'Choose from gallery';
+
+  @override
+  String get photoRemove => 'Remove photo';
+
+  @override
+  String get photoSaved => 'Your photo is saved.';
+
+  @override
+  String get photoRemoved => 'Your photo is removed.';
 }
