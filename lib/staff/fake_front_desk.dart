@@ -11,8 +11,9 @@ import '../core/network/api_headers.dart';
 /// Answers the front desk app's calls in dev builds, with the paths and JSON
 /// of the gym platform's staff API, as the member app's fake does.
 ///
-/// Sign in with [staffPhone] (Demo Gym, both branches) or [twoGymsPhone]
-/// (Demo Gym's Main Branch, and Bole Fitness), password [password].
+/// Sign in with [staffPhone] (Demo Gym, both branches), [twoGymsPhone]
+/// (Demo Gym's Main Branch, and Bole Fitness) or [accountantPhone] (Demo
+/// Gym's Main Branch, who may not add members), password [password].
 ///
 /// Any GQ1 code lets Hana Girma in; one with `EXPIRED` in it is Tigist
 /// Haile's ended membership, and one with `OWES` lets Abebe Kebede in with
@@ -32,6 +33,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
 
   static const staffPhone = '+251911000001';
   static const twoGymsPhone = '+251911000002';
+  static const accountantPhone = '+251911000003';
   static const password = 'password';
 
   static const _tokenPrefix = 'fake-desk-token:';
@@ -93,7 +95,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
 
   ResponseBody _signIn(Map<String, dynamic> body) {
     final phone = body['phone'];
-    if ((phone != staffPhone && phone != twoGymsPhone) || body['password'] != password) {
+    if (!const [staffPhone, twoGymsPhone, accountantPhone].contains(phone) || body['password'] != password) {
       return _json(422, {
         'message': 'These credentials do not match our records.',
         'errors': {
@@ -107,8 +109,16 @@ final class FakeFrontDesk implements HttpClientAdapter {
   }
 
   Map<String, Object?> _user(String phone) => {
-    'id': phone == staffPhone ? 1 : 2,
-    'name': phone == staffPhone ? 'Demo Owner' : 'Demo Receptionist',
+    'id': switch (phone) {
+      staffPhone => 1,
+      twoGymsPhone => 2,
+      _ => 3,
+    },
+    'name': switch (phone) {
+      staffPhone => 'Demo Owner',
+      twoGymsPhone => 'Demo Receptionist',
+      _ => 'Demo Accountant',
+    },
     'email': null,
     'phone': phone,
   };
@@ -118,7 +128,11 @@ final class FakeFrontDesk implements HttpClientAdapter {
     'staff': [
       {
         'organization': {'slug': 'demo-gym', 'name': 'Demo Gym'},
-        'role': phone == staffPhone ? 'owner' : 'receptionist',
+        'role': switch (phone) {
+          staffPhone => 'owner',
+          twoGymsPhone => 'receptionist',
+          _ => 'accountant',
+        },
         'works_at_all_branches': phone == staffPhone,
       },
       if (phone == twoGymsPhone)
@@ -136,6 +150,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
     return switch ((options.method, path)) {
       ('GET', '/branches') => _json(200, {'data': _branches(phone, gym)}),
       ('GET', '/plans') => _planList(phone, gym),
+      ('POST', '/members') => _addMember(options, phone, gym),
       ('POST', final path) when RegExp(r'^/members/\d+/memberships$').hasMatch(path) => _sell(options, phone, int.parse(path.split('/')[2])),
       ('POST', '/check-ins/scan') => _scan(options, phone, gym),
       ('GET', '/members') => _json(200, {'data': _search('${options.queryParameters['search'] ?? ''}')}),
@@ -266,7 +281,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
   static String _longDate(DateTime day) => '${day.day} ${_months[day.month - 1]} ${day.year}';
 
   ResponseBody _memberships(int memberId) {
-    if (![_abebe, _tigist, _hana].any((member) => member['id'] == memberId)) return _json(404, {'message': 'Not found.'});
+    if (!_members.any((member) => member['id'] == memberId)) return _json(404, {'message': 'Not found.'});
     return _json(200, {
       'data': [
         for (final membership in _sold.reversed)
@@ -309,7 +324,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
   /// VOLT10 for 10% off.
   ResponseBody _sell(RequestOptions options, String phone, int memberId) {
     final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
-    final member = [_abebe, _tigist, _hana].where((member) => member['id'] == memberId).firstOrNull;
+    final member = _members.where((member) => member['id'] == memberId).firstOrNull;
     if (member == null) return _json(404, {'message': 'Not found.'});
     final plan = _plans.where((plan) => plan.id == body['plan_id']).firstOrNull;
     if (plan == null) return _refuse('plan_id', 'Choose a plan of this gym that is still on sale.');
@@ -773,7 +788,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
 
   List<Map<String, Object?>> _branches(String phone, String gym) => switch (gym) {
     'bole-fitness' => [_branch(3, 'BOLE', 'Bole Fitness')],
-    _ when phone == twoGymsPhone => [_branch(1, 'MAIN', 'Main Branch')],
+    _ when phone != staffPhone => [_branch(1, 'MAIN', 'Main Branch')],
     _ => [_branch(2, 'BOLE', 'Bole Branch'), _branch(1, 'MAIN', 'Main Branch')],
   };
 
@@ -812,7 +827,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
     final text = typed.trim().toLowerCase();
     final digits = text.replaceAll(RegExp(r'\D'), '');
     return [
-      for (final member in [_abebe, _tigist, _hana])
+      for (final member in _members)
         if ((member['full_name']! as String).toLowerCase().contains(text) ||
             (digits.length >= 3 && (member['phone']! as String).replaceAll('+251', '0').contains(digits)))
           {
@@ -830,13 +845,13 @@ final class FakeFrontDesk implements HttpClientAdapter {
   ResponseBody _atDesk(RequestOptions options, String phone, String gym, int memberId) {
     final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
     final branch = _branches(phone, gym).where((branch) => branch['id'] == body['branch_id']).firstOrNull;
-    final member = [_abebe, _tigist, _hana].where((member) => member['id'] == memberId).firstOrNull;
+    final member = _members.where((member) => member['id'] == memberId).firstOrNull;
     if (branch == null || member == null) return _json(404, {'message': 'Not found.'});
     final membership = _currentOf(member);
     final endsOn = membership == null ? null : _iso(membership.endsOn);
     if (membership == null || !membership.covers(_todayDate)) {
       return _record(
-        _checkIn(branch, deny: 'MEMBERSHIP_EXPIRED', member: member, owedMinor: _owed(member), endsOn: endsOn, method: 'desk'),
+        _checkIn(branch, deny: membership == null ? 'MEMBERSHIP_NONE' : 'MEMBERSHIP_EXPIRED', member: member, owedMinor: _owed(member), endsOn: endsOn, method: 'desk'),
       );
     }
     return _record(_checkIn(branch, member: member, owedMinor: _owed(member), endsOn: endsOn, method: 'desk'));
@@ -857,6 +872,65 @@ final class FakeFrontDesk implements HttpClientAdapter {
       'data': all.sublist(from, to),
       'links': {'next': to < all.length ? '?page=${page + 1}' : null},
       'meta': {'current_page': page},
+    });
+  }
+
+  /// Everyone at the gym: the three demo members, then any added here.
+  final _members = <Map<String, Object?>>[_abebe, _tigist, _hana];
+
+  /// Adds a member at the desk's branch, with the API's rules: a name, a
+  /// phone no other member of the gym has, both halves of an emergency
+  /// contact, a birthday in the past. Accountants may not.
+  ResponseBody _addMember(RequestOptions options, String phone, String gym) {
+    if (phone == accountantPhone) return _json(403, {'message': 'This action is unauthorized.'});
+    final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
+    String text(String field) => '${body[field] ?? ''}'.trim();
+    bool isPhone(String value) => RegExp(r'^\+251[79]\d{8}$').hasMatch(value);
+    const phoneFormat = 'must be a phone number like 0911 234 567, or an international number starting with +.';
+    final errors = <String, List<String>>{};
+    void refuse(String field, String message) => errors[field] = [message];
+    if (text('full_name').isEmpty) refuse('full_name', 'The full name field is required.');
+    if (text('phone').isEmpty) {
+      refuse('phone', 'The phone field is required.');
+    } else if (!isPhone(text('phone'))) {
+      refuse('phone', 'The phone $phoneFormat');
+    } else if (_members.any((member) => member['phone'] == text('phone'))) {
+      refuse('phone', 'The phone has already been taken.');
+    }
+    if (text('email').isNotEmpty && !text('email').contains('@')) refuse('email', 'The email field must be a valid email address.');
+    if (text('date_of_birth').isNotEmpty && !DateTime.parse(text('date_of_birth')).isBefore(_todayDate)) {
+      refuse('date_of_birth', 'The date of birth field must be a date before today.');
+    }
+    if (text('emergency_contact_name').isNotEmpty && text('emergency_contact_phone').isEmpty) {
+      refuse('emergency_contact_phone', 'The emergency contact phone field is required when emergency contact name is present.');
+    }
+    if (text('emergency_contact_phone').isNotEmpty) {
+      if (!isPhone(text('emergency_contact_phone'))) refuse('emergency_contact_phone', 'The emergency contact phone $phoneFormat');
+      if (text('emergency_contact_name').isEmpty) {
+        refuse('emergency_contact_name', 'The emergency contact name field is required when emergency contact phone is present.');
+      }
+    }
+    final branch = _branches(phone, gym).where((branch) => branch['id'] == body['home_branch_id']).firstOrNull;
+    if (branch == null) refuse('home_branch_id', 'Choose a branch of this gym that you work at.');
+    if (errors.isNotEmpty) return _json(422, {'message': errors.values.first.first, 'errors': errors});
+    final member = <String, Object?>{'id': 10 + _members.length, 'full_name': text('full_name'), 'phone': text('phone')};
+    _members.add(member);
+    return _json(201, {
+      'data': {
+        ...member,
+        'email': text('email').isEmpty ? null : text('email'),
+        'gender': body['gender'],
+        'date_of_birth': body['date_of_birth'],
+        'emergency_contact': text('emergency_contact_name').isEmpty
+            ? null
+            : {'name': text('emergency_contact_name'), 'phone': text('emergency_contact_phone')},
+        'message_language': body['message_language'] ?? 'en',
+        'photo_url': null,
+        'home_branch': branch,
+        'membership': null,
+        'balance_due': _money(0),
+        'registered_at': _now().toUtc().toIso8601String(),
+      },
     });
   }
 

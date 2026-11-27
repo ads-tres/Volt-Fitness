@@ -1497,4 +1497,92 @@ class AppLocalizationsAm extends AppLocalizations {
   ) {
     return '$plan ለ$name ተሽጧል · $from – $to · $price';
   }
+
+  @override
+  String get deskAddMember => 'አባል ጨምር';
+
+  @override
+  String get deskNoMembersFoundAdd => 'ገና አባል አይደሉም? ይጨምሯቸው።';
+
+  @override
+  String get newMemberTitle => 'አዲስ አባል';
+
+  @override
+  String newMemberBody(String branch) {
+    return 'ዋና ቅርንጫፋቸው $branch ይሆናል። ዕቅድና ክፍያ ቀጥሎ ይመጣሉ።';
+  }
+
+  @override
+  String get newMemberWho => 'ማን ናቸው';
+
+  @override
+  String get newMemberWhoHelp => 'ስማቸውና ስልካቸው ያስፈልጋል፤ በዚህ ስልክ ወደ መተግበሪያው ይገባሉ።';
+
+  @override
+  String get newMemberName => 'ሙሉ ስም';
+
+  @override
+  String get newMemberPhone => 'ስልክ';
+
+  @override
+  String get newMemberPhoneHelp => 'እንደ 0911 234 567';
+
+  @override
+  String get newMemberFindThem => 'በምትኩ ፈልጋቸው';
+
+  @override
+  String get newMemberFemale => 'ሴት';
+
+  @override
+  String get newMemberMale => 'ወንድ';
+
+  @override
+  String get newMemberBirthday => 'የትውልድ ቀን';
+
+  @override
+  String get newMemberOptional => 'አማራጭ';
+
+  @override
+  String get newMemberMessages => 'መልዕክቶች';
+
+  @override
+  String get newMemberMessagesHelp => 'የኤስኤምኤስና የመተግበሪያ ማሳወቂያዎቻቸው ቋንቋ።';
+
+  @override
+  String get newMemberEmail => 'ኢሜይል';
+
+  @override
+  String get newMemberEmergency => 'የአደጋ ጊዜ ተጠሪ';
+
+  @override
+  String get newMemberEmergencyHelp => 'አማራጭ፤ ሁለቱንም ይሙሉ ወይም አንዱንም አይሙሉ።';
+
+  @override
+  String get newMemberContactName => 'የተጠሪው ስም';
+
+  @override
+  String get newMemberContactPhone => 'የተጠሪው ስልክ';
+
+  @override
+  String get newMemberAdd => 'አባል ጨምር';
+
+  @override
+  String newMemberAdded(String name) {
+    return '$name አሁን አባል ናቸው።';
+  }
+
+  @override
+  String get welcomeBody => 'ቀጥሎ፦ ዴስኩ እንዲያውቃቸው ፎቶአቸው፣ እና ለመግባት ዕቅድ።';
+
+  @override
+  String get welcomePhotoHelp => 'ሲገቡ ይታያል።';
+
+  @override
+  String get welcomePhotoTaken => 'ፎቶ ተነስቷል';
+
+  @override
+  String get welcomePlanHelp => 'ከዚያ ክፍያውን ይቀበሉ።';
+
+  @override
+  String get welcomeLater => 'በኋላ';
 }
