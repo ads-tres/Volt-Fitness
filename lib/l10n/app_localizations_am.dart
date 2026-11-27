@@ -1570,4 +1570,19 @@ class AppLocalizationsAm extends AppLocalizations {
   String newMemberAdded(String name) {
     return '$name አሁን አባል ናቸው።';
   }
+
+  @override
+  String get welcomeBody => 'ቀጥሎ፦ ዴስኩ እንዲያውቃቸው ፎቶአቸው፣ እና ለመግባት ዕቅድ።';
+
+  @override
+  String get welcomePhotoHelp => 'ሲገቡ ይታያል።';
+
+  @override
+  String get welcomePhotoTaken => 'ፎቶ ተነስቷል';
+
+  @override
+  String get welcomePlanHelp => 'ከዚያ ክፍያውን ይቀበሉ።';
+
+  @override
+  String get welcomeLater => 'በኋላ';
 }

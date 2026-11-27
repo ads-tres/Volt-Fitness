@@ -1602,4 +1602,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String newMemberAdded(String name) {
     return '$name is a member now.';
   }
+
+  @override
+  String get welcomeBody =>
+      'Next: their photo, so the desk knows them, and a plan to get in.';
+
+  @override
+  String get welcomePhotoHelp => 'Shown when they check in.';
+
+  @override
+  String get welcomePhotoTaken => 'Photo taken';
+
+  @override
+  String get welcomePlanHelp => 'Then take the payment.';
+
+  @override
+  String get welcomeLater => 'Later';
 }

@@ -442,5 +442,10 @@
   "newMemberContactName": "የተጠሪው ስም",
   "newMemberContactPhone": "የተጠሪው ስልክ",
   "newMemberAdd": "አባል ጨምር",
-  "newMemberAdded": "{name} አሁን አባል ናቸው።"
+  "newMemberAdded": "{name} አሁን አባል ናቸው።",
+  "welcomeBody": "ቀጥሎ፦ ዴስኩ እንዲያውቃቸው ፎቶአቸው፣ እና ለመግባት ዕቅድ።",
+  "welcomePhotoHelp": "ሲገቡ ይታያል።",
+  "welcomePhotoTaken": "ፎቶ ተነስቷል",
+  "welcomePlanHelp": "ከዚያ ክፍያውን ይቀበሉ።",
+  "welcomeLater": "በኋላ"
 }

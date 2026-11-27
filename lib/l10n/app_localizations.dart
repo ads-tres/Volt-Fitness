@@ -2671,6 +2671,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} is a member now.'**
   String newMemberAdded(String name);
+
+  /// No description provided for @welcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: their photo, so the desk knows them, and a plan to get in.'**
+  String get welcomeBody;
+
+  /// No description provided for @welcomePhotoHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown when they check in.'**
+  String get welcomePhotoHelp;
+
+  /// No description provided for @welcomePhotoTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo taken'**
+  String get welcomePhotoTaken;
+
+  /// No description provided for @welcomePlanHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Then take the payment.'**
+  String get welcomePlanHelp;
+
+  /// No description provided for @welcomeLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get welcomeLater;
 }
 
 class _AppLocalizationsDelegate

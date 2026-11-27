@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gym_mobile/core/photos/photo_picker.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../support/desk_driver.dart';
+import '../support/fake_photo_picker.dart';
 
 void main() {
   Future<void> search(WidgetTester tester, String text) async {
@@ -43,6 +45,8 @@ void main() {
     await tapVisible(tester, find.widgetWithText(FilledButton, 'Add member'));
 
     expect(find.text('Selam Tesfaye is a member now.'), findsOneWidget);
+    await tester.tap(find.text('Later'));
+    await tester.pumpAndSettle();
     expect(find.widgetWithText(ListTile, 'Selam Tesfaye'), findsOneWidget);
   });
 
@@ -76,5 +80,52 @@ void main() {
     expect(find.text('No member of this gym matches.'), findsOneWidget);
     expect(find.byKey(const Key('add-member')), findsNothing);
     expect(find.text('Not a member yet? Add them.'), findsNothing);
+  });
+
+  testWidgets('a walk-in joins in one go: photo, plan, payment, then let in', (tester) async {
+    await startDesk(tester, extraOverrides: [photoPickerProvider.overrideWithValue(FakePicker())]);
+    await openScanner(tester);
+    await search(tester, '0944556677');
+    await tester.tap(find.byKey(const Key('add-member')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('new-member-name')), 'Selam Tesfaye');
+    await tapVisible(tester, find.widgetWithText(FilledButton, 'Add member'));
+
+    await tester.tap(find.text('Take a photo'));
+    await tester.pumpAndSettle();
+    expect(find.text('Photo taken'), findsOneWidget);
+    await tester.tap(find.descendant(of: find.byType(BottomSheet), matching: find.text('Sell a plan')));
+    await tester.pumpAndSettle();
+    expect(find.text('A plan for Selam Tesfaye'), findsOneWidget);
+    await tapVisible(tester, find.text('Sell plan'));
+    await tapVisible(tester, find.text('Record payment'));
+    expect(find.text('Receipt R-000001 · 1,500.00 ETB'), findsOneWidget);
+
+    final selam = find.ancestor(of: find.text('Selam Tesfaye'), matching: find.byType(ListTile));
+    expect(find.descendant(of: selam, matching: find.byKey(const Key('member-photo'))), findsOneWidget);
+    await tester.tap(find.descendant(of: selam, matching: find.text('Check in')));
+    await tester.pumpAndSettle();
+    expect(find.text('Let in'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('check-in-result')));
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('a member added without a plan is turned away, with Renew', (tester) async {
+    await startDesk(tester);
+    await openScanner(tester);
+    await search(tester, '0944556677');
+    await tester.tap(find.byKey(const Key('add-member')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('new-member-name')), 'Selam Tesfaye');
+    await tapVisible(tester, find.widgetWithText(FilledButton, 'Add member'));
+    await tester.tap(find.text('Later'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Check in'));
+    await tester.pumpAndSettle();
+    expect(find.text('Turned away'), findsOneWidget);
+    expect(find.byKey(const Key('result-renew')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('check-in-result')));
+    await tester.pumpAndSettle();
   });
 }

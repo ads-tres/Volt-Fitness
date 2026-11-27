@@ -559,5 +559,10 @@
   "newMemberContactPhone": "Contact's phone",
   "newMemberAdd": "Add member",
   "newMemberAdded": "{name} is a member now.",
-  "@newMemberAdded": {"placeholders": {"name": {"type": "String"}}}
+  "@newMemberAdded": {"placeholders": {"name": {"type": "String"}}},
+  "welcomeBody": "Next: their photo, so the desk knows them, and a plan to get in.",
+  "welcomePhotoHelp": "Shown when they check in.",
+  "welcomePhotoTaken": "Photo taken",
+  "welcomePlanHelp": "Then take the payment.",
+  "welcomeLater": "Later"
 }
