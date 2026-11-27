@@ -16,6 +16,7 @@ final class DeskCheckIn {
     this.endsOn,
     this.balanceDue,
     this.branchName,
+    this.memberPhotoUrl,
     this.offline = false,
     this.serverDisagrees = false,
     this.serverReasonCode,
@@ -31,6 +32,10 @@ final class DeskCheckIn {
   final DateTime checkedInAt;
   final String? memberName;
   final String? memberPhone;
+
+  /// The member's photo, for the desk to see it's them; a link that works
+  /// for 10 minutes.
+  final String? memberPhotoUrl;
   final String? planName;
   final LocalDate? endsOn;
 
@@ -64,6 +69,7 @@ DeskCheckIn deskCheckInFromJson(Map<String, dynamic> json) {
     serverReasonCode: json.optional<String>('server_reason_code'),
     memberName: member?.optional<String>('full_name'),
     memberPhone: member?.optional<String>('phone'),
+    memberPhotoUrl: member?.optional<String>('photo_url'),
     planName: membership?.optional<Map<String, dynamic>>('plan')?.optional<String>('name'),
     endsOn: switch (membership?.optional<String>('ends_on')) {
       final iso? => LocalDate.parse(iso),

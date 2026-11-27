@@ -7,7 +7,15 @@ import '../../../core/desk_session.dart';
 
 /// A member found at the desk, with their membership at a glance.
 final class DeskMember {
-  const DeskMember({required this.id, required this.name, required this.phone, this.planName, this.status, this.balanceDue});
+  const DeskMember({
+    required this.id,
+    required this.name,
+    required this.phone,
+    this.planName,
+    this.status,
+    this.balanceDue,
+    this.photoUrl,
+  });
 
   final int id;
   final String name;
@@ -17,6 +25,9 @@ final class DeskMember {
   /// `upcoming`, `active`, `frozen`, `expired` or `cancelled`.
   final String? status;
   final Money? balanceDue;
+
+  /// The member's photo, a link that works for 10 minutes; never stored.
+  final String? photoUrl;
 }
 
 /// A member from the staff API (`GET /organizations/{gym}/members`).
@@ -28,6 +39,7 @@ DeskMember deskMemberFromJson(Map<String, dynamic> json) {
     phone: json.field<String>('phone'),
     planName: membership?.optional<Map<String, dynamic>>('plan')?.optional<String>('name'),
     status: membership?.optional<String>('status'),
+    photoUrl: json.optional<String>('photo_url'),
     balanceDue: switch (json.optional<Map<String, dynamic>>('balance_due')) {
       final money? => Money.fromJson(money),
       null => null,

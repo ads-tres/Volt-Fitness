@@ -78,6 +78,7 @@ class _ScanPageState extends ConsumerState<ScanPage> {
                 reasonCode: decision.reasonCode,
                 checkedInAt: now,
                 memberName: decision.credential?.memberName,
+                memberPhotoUrl: decision.credential?.photoUrl,
                 planName: decision.day?.planName,
                 offline: true,
               ),
