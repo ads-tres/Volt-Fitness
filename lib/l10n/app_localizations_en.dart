@@ -1301,4 +1301,94 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskPhotoRemoved(String name) {
     return '$name\'s photo is removed.';
   }
+
+  @override
+  String get deskTakePayment => 'Take payment';
+
+  @override
+  String payTitle(String name) {
+    return 'Payment from $name';
+  }
+
+  @override
+  String get payBody =>
+      'Record money the member paid at the desk, or text them a link to pay online.';
+
+  @override
+  String get payWhichMembership => 'Which membership';
+
+  @override
+  String get payAmountLabel => 'Amount';
+
+  @override
+  String payAmountHelp(String due) {
+    return 'Up to $due is due';
+  }
+
+  @override
+  String get payAmountInvalid => 'Enter an amount like 500 or 500.50.';
+
+  @override
+  String get payMethod => 'How they paid';
+
+  @override
+  String get payCash => 'Cash';
+
+  @override
+  String get payTelebirr => 'telebirr';
+
+  @override
+  String get payCbeBirr => 'CBE Birr';
+
+  @override
+  String get payBankTransfer => 'Bank transfer';
+
+  @override
+  String get payReference => 'Transaction number';
+
+  @override
+  String get payReferenceHelp => 'From the payment confirmation';
+
+  @override
+  String get payPaidOn => 'Paid on';
+
+  @override
+  String get payToday => 'Today';
+
+  @override
+  String paySummary(String amount, String method, String name, String left) {
+    return '$amount by $method from $name · $left left';
+  }
+
+  @override
+  String paySummaryPaidOff(String amount, String method, String name) {
+    return '$amount by $method from $name · paid in full';
+  }
+
+  @override
+  String get payRecord => 'Record payment';
+
+  @override
+  String payRecorded(String receipt, String amount) {
+    return 'Receipt $receipt · $amount';
+  }
+
+  @override
+  String get payTextLink => 'Text a pay link instead';
+
+  @override
+  String get payTextAgain => 'Text the pay link again';
+
+  @override
+  String get payLinkOpen => 'A pay link for this membership is already open.';
+
+  @override
+  String payLinkTexted(String phone) {
+    return 'Pay link texted to $phone';
+  }
+
+  @override
+  String payNothingDue(String name) {
+    return 'Nothing is due for $name.';
+  }
 }

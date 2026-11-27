@@ -9,6 +9,7 @@ import '../../../../core/localization/l10n.dart';
 import '../../../../core/time/clock.dart' show clockProvider;
 import '../../../../core/utils/uuid.dart';
 import '../../offline/data/door_list_controller.dart';
+import '../../payments/presentation/take_payment_sheet.dart';
 import '../data/check_in_repository.dart';
 import '../data/scan_outbox.dart';
 import '../domain/desk_check_in.dart';
@@ -93,6 +94,18 @@ class _ScanPageState extends ConsumerState<ScanPage> {
     }
   }
 
+  /// Closes the result and takes what the member owes.
+  void _takePayment(DeskCheckIn checkIn) {
+    _done();
+    unawaited(
+      showTakePaymentSheet(
+        context,
+        (id: checkIn.memberId!, name: checkIn.memberName ?? '', phone: checkIn.memberPhone ?? ''),
+        onPaid: () {},
+      ),
+    );
+  }
+
   void _done() {
     _hideResult?.cancel();
     if (mounted) {
@@ -124,7 +137,7 @@ class _ScanPageState extends ConsumerState<ScanPage> {
             ),
           ),
           if (_sending) const ColoredBox(color: Colors.black26, child: Center(child: CircularProgressIndicator())),
-          if (result != null) CheckInResultView(checkIn: result, onDone: _done),
+          if (result != null) CheckInResultView(checkIn: result, onDone: _done, onTakePayment: () => _takePayment(result)),
         ],
       ),
     );

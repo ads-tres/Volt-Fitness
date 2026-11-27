@@ -11,6 +11,7 @@ import '../../../../core/design/widgets/member_photo.dart';
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/localization/locale_controller.dart';
 import '../../../../core/utils/ethiopian_phone.dart';
+import '../../payments/presentation/take_payment_sheet.dart';
 import '../../scan/data/check_in_repository.dart';
 import '../../scan/data/scan_outbox.dart';
 import '../../scan/presentation/check_in_result.dart';
@@ -60,11 +61,26 @@ class _DeskPageState extends ConsumerState<DeskPage> {
       final hide = Timer(ScanPage.resultShownFor, () {
         if (navigator.canPop()) navigator.pop();
       });
+      var takePayment = false;
       await showGeneralDialog<void>(
         context: context,
-        pageBuilder: (context, _, _) => CheckInResultView(checkIn: checkIn, onDone: () => Navigator.of(context).pop()),
+        pageBuilder: (context, _, _) => CheckInResultView(
+          checkIn: checkIn,
+          onDone: () => Navigator.of(context).pop(),
+          onTakePayment: () {
+            takePayment = true;
+            Navigator.of(context).pop();
+          },
+        ),
       );
       hide.cancel();
+      if (takePayment && mounted) {
+        await showTakePaymentSheet(
+          context,
+          (id: member.id, name: member.name, phone: member.phone),
+          onPaid: () => ref.invalidate(memberSearchProvider(_typed)),
+        );
+      }
     } on Failure catch (failure) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failureMessage(context.l10n, failure))));
@@ -112,12 +128,34 @@ class _DeskPageState extends ConsumerState<DeskPage> {
                       ),
                     ),
                     title: Text(member.name),
-                    subtitle: Text(
-                      [
-                        EthiopianPhone.format(member.phone),
-                        ?member.planName,
-                        if (member.balanceDue case final owed? when owed.amountMinor > 0) l10n.deskOwes(owed.format(languageCode)),
-                      ].join(' · '),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          [
+                            EthiopianPhone.format(member.phone),
+                            ?member.planName,
+                            if (member.balanceDue case final owed? when owed.amountMinor > 0)
+                              l10n.deskOwes(owed.format(languageCode)),
+                          ].join(' · '),
+                        ),
+                        if (member.balanceDue case final owed? when owed.amountMinor > 0)
+                          TextButton.icon(
+                            key: Key('take-payment-${member.id}'),
+                            style: TextButton.styleFrom(
+                              minimumSize: const Size(0, 36),
+                              padding: EdgeInsets.zero,
+                              alignment: Alignment.centerLeft,
+                            ),
+                            onPressed: () => showTakePaymentSheet(
+                              context,
+                              (id: member.id, name: member.name, phone: member.phone),
+                              onPaid: () => ref.invalidate(memberSearchProvider(_typed)),
+                            ),
+                            icon: const Icon(Icons.payments_rounded, size: 18),
+                            label: Text(l10n.deskTakePayment),
+                          ),
+                      ],
                     ),
                     trailing: _checkingIn == member.id
                         ? const SizedBox.square(dimension: 22, child: CircularProgressIndicator(strokeWidth: 2.4))

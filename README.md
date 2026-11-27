@@ -243,6 +243,18 @@ Both come from `GET /organizations/{gym}/door-list/public-key` once the
 server has `DOOR_LIST_SIGNING_KEY`. Without them (dev builds) the app
 fetches the key once and keeps it.
 
+**Taking payments.** A member who owes shows **Take payment** in Desk
+search and on their check-in result. The sheet finds the membership with
+money due (`GET members/{id}/memberships`, choosing when there are
+several), fills in the amount due and records it as cash, telebirr, CBE Birr
+or a bank transfer (`POST memberships/{id}/payments`, at the desk's branch;
+transfers need the transaction number). Owners, managers and accountants
+can also date it earlier. The receipt number shows once recorded. **Text a
+pay link instead** opens a Chapa link for the amount and texts it to the
+member (`payment-links`, then `sms`), or texts the open one again. The
+API's refusals (more than is due, no Chapa account, texted a moment ago)
+show where they belong.
+
 **Members' photos.** The scan and desk results show the member's photo
 large, so the desk can see the person is the member; desk search and Today
 show it small (`photo_url`, the gym platform's ADR 0036). At the desk,
@@ -290,7 +302,10 @@ in the fake; the owner sees money, the two-gyms receptionist doesn't.
 
 At the desk, search finds Abebe (owes 1,000 ETB), Tigist (turned away, plan
 ended) and Hana. Nobody has a photo until one is taken; the fake keeps it
-until the app restarts and refuses one over 5 MB. Today starts with two earlier check-ins at Main Branch and
+until the app restarts and refuses one over 5 MB. Abebe's 1,000 ETB can be
+paid in parts, with receipts from R-000001. Demo Gym has Chapa connected, so
+pay links work and a second text within 5 minutes is refused; Bole Fitness
+doesn't. Today starts with two earlier check-ins at Main Branch and
 lists every one made since; the fake forgets them when the app restarts.
 
 To scan for real, run a staging build of each app and point the desk at the

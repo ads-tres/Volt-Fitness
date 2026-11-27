@@ -1275,4 +1275,94 @@ class AppLocalizationsAm extends AppLocalizations {
   String deskPhotoRemoved(String name) {
     return 'የ$name ፎቶ ተወግዷል።';
   }
+
+  @override
+  String get deskTakePayment => 'ክፍያ ተቀበል';
+
+  @override
+  String payTitle(String name) {
+    return 'ከ$name ክፍያ';
+  }
+
+  @override
+  String get payBody =>
+      'አባሉ በዴስኩ የከፈለውን ገንዘብ ይመዝግቡ፣ ወይም በመስመር ላይ እንዲከፍሉ ሊንክ በኤስኤምኤስ ይላኩ።';
+
+  @override
+  String get payWhichMembership => 'የትኛው አባልነት';
+
+  @override
+  String get payAmountLabel => 'መጠን';
+
+  @override
+  String payAmountHelp(String due) {
+    return 'እስከ $due ይቀራል';
+  }
+
+  @override
+  String get payAmountInvalid => 'እንደ 500 ወይም 500.50 ያለ መጠን ያስገቡ።';
+
+  @override
+  String get payMethod => 'እንዴት ከፈሉ';
+
+  @override
+  String get payCash => 'ጥሬ ገንዘብ';
+
+  @override
+  String get payTelebirr => 'ቴሌብር';
+
+  @override
+  String get payCbeBirr => 'ሲቢኢ ብር';
+
+  @override
+  String get payBankTransfer => 'የባንክ ዝውውር';
+
+  @override
+  String get payReference => 'የግብይት ቁጥር';
+
+  @override
+  String get payReferenceHelp => 'ከክፍያ ማረጋገጫው';
+
+  @override
+  String get payPaidOn => 'የተከፈለበት ቀን';
+
+  @override
+  String get payToday => 'ዛሬ';
+
+  @override
+  String paySummary(String amount, String method, String name, String left) {
+    return '$amount በ$method ከ$name · $left ይቀራል';
+  }
+
+  @override
+  String paySummaryPaidOff(String amount, String method, String name) {
+    return '$amount በ$method ከ$name · ሙሉ በሙሉ ተከፍሏል';
+  }
+
+  @override
+  String get payRecord => 'ክፍያውን መዝግብ';
+
+  @override
+  String payRecorded(String receipt, String amount) {
+    return 'ደረሰኝ $receipt · $amount';
+  }
+
+  @override
+  String get payTextLink => 'በምትኩ የክፍያ ሊንክ ላክ';
+
+  @override
+  String get payTextAgain => 'የክፍያ ሊንኩን እንደገና ላክ';
+
+  @override
+  String get payLinkOpen => 'ለዚህ አባልነት የተከፈተ የክፍያ ሊንክ አለ።';
+
+  @override
+  String payLinkTexted(String phone) {
+    return 'የክፍያ ሊንክ ወደ $phone ተልኳል';
+  }
+
+  @override
+  String payNothingDue(String name) {
+    return '$name የሚከፍሉት ነገር የለም።';
+  }
 }
