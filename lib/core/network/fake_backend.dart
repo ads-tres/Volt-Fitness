@@ -59,6 +59,9 @@ final class FakeBackend implements HttpClientAdapter {
 
   /// `phone|gym` to what was bought there in this session.
   final _heldPlans = <String, _HeldPlan>{};
+
+  /// Each number's photo, as a data link the app can show offline.
+  final _photos = <String, String>{};
   var _nextFreezeId = 100;
 
   /// `phone|gym` to what is owed on the membership there, in minor units.
@@ -84,6 +87,12 @@ final class FakeBackend implements HttpClientAdapter {
   ) async {
     await Future<void>.delayed(latency);
     final request = _Request(options);
+    // The picture has to be read first, so its upload is answered here.
+    if (options.method == 'PUT' && request.path == '/me/photo') {
+      final phone = _phoneOf(request);
+      if (phone == null) return _error(401, 'UNAUTHENTICATED', 'Unauthenticated.', request);
+      return _savePhoto(request, options, phone);
+    }
     return switch ((options.method, request.path)) {
       ('GET', '/app-config') => _json(200, {
         'data': {
@@ -177,6 +186,10 @@ final class FakeBackend implements HttpClientAdapter {
         (phone, gym) => _updatePreferences(request, phone, gym),
       ),
       ('PUT', '/me/push-token') => _signedIn(request, (phone) => _savePushToken(request, phone)),
+      ('DELETE', '/me/photo') => _signedIn(request, (phone) {
+        _photos.remove(phone);
+        return _noContent();
+      }),
       ('PUT', '/me/language') => _signedIn(request, (_) {
         final language = request.body['language'];
         if (language != 'am' && language != 'en') {
@@ -238,7 +251,7 @@ final class FakeBackend implements HttpClientAdapter {
       {
         'slug': gym['id'],
         'name': gym['name'],
-        'member': {'id': 7, 'full_name': 'Abebe Kebede', 'home_branch': null},
+        'member': {'id': 7, 'full_name': 'Abebe Kebede', 'photo_url': _photos[phone], 'home_branch': null},
         'membership': null,
         'balance_due': _money(0),
       },
@@ -1063,6 +1076,34 @@ final class FakeBackend implements HttpClientAdapter {
   }
 
   // Plumbing
+
+  /// The signed-in number, from the fake's token, or null.
+  String? _phoneOf(_Request request) {
+    final authorization = request.headers[ApiHeaders.authorization];
+    final token = authorization is String && authorization.startsWith('Bearer ') ? authorization.substring(7) : null;
+    return token == null || !token.startsWith(_tokenPrefix) ? null : token.substring(_tokenPrefix.length);
+  }
+
+  /// Keeps the uploaded picture as a data link, with the API's limits: an
+  /// image, up to 5 MB.
+  Future<ResponseBody> _savePhoto(_Request request, RequestOptions options, String phone) async {
+    final form = options.data;
+    final file = form is FormData ? form.files.where((entry) => entry.key == 'photo').firstOrNull?.value : null;
+    if (file == null) {
+      return _error(422, 'VALIDATION_FAILED', 'The photo field is required.', request, errors: {
+        'photo': ['The photo field is required.'],
+      });
+    }
+    // Dio has already read the original for the request.
+    final bytes = <int>[for (final chunk in await file.clone().finalize().toList()) ...chunk];
+    if (bytes.length > 5 * 1024 * 1024) {
+      return _error(422, 'VALIDATION_FAILED', 'The photo may not be bigger than 5 MB.', request, errors: {
+        'photo': ['The photo may not be bigger than 5 MB.'],
+      });
+    }
+    _photos[phone] = 'data:image/jpeg;base64,${base64.encode(bytes)}';
+    return _noContent();
+  }
 
   ResponseBody _signedIn(_Request request, ResponseBody Function(String phone) respond) {
     final authorization = request.headers[ApiHeaders.authorization];

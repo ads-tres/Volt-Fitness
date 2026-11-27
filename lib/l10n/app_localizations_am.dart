@@ -1236,4 +1236,28 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get branchEveryYear => 'በየዓመቱ';
+
+  @override
+  String get photoChange => 'ፎቶዎን ይቀይሩ';
+
+  @override
+  String get photoTitle => 'የእርስዎ ፎቶ';
+
+  @override
+  String get photoBody => 'ሲገቡ ዴስኩ ያየዋል፤ ቁጥርዎ በተመዘገበባቸው ጂሞች ሁሉ።';
+
+  @override
+  String get photoTake => 'ፎቶ አንሳ';
+
+  @override
+  String get photoChoose => 'ከጋለሪ ምረጥ';
+
+  @override
+  String get photoRemove => 'ፎቶውን አስወግድ';
+
+  @override
+  String get photoSaved => 'ፎቶዎ ተቀምጧል።';
+
+  @override
+  String get photoRemoved => 'ፎቶዎ ተወግዷል።';
 }

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_mobile/app/app.dart';
 import 'package:gym_mobile/app/bootstrap.dart';
@@ -14,6 +15,7 @@ Future<void> startApp(
   bool onboardingDone = true,
   bool pushAllowed = true,
   HttpClientAdapter? backend,
+  List<Override> extraOverrides = const [],
 }) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 3;
@@ -21,12 +23,15 @@ Future<void> startApp(
   await tester.pumpWidget(
     ProviderScope(
       retry: noAutomaticRetry,
-      overrides: await testOverrides(
-        fakeBackend: true,
-        fakeAdapter: backend,
-        onboardingDone: onboardingDone,
-        pushAllowed: pushAllowed,
-      ),
+      overrides: [
+        ...await testOverrides(
+          fakeBackend: true,
+          fakeAdapter: backend,
+          onboardingDone: onboardingDone,
+          pushAllowed: pushAllowed,
+        ),
+        ...extraOverrides,
+      ],
       child: const VoltApp(),
     ),
   );

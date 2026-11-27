@@ -10,11 +10,13 @@ import '../../../core/design/brand.dart';
 import '../../../core/design/tokens.dart';
 import '../../../core/design/widgets/controls.dart';
 import '../../../core/design/widgets/feedback.dart';
+import '../../../core/design/widgets/member_photo.dart';
 import '../../../core/design/widgets/surfaces.dart';
 import '../../../core/errors/failure.dart';
 import '../../../core/localization/l10n.dart';
 import '../../../core/localization/language_menu.dart';
 import '../../../core/time/clock.dart';
+import '../../profile/data/my_photo.dart';
 import '../data/access_card_controller.dart';
 import '../../../core/access/gq1.dart';
 import 'qr_code_view.dart';
@@ -160,7 +162,13 @@ class _QrCard extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  GymAvatar(brand: brand, size: 42, round: true),
+                  // The member's own photo, so the desk sees it's them; the
+                  // gym's logo until they add one.
+                  MemberPhoto(
+                    url: ref.watch(myPhotoUrlProvider).value,
+                    size: 42,
+                    fallback: GymAvatar(brand: brand, size: 42, round: true),
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(

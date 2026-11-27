@@ -357,5 +357,13 @@
   "branchOtherHoursToday": "ዛሬ ሌላ ሰዓት፦ {hours} · {reason}",
   "branchHoursNextDay": "{hours} (በማግስቱ)",
   "branchClosuresComing": "የሚዘጋባቸው ቀናት እና ሌላ ሰዓት",
-  "branchEveryYear": "በየዓመቱ"
+  "branchEveryYear": "በየዓመቱ",
+  "photoChange": "ፎቶዎን ይቀይሩ",
+  "photoTitle": "የእርስዎ ፎቶ",
+  "photoBody": "ሲገቡ ዴስኩ ያየዋል፤ ቁጥርዎ በተመዘገበባቸው ጂሞች ሁሉ።",
+  "photoTake": "ፎቶ አንሳ",
+  "photoChoose": "ከጋለሪ ምረጥ",
+  "photoRemove": "ፎቶውን አስወግድ",
+  "photoSaved": "ፎቶዎ ተቀምጧል።",
+  "photoRemoved": "ፎቶዎ ተወግዷል።"
 }

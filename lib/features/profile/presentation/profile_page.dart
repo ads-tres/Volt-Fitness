@@ -9,6 +9,7 @@ import '../../../core/auth/session_controller.dart';
 import '../../../core/design/brand.dart';
 import '../../../core/design/tokens.dart';
 import '../../../core/design/widgets/controls.dart';
+import '../../../core/design/widgets/member_photo.dart';
 import '../../../core/design/widgets/surfaces.dart';
 import '../../../core/device/app_info.dart';
 import '../../../core/localization/l10n.dart';
@@ -16,7 +17,9 @@ import '../../../core/localization/language_menu.dart';
 import '../../../core/utils/ethiopian_phone.dart';
 import '../../../core/time/date_text.dart';
 import '../../auth/presentation/sign_out.dart';
+import '../data/my_photo.dart';
 import 'calendar_sheet.dart';
+import 'my_photo_sheet.dart';
 
 /// The member, their gym, their settings and sign-out.
 class ProfilePage extends ConsumerWidget {
@@ -50,17 +53,47 @@ class ProfilePage extends ConsumerWidget {
             AppCard(
               child: Row(
                 children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [light, deep]),
+                  Semantics(
+                    button: true,
+                    label: l10n.photoChange,
+                    child: InkWell(
+                      key: const Key('my-photo'),
+                      customBorder: const CircleBorder(),
+                      onTap: () => showMyPhotoSheet(context, hasPhoto: ref.read(myPhotoUrlProvider).value != null),
+                      child: Stack(
+                        children: [
+                          MemberPhoto(
+                            url: ref.watch(myPhotoUrlProvider).value,
+                            size: 56,
+                            fallback: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [light, deep],
+                                ),
+                              ),
+                              alignment: Alignment.center,
+                              child: initials.isEmpty
+                                  ? Icon(Icons.person_rounded, color: brand.onPrimary)
+                                  : Text(initials, style: textTheme.titleMedium?.copyWith(color: brand.onPrimary)),
+                            ),
+                          ),
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: DecoratedBox(
+                              decoration: const BoxDecoration(color: AppColors.surface, shape: BoxShape.circle),
+                              child: Padding(
+                                padding: const EdgeInsets.all(3),
+                                child: Icon(Icons.photo_camera_rounded, size: 14, color: brand.primary),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    alignment: Alignment.center,
-                    child: initials.isEmpty
-                        ? Icon(Icons.person_rounded, color: brand.onPrimary)
-                        : Text(initials, style: textTheme.titleMedium?.copyWith(color: brand.onPrimary)),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
