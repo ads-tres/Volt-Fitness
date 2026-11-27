@@ -1391,4 +1391,140 @@ class AppLocalizationsEn extends AppLocalizations {
   String payNothingDue(String name) {
     return 'Nothing is due for $name.';
   }
+
+  @override
+  String get deskSellPlan => 'Sell a plan';
+
+  @override
+  String get deskRenew => 'Renew';
+
+  @override
+  String sellTitle(String name) {
+    return 'A plan for $name';
+  }
+
+  @override
+  String get sellBody =>
+      'Renew the member or sell them another plan. Payment comes next.';
+
+  @override
+  String get sellPlan => 'Plan';
+
+  @override
+  String get sellCurrentPlan => 'Current plan';
+
+  @override
+  String get sellNoPlans =>
+      'This gym has no plans on sale. Add one in the staff panel.';
+
+  @override
+  String sellLengthDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sellLengthWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weeks',
+      one: '1 week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sellLengthMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count months',
+      one: '1 month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sellLengthYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count years',
+      one: '1 year',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sellVisits(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count visits',
+      one: '1 visit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sellStarts => 'Starts';
+
+  @override
+  String get sellFirstFreeDay => 'The first free day';
+
+  @override
+  String get sellStartsHelp =>
+      'Today, or the day after their current plan ends.';
+
+  @override
+  String get sellPrice => 'Price';
+
+  @override
+  String get sellPromoCode => 'Promo code';
+
+  @override
+  String get sellPromoCodeHint => 'If they have one';
+
+  @override
+  String get sellDiscount => 'Discount';
+
+  @override
+  String get sellDiscountHint => '500 or 10%';
+
+  @override
+  String get sellDiscountHelp =>
+      'Instead of a promo code; owners and managers only.';
+
+  @override
+  String get sellDiscountReason => 'Why the discount';
+
+  @override
+  String sellSummary(String plan, String name, String price) {
+    return '$plan for $name · $price, or less with their discount group or promo code';
+  }
+
+  @override
+  String sellSummaryDiscount(String plan, String name, String price) {
+    return '$plan for $name · $price, less your discount';
+  }
+
+  @override
+  String get sellConfirm => 'Sell plan';
+
+  @override
+  String sellDone(
+    String plan,
+    String name,
+    String from,
+    String to,
+    String price,
+  ) {
+    return '$plan sold to $name · $from – $to · $price';
+  }
 }

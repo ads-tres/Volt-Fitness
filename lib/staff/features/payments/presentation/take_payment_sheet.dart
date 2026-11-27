@@ -25,7 +25,15 @@ typedef PayingMember = ({int id, String name, String phone});
 /// Takes money from [member] at the desk: cash or a transfer recorded on
 /// the membership with money due, or a pay-online link texted to them.
 /// [onPaid] runs once the API has taken it, so the caller can refresh.
-Future<void> showTakePaymentSheet(BuildContext context, PayingMember member, {required VoidCallback onPaid}) {
+/// [membershipId] is chosen first when it has money due, as after a sale,
+/// and [note] says what just happened.
+Future<void> showTakePaymentSheet(
+  BuildContext context,
+  PayingMember member, {
+  required VoidCallback onPaid,
+  int? membershipId,
+  String? note,
+}) {
   ScaffoldMessenger.of(context).removeCurrentSnackBar();
   return showModalBottomSheet<void>(
     context: context,
@@ -33,15 +41,17 @@ Future<void> showTakePaymentSheet(BuildContext context, PayingMember member, {re
     showDragHandle: true,
     backgroundColor: AppColors.surface,
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.card))),
-    builder: (context) => TakePaymentSheet(member: member, onPaid: onPaid),
+    builder: (context) => TakePaymentSheet(member: member, onPaid: onPaid, membershipId: membershipId, note: note),
   );
 }
 
 class TakePaymentSheet extends ConsumerStatefulWidget {
-  const TakePaymentSheet({super.key, required this.member, required this.onPaid});
+  const TakePaymentSheet({super.key, required this.member, required this.onPaid, this.membershipId, this.note});
 
   final PayingMember member;
   final VoidCallback onPaid;
+  final int? membershipId;
+  final String? note;
 
   @override
   ConsumerState<TakePaymentSheet> createState() => _TakePaymentSheetState();
@@ -82,7 +92,9 @@ class _TakePaymentSheetState extends ConsumerState<TakePaymentSheet> {
       if (!mounted) return;
       setState(() {
         _owing = owing;
-        if (owing.isNotEmpty) _choose(owing.first);
+        if (owing.isNotEmpty) {
+          _choose(owing.where((each) => each.id == widget.membershipId).firstOrNull ?? owing.first);
+        }
       });
     } on Failure catch (failure) {
       if (mounted) setState(() => _loadFailure = failure);
@@ -370,6 +382,16 @@ class _TakePaymentSheetState extends ConsumerState<TakePaymentSheet> {
               ),
               const SizedBox(height: 6),
               Text(l10n.payBody, style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
+              if (widget.note case final note?) ...[
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const Icon(Icons.check_circle_rounded, size: 20, color: Color(0xFF12805C)),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(note, style: textTheme.titleSmall)),
+                  ],
+                ),
+              ],
               const SizedBox(height: 20),
               ...body,
             ],
