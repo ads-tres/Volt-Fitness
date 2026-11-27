@@ -1215,4 +1215,25 @@ class AppLocalizationsAm extends AppLocalizations {
   String deskServerDisagrees(String reason) {
     return 'ሰርቨር፦ $reason፤ በፓነሉ ይመልከቱ';
   }
+
+  @override
+  String branchClosedToday(String reason) {
+    return 'ዛሬ ዝግ ነው፦ $reason';
+  }
+
+  @override
+  String branchOtherHoursToday(String hours, String reason) {
+    return 'ዛሬ ሌላ ሰዓት፦ $hours · $reason';
+  }
+
+  @override
+  String branchHoursNextDay(String hours) {
+    return '$hours (በማግስቱ)';
+  }
+
+  @override
+  String get branchClosuresComing => 'የሚዘጋባቸው ቀናት እና ሌላ ሰዓት';
+
+  @override
+  String get branchEveryYear => 'በየዓመቱ';
 }

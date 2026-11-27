@@ -7,6 +7,8 @@ import '../domain/app_notification.dart';
 /// data. Null when there is nothing to open, as for gym news: the inbox
 /// shows it in full.
 String? notificationRoute(String type, Map<String, String> data) => switch (topicOf(type)) {
+  // A branch closing, keeping other hours or reopening: its hours.
+  _ when type.startsWith('branch_') => AppRoutes.branches,
   NotificationTopic.membership => AppRoutes.membership,
   NotificationTopic.payments => switch (data['payment_id'] ?? data['invoice_id']) {
     final receiptId? => AppRoutes.invoice(receiptId),

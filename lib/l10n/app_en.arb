@@ -445,5 +445,13 @@
   "@deskOfflineToReview": {"placeholders": {"count": {"type": "int"}}},
   "deskNoInternetDemo": "No internet (demo)",
   "deskServerDisagrees": "Server: {reason}, review in the panel",
-  "@deskServerDisagrees": {"placeholders": {"reason": {"type": "String"}}}
+  "@deskServerDisagrees": {"placeholders": {"reason": {"type": "String"}}},
+  "branchClosedToday": "Closed today: {reason}",
+  "@branchClosedToday": {"placeholders": {"reason": {"type": "String"}}},
+  "branchOtherHoursToday": "Other hours today: {hours} · {reason}",
+  "@branchOtherHoursToday": {"placeholders": {"hours": {"type": "String"}, "reason": {"type": "String"}}},
+  "branchHoursNextDay": "{hours} (next day)",
+  "@branchHoursNextDay": {"placeholders": {"hours": {"type": "String"}}},
+  "branchClosuresComing": "Closures and other hours",
+  "branchEveryYear": "Every year"
 }

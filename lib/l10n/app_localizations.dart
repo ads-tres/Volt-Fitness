@@ -2125,6 +2125,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Server: {reason}, review in the panel'**
   String deskServerDisagrees(String reason);
+
+  /// No description provided for @branchClosedToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed today: {reason}'**
+  String branchClosedToday(String reason);
+
+  /// No description provided for @branchOtherHoursToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Other hours today: {hours} · {reason}'**
+  String branchOtherHoursToday(String hours, String reason);
+
+  /// No description provided for @branchHoursNextDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} (next day)'**
+  String branchHoursNextDay(String hours);
+
+  /// No description provided for @branchClosuresComing.
+  ///
+  /// In en, this message translates to:
+  /// **'Closures and other hours'**
+  String get branchClosuresComing;
+
+  /// No description provided for @branchEveryYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Every year'**
+  String get branchEveryYear;
 }
 
 class _AppLocalizationsDelegate

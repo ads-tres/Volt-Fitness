@@ -1240,4 +1240,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskServerDisagrees(String reason) {
     return 'Server: $reason, review in the panel';
   }
+
+  @override
+  String branchClosedToday(String reason) {
+    return 'Closed today: $reason';
+  }
+
+  @override
+  String branchOtherHoursToday(String hours, String reason) {
+    return 'Other hours today: $hours · $reason';
+  }
+
+  @override
+  String branchHoursNextDay(String hours) {
+    return '$hours (next day)';
+  }
+
+  @override
+  String get branchClosuresComing => 'Closures and other hours';
+
+  @override
+  String get branchEveryYear => 'Every year';
 }
