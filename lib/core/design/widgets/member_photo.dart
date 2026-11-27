@@ -34,3 +34,28 @@ class MemberPhoto extends StatelessWidget {
     return ClipOval(child: SizedBox.square(dimension: size, child: image));
   }
 }
+
+/// A person's initials in a soft circle, where their photo would be.
+class InitialsCircle extends StatelessWidget {
+  const InitialsCircle({super.key, required this.name, required this.size});
+
+  final String name;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final initials = name
+        .split(RegExp(r'\s+'))
+        .where((word) => word.isNotEmpty)
+        .take(2)
+        .map((word) => word.characters.first.toUpperCase())
+        .join();
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHighest, shape: BoxShape.circle),
+      child: Text(initials, style: Theme.of(context).textTheme.titleSmall),
+    );
+  }
+}

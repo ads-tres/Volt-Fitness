@@ -461,5 +461,11 @@
   "photoChoose": "Choose from gallery",
   "photoRemove": "Remove photo",
   "photoSaved": "Your photo is saved.",
-  "photoRemoved": "Your photo is removed."
+  "photoRemoved": "Your photo is removed.",
+  "deskMemberPhoto": "{name}'s photo",
+  "@deskMemberPhoto": {"placeholders": {"name": {"type": "String"}}},
+  "deskPhotoSaved": "{name}'s photo is saved.",
+  "@deskPhotoSaved": {"placeholders": {"name": {"type": "String"}}},
+  "deskPhotoRemoved": "{name}'s photo is removed.",
+  "@deskPhotoRemoved": {"placeholders": {"name": {"type": "String"}}}
 }

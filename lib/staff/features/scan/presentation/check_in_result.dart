@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../core/design/widgets/member_photo.dart';
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/localization/locale_controller.dart';
 import '../../../../core/time/date_text.dart';
@@ -63,7 +64,12 @@ class CheckInResultView extends ConsumerWidget {
                   Text(deskReason(l10n, checkIn.reasonCode), style: textTheme.titleMedium),
                 ],
                 if (checkIn.memberName case final name?) ...[
-                  const SizedBox(height: 28),
+                  // Large, so the desk sees the person is the member.
+                  if (checkIn.memberPhotoUrl case final photo?) ...[
+                    const SizedBox(height: 20),
+                    MemberPhoto(url: photo, size: 128, fallback: const SizedBox.shrink()),
+                  ],
+                  const SizedBox(height: 20),
                   Text(name, style: textTheme.headlineSmall),
                   if (checkIn.memberPhone case final phone?) Text(phone, style: textTheme.bodyMedium),
                 ],

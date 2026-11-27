@@ -7,6 +7,7 @@ import '../../../../core/design/tokens.dart';
 import '../../../../core/design/widgets/feedback.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_messages.dart';
+import '../../../../core/design/widgets/member_photo.dart';
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/localization/locale_controller.dart';
 import '../../../../core/utils/ethiopian_phone.dart';
@@ -16,6 +17,7 @@ import '../../scan/presentation/check_in_result.dart';
 import '../../scan/presentation/desk_app_bar.dart';
 import '../../scan/presentation/scan_page.dart';
 import '../data/member_search.dart';
+import 'member_photo_sheet.dart';
 
 /// Checking in a member without their phone: find them by name or phone,
 /// then tap to check them in at the desk's branch. The same rules apply as
@@ -98,6 +100,17 @@ class _DeskPageState extends ConsumerState<DeskPage> {
                 for (final member in value)
                   ListTile(
                     contentPadding: EdgeInsets.zero,
+                    leading: Semantics(
+                      button: true,
+                      label: l10n.deskMemberPhoto(member.name),
+                      excludeSemantics: true,
+                      child: InkWell(
+                        key: Key('member-photo-${member.id}'),
+                        customBorder: const CircleBorder(),
+                        onTap: () => showMemberPhotoSheet(context, member, onChanged: () => ref.invalidate(memberSearchProvider(_typed))),
+                        child: MemberPhoto(url: member.photoUrl, size: 44, fallback: InitialsCircle(name: member.name, size: 44)),
+                      ),
+                    ),
                     title: Text(member.name),
                     subtitle: Text(
                       [

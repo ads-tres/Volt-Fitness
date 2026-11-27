@@ -243,6 +243,16 @@ Both come from `GET /organizations/{gym}/door-list/public-key` once the
 server has `DOOR_LIST_SIGNING_KEY`. Without them (dev builds) the app
 fetches the key once and keeps it.
 
+**Members' photos.** The scan and desk results show the member's photo
+large, so the desk can see the person is the member; desk search and Today
+show it small (`photo_url`, the gym platform's ADR 0036). At the desk,
+tapping a member's photo or initials in search opens **Take a photo**
+(`PUT members/{id}/photo`, from the camera) and **Remove photo**
+(`DELETE`); a photo the API refuses shows its reason. The photo is kept at
+every gym where the member's number is registered. Its link works for 10
+minutes, so the app shows it when it loads and never stores it; offline,
+the door list's photos are shown.
+
 **The camera.** Scanning needs a phone or tablet with a back camera; the
 app asks for the camera permission the first time and says so if it was
 refused (allow it in the phone's settings). An emulator's virtual camera
@@ -279,7 +289,8 @@ choices start with push on and SMS off. Numbers counts the check-ins made
 in the fake; the owner sees money, the two-gyms receptionist doesn't.
 
 At the desk, search finds Abebe (owes 1,000 ETB), Tigist (turned away, plan
-ended) and Hana. Today starts with two earlier check-ins at Main Branch and
+ended) and Hana. Nobody has a photo until one is taken; the fake keeps it
+until the app restarts and refuses one over 5 MB. Today starts with two earlier check-ins at Main Branch and
 lists every one made since; the fake forgets them when the app restarts.
 
 To scan for real, run a staging build of each app and point the desk at the

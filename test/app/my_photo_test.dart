@@ -1,23 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_mobile/features/profile/data/my_photo.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../support/app_driver.dart';
-
-/// Stands in for the camera and gallery: hands over a 1×1 picture.
-final class FakePicker implements PhotoPicker {
-  static final picture = base64.decode(
-    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
-  );
-
-  @override
-  Future<PickedPhoto?> take() async => (bytes: picture, name: 'camera.png');
-
-  @override
-  Future<PickedPhoto?> choose() async => (bytes: picture, name: 'gallery.png');
-}
+import '../support/fake_photo_picker.dart';
 
 void main() {
   testWidgets('a member takes a photo for their profile and QR screen, and removes it', (tester) async {

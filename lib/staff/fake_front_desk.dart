@@ -59,6 +59,15 @@ final class FakeFrontDesk implements HttpClientAdapter {
       _ => const <String, dynamic>{},
     };
     final gymPath = RegExp(r'^/organizations/([^/]+)(/.*)$').firstMatch(options.path);
+    // A photo has to be read first, so its upload is answered here.
+    final photoPath = gymPath == null ? null : RegExp(r'^/members/(\d+)/photo$').firstMatch(gymPath.group(2)!);
+    if (photoPath != null && options.method == 'PUT') {
+      final authorization = options.headers[ApiHeaders.authorization];
+      if (authorization is! String || !authorization.startsWith('Bearer $_tokenPrefix')) {
+        return _json(401, {'message': 'Unauthenticated.'});
+      }
+      return _savePhoto(options, int.parse(photoPath.group(1)!));
+    }
     // Signing takes a moment, so the door list is answered here.
     if (gymPath != null && options.method == 'GET' && gymPath.group(2)!.startsWith('/door-list')) {
       final authorization = options.headers[ApiHeaders.authorization];
@@ -136,6 +145,10 @@ final class FakeFrontDesk implements HttpClientAdapter {
       ),
       ('GET', '/check-ins') => _today(options),
       ('GET', '/dashboard') => _dashboard(options, phone),
+      ('DELETE', final path) when RegExp(r'^/members/\d+/photo$').hasMatch(path) => () {
+        _photos.remove(int.parse(path.split('/')[2]));
+        return _empty();
+      }(),
       ('POST', '/check-ins/offline') => _offline(options, phone, gym),
       ('GET', '/notifications') => _inbox(phone, gym),
       ('POST', '/notifications/read-all') => _readAll(phone, gym),
@@ -144,6 +157,38 @@ final class FakeFrontDesk implements HttpClientAdapter {
       ('PATCH', '/notification-preferences') => _choose(options, phone, gym),
       _ => _json(404, {'message': 'Not found.'}),
     };
+  }
+
+  // Photos
+
+  /// Each member's photo, as a data link the desk can show offline.
+  final _photos = <Object?, String>{};
+
+  /// Keeps a photo taken at the desk, with the API's limits: an image, up
+  /// to 5 MB.
+  Future<ResponseBody> _savePhoto(RequestOptions options, int memberId) async {
+    final form = options.data;
+    final file = form is FormData ? form.files.where((entry) => entry.key == 'photo').firstOrNull?.value : null;
+    if (file == null) {
+      return _json(422, {
+        'message': 'The photo field is required.',
+        'errors': {
+          'photo': ['The photo field is required.'],
+        },
+      });
+    }
+    // Dio has already read the original for the request.
+    final bytes = <int>[for (final chunk in await file.clone().finalize().toList()) ...chunk];
+    if (bytes.length > 5 * 1024 * 1024) {
+      return _json(422, {
+        'message': 'The photo may not be bigger than 5 MB.',
+        'errors': {
+          'photo': ['The photo may not be bigger than 5 MB.'],
+        },
+      });
+    }
+    _photos[memberId] = 'data:image/jpeg;base64,${base64.encode(bytes)}';
+    return _empty();
   }
 
   // Offline: the door list
@@ -279,7 +324,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
             'id': id,
             'last_used_step': null,
             'day_keys': {for (final utcDay in utcDays) '$utcDay': base64.encode(Gq1.dayKey(doorSecret(memberId), utcDay))},
-            'member': {'id': memberId, 'full_name': members[memberId]!['full_name'], 'photo_url': null},
+            'member': {'id': memberId, 'full_name': members[memberId]!['full_name'], 'photo_url': _photos[memberId]},
             'days': {for (final each in dates) each: day(memberId)},
           },
       ],
@@ -492,6 +537,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
             (digits.length >= 3 && (member['phone']! as String).replaceAll('+251', '0').contains(digits)))
           {
             ...member,
+            'photo_url': _photos[member['id']],
             'membership': {
               'id': 100 + (member['id']! as int),
               'plan': {'id': 2, 'name': 'Monthly'},
@@ -560,7 +606,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
     'server_disagrees': serverDisagrees,
     'server_reason_code': serverReasonCode,
     'branch': branch,
-    'member': member,
+    'member': member == null ? null : {...member, 'photo_url': _photos[member['id']]},
     'membership': member == null
         ? null
         : {
