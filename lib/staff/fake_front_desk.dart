@@ -188,6 +188,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
       ),
       ('GET', '/check-ins') => _today(options),
       ('GET', '/dashboard') => _dashboard(options, phone),
+      ('GET', final path) when path.startsWith('/insights/') => _insight(options, phone, path.substring('/insights/'.length)),
       ('DELETE', final path) when RegExp(r'^/members/\d+/photo$').hasMatch(path) => () {
         _photos.remove(int.parse(path.split('/')[2]));
         return _empty();
@@ -843,6 +844,102 @@ final class FakeFrontDesk implements HttpClientAdapter {
     return _json(200, {
       'data': {'list': list, 'signature': base64.encode(signature.bytes), 'key_id': await _keyId()},
     });
+  }
+
+  // Insights
+
+  /// The gym month by month (ADR 0040), from fixed figures that grow a
+  /// little each month. Revenue is for the roles that see money; the rest
+  /// for the owner only here. One branch gets about half of everything.
+  ResponseBody _insight(RequestOptions options, String phone, String insight) {
+    const forOwnersOnly = {'renewals', 'busy-hours', 'members'};
+    if (!{'revenue', ...forOwnersOnly}.contains(insight)) return _json(404, {'message': 'Not found.'});
+    final allowed = phone == staffPhone || (phone == accountantPhone && insight == 'revenue');
+    if (!allowed) return _json(403, {'message': 'This action is unauthorized.'});
+    final count = switch ('${options.queryParameters['months'] ?? '12'}') {
+      '3' => 3,
+      '6' => 6,
+      _ => 12,
+    };
+    final share = options.queryParameters['branch_id'] == null ? 2 : 1;
+    final now = _now();
+    final months = [for (var back = count - 1; back >= 0; back--) DateTime(now.year, now.month - back)];
+    String key(DateTime month) => '${month.year}-${month.month.toString().padLeft(2, '0')}';
+    final data = <String, Object?>{'insight': insight, 'months': count};
+    switch (insight) {
+      case 'revenue':
+        data['months'] = [
+          for (final (index, month) in months.indexed)
+            () {
+              final monthly = (40 + index * 3) * 150000 * share ~/ 2;
+              final quarterly = (6 + index) * 400000 * share ~/ 2;
+              return {
+                'month': key(month),
+                'net': _money(monthly + quarterly),
+                'by_plan': {'Monthly': _money(monthly), '3 months': _money(quarterly)},
+                'by_method': {
+                  'cash': _money((monthly + quarterly) ~/ 2),
+                  'telebirr': _money((monthly + quarterly) - (monthly + quarterly) ~/ 2 - (index == 0 ? 150000 : 0)),
+                  if (index == 0) 'brought_in': _money(150000),
+                },
+              };
+            }(),
+        ];
+      case 'renewals':
+        data['months'] = [
+          for (final (index, month) in months.indexed)
+            () {
+              final last = index == months.length - 1;
+              final renewed = last ? 0 : (14 + index) * share ~/ 2;
+              final lapsed = last ? 0 : (6 - index % 3) * share ~/ 2;
+              final waiting = last ? 9 * share ~/ 2 : 0;
+              return {
+                'month': key(month),
+                'ended': renewed + lapsed + waiting,
+                'renewed': renewed,
+                'lapsed': lapsed,
+                'waiting': waiting,
+                'rate': renewed + lapsed == 0 ? null : double.parse((renewed / (renewed + lapsed)).toStringAsFixed(3)),
+                'by_plan': {
+                  'Monthly': {'renewed': renewed - renewed ~/ 3, 'lapsed': lapsed, 'waiting': waiting},
+                  '3 months': {'renewed': renewed ~/ 3, 'lapsed': 0, 'waiting': 0},
+                },
+              };
+            }(),
+        ];
+      case 'busy-hours':
+        final grid = <String, List<int>>{
+          for (var weekday = 1; weekday <= 7; weekday++)
+            '$weekday': [
+              for (var hour = 0; hour < 24; hour++)
+                hour < 5 || hour > 22
+                    ? 0
+                    : ((hour == 6 || hour == 18 ? 40 : (hour == 7 || hour == 17 || hour == 19 ? 25 : 8)) *
+                              (weekday == 7 ? 1 : 2) *
+                              count ~/
+                              12 *
+                              share ~/
+                              2)
+                          .clamp(1, 999),
+            ],
+        };
+        data['grid'] = grid;
+        data['total'] = grid.values.fold<int>(0, (sum, hours) => sum + hours.fold<int>(0, (a, b) => a + b));
+      case 'members':
+        data['months'] = [
+          for (final (index, month) in months.indexed)
+            {
+              'month': key(month),
+              'active': (120 + index * 6) * share ~/ 2,
+              'new': (10 + index % 4) * share ~/ 2,
+              'packs_ended': 6 * share ~/ 2,
+              'visits_bought': 60 * share ~/ 2,
+              'visits_used': (44 + index) * share ~/ 2,
+              'packs_with_visits_left': 2 * share ~/ 2,
+            },
+        ];
+    }
+    return _json(200, {'data': data});
   }
 
   // Numbers

@@ -74,16 +74,16 @@ void main() {
   });
 
   test('only owners, managers and receptionists add, sell and freeze; only owners and managers cancel', () async {
-    expect((await desk(role: 'owner')).read(deskRolesProvider), (mayAddMembers: true, maySell: true, mayFreeze: true, mayCancel: true, maySeePayments: true));
+    expect((await desk(role: 'owner')).read(deskRolesProvider), (mayAddMembers: true, maySell: true, mayFreeze: true, mayCancel: true, maySeePayments: true, maySeeRevenueInsights: true, maySeeInsights: true));
     expect(
       (await desk(role: 'receptionist')).read(deskRolesProvider),
-      (mayAddMembers: true, maySell: true, mayFreeze: true, mayCancel: false, maySeePayments: true),
+      (mayAddMembers: true, maySell: true, mayFreeze: true, mayCancel: false, maySeePayments: true, maySeeRevenueInsights: false, maySeeInsights: false),
     );
     expect((await desk(role: 'manager')).read(deskRolesProvider).mayCancel, isTrue);
     expect((await desk(role: 'trainer')).read(deskRolesProvider).maySeePayments, isFalse);
     expect(
       (await desk(role: 'accountant')).read(deskRolesProvider),
-      (mayAddMembers: false, maySell: false, mayFreeze: false, mayCancel: false, maySeePayments: true),
+      (mayAddMembers: false, maySell: false, mayFreeze: false, mayCancel: false, maySeePayments: true, maySeeRevenueInsights: true, maySeeInsights: false),
     );
   });
 
