@@ -289,6 +289,21 @@ E.164. A phone another member has comes back with **Find them instead**.
 Once added, the desk takes their photo, sells a plan and takes the payment
 in one go, or does it later.
 
+**The member page.** Tapping a member's name in Desk search, or **Member
+page** on a check-in result, opens everything about them in one place:
+
+- **Header:** their photo (tap to take or remove), phone (tap to call),
+  status and plan, discount group, what they owe, and when they joined.
+- **Actions:** **Check in**, **Take payment**, **Sell a plan** and
+  **Membership**, as their role allows.
+- **Lists:** every membership with its freezes, their payments (`GET
+  payments?member_id=`, not for trainers) and their visits (`GET
+  check-ins?member_id=`), each 25 at a time with **Load more**.
+- **Details:** gender, birthday, email, emergency contact and message
+  language.
+
+Each part loads on its own, and the page reloads after every action.
+
 **Freezing and cancelling.** Owners, managers and receptionists see
 **Membership** on each member in Desk search. It lists the memberships that
 run or are still to come, with their freeze days used and any freeze now or
