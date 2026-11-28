@@ -151,6 +151,13 @@ final class FakeFrontDesk implements HttpClientAdapter {
       ('GET', '/branches') => _json(200, {'data': _branches(phone, gym)}),
       ('GET', '/plans') => _planList(phone, gym),
       ('POST', '/members') => _addMember(options, phone, gym),
+      ('POST', final path) when RegExp(r'^/memberships/\d+/freezes$').hasMatch(path) => _freeze(options, phone, int.parse(path.split('/')[2])),
+      ('POST', final path) when RegExp(r'^/memberships/\d+/freezes/\d+/end$').hasMatch(path) => _endFreeze(
+        phone,
+        int.parse(path.split('/')[2]),
+        int.parse(path.split('/')[4]),
+      ),
+      ('POST', final path) when RegExp(r'^/memberships/\d+/cancellation$').hasMatch(path) => _cancel(options, phone, int.parse(path.split('/')[2])),
       ('POST', final path) when RegExp(r'^/members/\d+/memberships$').hasMatch(path) => _sell(options, phone, int.parse(path.split('/')[2])),
       ('POST', '/check-ins/scan') => _scan(options, phone, gym),
       ('GET', '/members') => _json(200, {'data': _search('${options.queryParameters['search'] ?? ''}')}),
@@ -229,7 +236,9 @@ final class FakeFrontDesk implements HttpClientAdapter {
   final _sold = <_FakeMembership>[
     _FakeMembership(id: 101, memberId: 1, plan: _plans[0], startsOn: DateTime(2026, 10, 2), endsOn: DateTime(2026, 11, 1), priceMinor: 150000, owedMinor: 100000),
     _FakeMembership(id: 102, memberId: 2, plan: _plans[0], startsOn: DateTime(2026, 9, 9), endsOn: DateTime(2026, 10, 8), priceMinor: 150000),
-    _FakeMembership(id: 103, memberId: 3, plan: _plans[0], startsOn: DateTime(2026, 10, 2), endsOn: DateTime(2026, 11, 1), priceMinor: 150000),
+    // Hana is away for three days next week, so her plan ends three days later.
+    _FakeMembership(id: 103, memberId: 3, plan: _plans[0], startsOn: DateTime(2026, 10, 2), endsOn: DateTime(2026, 11, 4), priceMinor: 150000)
+      ..freezes.add(_FakeFreeze(id: 301, startsOn: DateTime(2026, 10, 20), endsOn: DateTime(2026, 10, 22), reason: 'Travelling')),
   ];
   var _receipts = 0;
 
@@ -265,7 +274,20 @@ final class FakeFrontDesk implements HttpClientAdapter {
             ? null
             : {'amount': _money(membership.plan.priceMinor - membership.priceMinor), 'reason': membership.discountReason},
         'balance_due': _money(membership.owedMinor),
-        'cancellation': null,
+        'freeze_days_allowed': membership.freezeDaysAllowed,
+        'freeze_days_used': membership.freezeDaysUsed,
+        'freezes': [
+          for (final freeze in membership.freezes)
+            {
+              'id': freeze.id,
+              'starts_on': _iso(freeze.startsOn),
+              'ends_on': _iso(freeze.endsOn),
+              'days': freeze.days,
+              'reason': freeze.reason,
+              'frozen_in_app': false,
+            },
+        ],
+        'cancellation': membership.cancelReason == null ? null : {'cancelled_at': _now().toUtc().toIso8601String(), 'reason': membership.cancelReason},
         'open_payment_link': link == null
             ? null
             : {'id': link.key, 'amount': _money(link.value.amountMinor), 'checkout_url': 'https://checkout.chapa.co/demo'},
@@ -288,6 +310,89 @@ final class FakeFrontDesk implements HttpClientAdapter {
           if (membership.memberId == memberId) _membershipJson(membership, withMoney: true),
       ],
     });
+  }
+
+  // Freezes and cancellations
+
+  var _freezeIds = 400;
+
+  /// Freezes a membership, with the API's rules: from today at the earliest
+  /// and within the plan's freeze days unless an owner, one freeze at a time,
+  /// while the membership runs. Its end moves later by the frozen days.
+  ResponseBody _freeze(RequestOptions options, String phone, int membershipId) {
+    if (phone == accountantPhone) return _json(403, {'message': 'This action is unauthorized.'});
+    final membership = _sold.where((each) => each.id == membershipId).firstOrNull;
+    if (membership == null) return _json(404, {'message': 'Not found.'});
+    final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
+    final owner = phone == staffPhone;
+    final reason = '${body['reason'] ?? ''}'.trim();
+    if (body['ends_on'] is! String) return _refuse('ends_on', 'The ends on field is required.');
+    if (reason.isEmpty) return _refuse('reason', 'The reason field is required.');
+    final startsOn = body['starts_on'] is String ? DateTime.parse(body['starts_on']! as String) : _todayDate;
+    final endsOn = DateTime.parse(body['ends_on']! as String);
+    if (startsOn.isBefore(_todayDate) && !owner) {
+      return _refuse('starts_on', 'Only owners and managers can start a freeze on a past date.');
+    }
+    if (membership.cancelReason != null) return _refuse('membership', 'This membership is cancelled.');
+    if (membership.endsOn.isBefore(_todayDate)) return _refuse('membership', 'This membership has already ended.');
+    if (endsOn.isBefore(startsOn)) return _refuse('ends_on', "The last day of the freeze can't be before its first day.");
+    if (!membership.covers(startsOn)) {
+      return _refuse(
+        'starts_on',
+        'A freeze must start while the membership runs, from ${_longDate(membership.startsOn)} to ${_longDate(membership.endsOn)}.',
+      );
+    }
+    final clash = membership.freezes.where((each) => !startsOn.isAfter(each.endsOn) && !endsOn.isBefore(each.startsOn)).firstOrNull;
+    if (clash != null) {
+      return _refuse('starts_on', 'This membership is already frozen from ${_longDate(clash.startsOn)} to ${_longDate(clash.endsOn)}.');
+    }
+    final days = endsOn.difference(startsOn).inDays + 1;
+    final left = membership.freezeDaysAllowed - membership.freezeDaysUsed;
+    if (days > left && !owner) {
+      return _refuse(
+        'ends_on',
+        left > 0 ? 'This membership can be frozen for $left more ${left == 1 ? 'day' : 'days'}.' : 'This membership has no freeze days left.',
+      );
+    }
+    membership
+      ..freezes.add(_FakeFreeze(id: _freezeIds++, startsOn: startsOn, endsOn: endsOn, reason: reason))
+      ..endsOn = membership.endsOn.add(Duration(days: days));
+    return _json(201, {'data': _membershipJson(membership, withMoney: true)});
+  }
+
+  /// Ends a freeze early: one that started stops yesterday, one still to come
+  /// is removed, and the membership ends that many days sooner.
+  ResponseBody _endFreeze(String phone, int membershipId, int freezeId) {
+    if (phone == accountantPhone) return _json(403, {'message': 'This action is unauthorized.'});
+    final membership = _sold.where((each) => each.id == membershipId).firstOrNull;
+    final freeze = membership?.freezes.where((each) => each.id == freezeId).firstOrNull;
+    if (membership == null || freeze == null) return _json(404, {'message': 'Not found.'});
+    if (membership.cancelReason != null) return _refuse('membership', 'This membership is cancelled.');
+    if (freeze.endsOn.isBefore(_todayDate)) return _refuse('freeze', 'This freeze has already ended.');
+    final int daysBack;
+    if (freeze.startsOn.isBefore(_todayDate)) {
+      daysBack = freeze.endsOn.difference(_todayDate).inDays + 1;
+      freeze.endsOn = _todayDate.subtract(const Duration(days: 1));
+    } else {
+      daysBack = freeze.days;
+      membership.freezes.remove(freeze);
+    }
+    membership.endsOn = membership.endsOn.subtract(Duration(days: daysBack));
+    return _json(200, {'data': _membershipJson(membership, withMoney: true)});
+  }
+
+  /// Cancels a membership that runs or is still to come; owners only here.
+  ResponseBody _cancel(RequestOptions options, String phone, int membershipId) {
+    if (phone != staffPhone) return _json(403, {'message': 'This action is unauthorized.'});
+    final membership = _sold.where((each) => each.id == membershipId).firstOrNull;
+    if (membership == null) return _json(404, {'message': 'Not found.'});
+    final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
+    final reason = '${body['reason'] ?? ''}'.trim();
+    if (reason.isEmpty) return _refuse('reason', 'The reason field is required.');
+    if (membership.cancelReason != null) return _refuse('membership', 'This membership is already cancelled.');
+    if (membership.endsOn.isBefore(_todayDate)) return _refuse('membership', 'This membership has already ended.');
+    membership.cancelReason = reason;
+    return _json(200, {'data': _membershipJson(membership, withMoney: true)});
   }
 
   // Plans
@@ -329,7 +434,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
     final plan = _plans.where((plan) => plan.id == body['plan_id']).firstOrNull;
     if (plan == null) return _refuse('plan_id', 'Choose a plan of this gym that is still on sale.');
     final owner = phone == staffPhone;
-    final theirs = _sold.where((each) => each.memberId == memberId).toList();
+    final theirs = _sold.where((each) => each.memberId == memberId && each.cancelReason == null).toList();
     final lastEnd = theirs.map((each) => each.endsOn).fold<DateTime?>(null, (latest, end) => latest == null || end.isAfter(latest) ? end : latest);
     final firstFree = lastEnd == null || lastEnd.isBefore(_todayDate) ? _todayDate : lastEnd.add(const Duration(days: 1));
     final startsOn = switch (body['starts_on']) {
@@ -849,9 +954,15 @@ final class FakeFrontDesk implements HttpClientAdapter {
     if (branch == null || member == null) return _json(404, {'message': 'Not found.'});
     final membership = _currentOf(member);
     final endsOn = membership == null ? null : _iso(membership.endsOn);
-    if (membership == null || !membership.covers(_todayDate)) {
+    if (membership == null || !membership.covers(_todayDate) || membership.statusOn(_todayDate) != 'active') {
+      final reason = switch (membership?.statusOn(_todayDate)) {
+        null => 'MEMBERSHIP_NONE',
+        'frozen' => 'MEMBERSHIP_FROZEN',
+        'cancelled' => 'MEMBERSHIP_NONE',
+        _ => 'MEMBERSHIP_EXPIRED',
+      };
       return _record(
-        _checkIn(branch, deny: membership == null ? 'MEMBERSHIP_NONE' : 'MEMBERSHIP_EXPIRED', member: member, owedMinor: _owed(member), endsOn: endsOn, method: 'desk'),
+        _checkIn(branch, deny: reason, member: member, owedMinor: _owed(member), endsOn: endsOn, method: 'desk'),
       );
     }
     return _record(_checkIn(branch, member: member, owedMinor: _owed(member), endsOn: endsOn, method: 'desk'));
@@ -1037,12 +1148,34 @@ final class _FakeMembership {
   final int memberId;
   final _FakePlan plan;
   final DateTime startsOn;
-  final DateTime endsOn;
+  DateTime endsOn;
   final int priceMinor;
   final String? discountReason;
   int owedMinor;
+  final freezes = <_FakeFreeze>[];
+  final freezeDaysAllowed = 7;
+  String? cancelReason;
+
+  int get freezeDaysUsed => freezes.fold(0, (sum, freeze) => sum + freeze.days);
 
   bool covers(DateTime day) => !day.isBefore(startsOn) && !day.isAfter(endsOn);
 
-  String statusOn(DateTime day) => day.isBefore(startsOn) ? 'upcoming' : (day.isAfter(endsOn) ? 'expired' : 'active');
+  String statusOn(DateTime day) {
+    if (cancelReason != null) return 'cancelled';
+    if (day.isBefore(startsOn)) return 'upcoming';
+    if (day.isAfter(endsOn)) return 'expired';
+    return freezes.any((freeze) => !day.isBefore(freeze.startsOn) && !day.isAfter(freeze.endsOn)) ? 'frozen' : 'active';
+  }
+}
+
+/// A freeze on a membership of the fake gym.
+final class _FakeFreeze {
+  _FakeFreeze({required this.id, required this.startsOn, required this.endsOn, required this.reason});
+
+  final int id;
+  final DateTime startsOn;
+  DateTime endsOn;
+  final String reason;
+
+  int get days => endsOn.difference(startsOn).inDays + 1;
 }
