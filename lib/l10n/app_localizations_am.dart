@@ -830,7 +830,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get deskUnknownMember => 'ያልታወቀ ኮድ';
 
   @override
-  String get freezeDays => 'የማቆያ ቀናት';
+  String get freezeDays => 'የማቆሚያ ቀናት';
 
   @override
   String freezeDaysLeftOf(int left, int allowed) {
@@ -845,7 +845,7 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get freezeSheetBody =>
-      'እቅድዎ በእነዚህ ቀናት ይቆማል፤ የሚያልቅበት ቀንም በዚያው ልክ ይራዘማል።';
+      'ዕቅድዎ በእነዚህ ቀናት ይቆማል፤ የሚያልቅበት ቀንም በዚያው ልክ ይራዘማል።';
 
   @override
   String get freezeFirstDay => 'የመጀመሪያ ቀን';
@@ -861,7 +861,7 @@ class AppLocalizationsAm extends AppLocalizations {
       other: '$days ቀናት',
       one: '1 ቀን',
     );
-    return '$_temp0 · እቅድዎ $date ላይ ያልቃል';
+    return '$_temp0 · ዕቅድዎ $date ላይ ያልቃል';
   }
 
   @override
@@ -869,8 +869,8 @@ class AppLocalizationsAm extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       left,
       locale: localeName,
-      other: 'የቀሩት $left የማቆያ ቀናት ብቻ ናቸው።',
-      one: 'የቀረው 1 የማቆያ ቀን ብቻ ነው።',
+      other: 'የቀሩት $left የማቆሚያ ቀናት ብቻ ናቸው።',
+      one: 'የቀረው 1 የማቆሚያ ቀን ብቻ ነው።',
     );
     return '$_temp0';
   }
@@ -921,14 +921,14 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get freezeBackBody =>
-      'ከዛሬ ጀምሮ ጂሙን መጠቀም ይችላሉ። ያልተጠቀሙባቸው የማቆያ ቀናት ይመለሱልዎታል፤ እቅድዎም ቀድሞ ያልቃል።';
+      'ከዛሬ ጀምሮ ጂሙን መጠቀም ይችላሉ። ያልተጠቀሙባቸው የማቆሚያ ቀናት ይመለሱልዎታል፤ ዕቅድዎም ቀድሞ ያልቃል።';
 
   @override
   String get freezeCancelTitle => 'ይህን ማቆም ይሰርዙ?';
 
   @override
   String get freezeCancelBody =>
-      'የማቆያ ቀናቱ ይመለሱልዎታል፤ እቅድዎ የሚያልቅበት ቀንም ወደ ቀድሞው ይመለሳል።';
+      'የማቆሚያ ቀናቱ ይመለሱልዎታል፤ ዕቅድዎ የሚያልቅበት ቀንም ወደ ቀድሞው ይመለሳል።';
 
   @override
   String get freezeKeep => 'ይቆይ';
@@ -1059,7 +1059,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get branchClosed => 'ዝግ';
 
   @override
-  String get branchOnYourPlan => 'የእርስዎ እቅድ';
+  String get branchOnYourPlan => 'የእርስዎ ዕቅድ';
 
   @override
   String get yourOtherPlans => 'ሌሎች እቅዶችዎ';
@@ -1168,7 +1168,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get numbersToCall => 'የሚደወልላቸው አባላት';
 
   @override
-  String get numbersNoOneToCall => 'የሚደወልለት የለም፤ በሚቀጥሉት ቀናት የሚያልቅ እቅድ የለም።';
+  String get numbersNoOneToCall => 'የሚደወልለት የለም፤ በሚቀጥሉት ቀናት የሚያልቅ ዕቅድ የለም።';
 
   @override
   String numbersEnds(String date) {
