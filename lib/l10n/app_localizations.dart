@@ -3121,6 +3121,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{phone} is another member\'s number. Find them in Desk search.'**
   String editMemberPhoneTaken(String phone);
+
+  /// No description provided for @numbersMonthByMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month by month'**
+  String get numbersMonthByMonth;
+
+  /// No description provided for @insightsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Month by month'**
+  String get insightsTitle;
+
+  /// No description provided for @insightsTabMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Money'**
+  String get insightsTabMoney;
+
+  /// No description provided for @insightsTabRenewals.
+  ///
+  /// In en, this message translates to:
+  /// **'Renewals'**
+  String get insightsTabRenewals;
+
+  /// No description provided for @insightsTabBusyHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Busy hours'**
+  String get insightsTabBusyHours;
+
+  /// No description provided for @insightsTabMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get insightsTabMembers;
+
+  /// No description provided for @insightsMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} months'**
+  String insightsMonths(int count);
+
+  /// No description provided for @insightsMoneyTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken in the last {count} months, net of refunds'**
+  String insightsMoneyTotal(int count);
+
+  /// No description provided for @insightsByPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'By plan'**
+  String get insightsByPlan;
+
+  /// No description provided for @insightsByMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'By how they paid'**
+  String get insightsByMethod;
+
+  /// No description provided for @insightsRenewalRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Renewal rate'**
+  String get insightsRenewalRate;
+
+  /// No description provided for @insightsRenewedMeans.
+  ///
+  /// In en, this message translates to:
+  /// **'Renewed: a new plan within 14 days of the old one ending.'**
+  String get insightsRenewedMeans;
+
+  /// No description provided for @insightsRenewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Renewed'**
+  String get insightsRenewed;
+
+  /// No description provided for @insightsLapsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t renew'**
+  String get insightsLapsed;
+
+  /// No description provided for @insightsWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Not decided yet'**
+  String get insightsWaiting;
+
+  /// No description provided for @insightsCheckIns.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 check-in let in} other{{count} check-ins let in}}'**
+  String insightsCheckIns(int count);
+
+  /// No description provided for @insightsBusiest.
+  ///
+  /// In en, this message translates to:
+  /// **'Busiest: {day} {hour}'**
+  String insightsBusiest(String day, String hour);
+
+  /// No description provided for @insightsActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Members at the month\'s end'**
+  String get insightsActive;
+
+  /// No description provided for @insightsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New members'**
+  String get insightsNew;
+
+  /// No description provided for @insightsNewUnder.
+  ///
+  /// In en, this message translates to:
+  /// **'Under each bar: new members that month.'**
+  String get insightsNewUnder;
+
+  /// No description provided for @insightsPacks.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit packs that ended'**
+  String get insightsPacks;
+
+  /// No description provided for @insightsPacksEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Packs ended'**
+  String get insightsPacksEnded;
+
+  /// No description provided for @insightsVisitsUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Visits used of those bought'**
+  String get insightsVisitsUsed;
+
+  /// No description provided for @insightsPacksLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended with visits left'**
+  String get insightsPacksLeft;
+
+  /// No description provided for @insightsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in these months yet.'**
+  String get insightsNone;
+
+  /// No description provided for @insightsCsvInPanel.
+  ///
+  /// In en, this message translates to:
+  /// **'To download these figures, open Reports › Insights in the staff panel.'**
+  String get insightsCsvInPanel;
 }
 
 class _AppLocalizationsDelegate

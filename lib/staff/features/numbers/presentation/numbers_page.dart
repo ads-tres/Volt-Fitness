@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/design/tokens.dart';
@@ -8,6 +9,8 @@ import '../../../../core/localization/l10n.dart';
 import '../../../../core/localization/locale_controller.dart';
 import '../../../../core/money/money.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../app/staff_routes.dart';
+import '../../desk/data/new_member_repository.dart';
 import '../../scan/presentation/check_in_result.dart';
 import '../data/numbers_repository.dart';
 import '../domain/desk_numbers.dart';
@@ -64,6 +67,17 @@ class _NumbersPageState extends ConsumerState<NumbersPage> {
               value: _allBranches,
               onChanged: (on) => setState(() => _allBranches = on),
             ),
+            if (ref.watch(deskRolesProvider).maySeeRevenueInsights)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  key: const Key('month-by-month'),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size(0, 40)),
+                  onPressed: () => context.push(StaffRoutes.insights),
+                  icon: const Icon(Icons.insights_rounded, size: 18),
+                  label: Text(l10n.numbersMonthByMonth),
+                ),
+              ),
             switch (numbers) {
               AsyncData(:final value) => _Figures(numbers: value),
               AsyncError(:final error) => LoadFailedCard(

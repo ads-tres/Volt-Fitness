@@ -1851,4 +1851,97 @@ class AppLocalizationsAm extends AppLocalizations {
   String editMemberPhoneTaken(String phone) {
     return '$phone የሌላ አባል ቁጥር ነው። በዴስክ ፍለጋ ያግኟቸው።';
   }
+
+  @override
+  String get numbersMonthByMonth => 'በየወሩ';
+
+  @override
+  String get insightsTitle => 'በየወሩ';
+
+  @override
+  String get insightsTabMoney => 'ገንዘብ';
+
+  @override
+  String get insightsTabRenewals => 'እድሳቶች';
+
+  @override
+  String get insightsTabBusyHours => 'የተጨናነቁ ሰዓታት';
+
+  @override
+  String get insightsTabMembers => 'አባላት';
+
+  @override
+  String insightsMonths(int count) {
+    return '$count ወራት';
+  }
+
+  @override
+  String insightsMoneyTotal(int count) {
+    return 'ባለፉት $count ወራት የተቀበለ፣ ተመላሽ ተቀንሶ';
+  }
+
+  @override
+  String get insightsByPlan => 'በዕቅድ';
+
+  @override
+  String get insightsByMethod => 'በከፈሉበት መንገድ';
+
+  @override
+  String get insightsRenewalRate => 'የእድሳት መጠን';
+
+  @override
+  String get insightsRenewedMeans => 'የታደሰ፦ የቀድሞው ካለቀ በ14 ቀናት ውስጥ አዲስ ዕቅድ።';
+
+  @override
+  String get insightsRenewed => 'የታደሰ';
+
+  @override
+  String get insightsLapsed => 'ያላደሰ';
+
+  @override
+  String get insightsWaiting => 'ገና ያልተወሰነ';
+
+  @override
+  String insightsCheckIns(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count የተፈቀዱ መግቢያዎች',
+      one: '1 የተፈቀደ መግቢያ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String insightsBusiest(String day, String hour) {
+    return 'በጣም የተጨናነቀው፦ $day $hour';
+  }
+
+  @override
+  String get insightsActive => 'በወሩ መጨረሻ ያሉ አባላት';
+
+  @override
+  String get insightsNew => 'አዲስ አባላት';
+
+  @override
+  String get insightsNewUnder => 'ከእያንዳንዱ አምድ ስር፦ በዚያ ወር የተመዘገቡ አዲስ አባላት።';
+
+  @override
+  String get insightsPacks => 'ያለቁ የጉብኝት ጥቅሎች';
+
+  @override
+  String get insightsPacksEnded => 'ያለቁ ጥቅሎች';
+
+  @override
+  String get insightsVisitsUsed => 'ከተገዙት ጥቅም ላይ የዋሉ ጉብኝቶች';
+
+  @override
+  String get insightsPacksLeft => 'ጉብኝት ቀርቶ ያለቁ';
+
+  @override
+  String get insightsNone => 'በእነዚህ ወራት ገና ምንም የለም።';
+
+  @override
+  String get insightsCsvInPanel =>
+      'እነዚህን አሃዞች ለማውረድ በሰራተኞች ፓነል ሪፖርቶች › ግንዛቤዎች ይክፈቱ።';
 }

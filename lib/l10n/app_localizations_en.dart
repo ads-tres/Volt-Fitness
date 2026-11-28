@@ -1886,4 +1886,98 @@ class AppLocalizationsEn extends AppLocalizations {
   String editMemberPhoneTaken(String phone) {
     return '$phone is another member\'s number. Find them in Desk search.';
   }
+
+  @override
+  String get numbersMonthByMonth => 'Month by month';
+
+  @override
+  String get insightsTitle => 'Month by month';
+
+  @override
+  String get insightsTabMoney => 'Money';
+
+  @override
+  String get insightsTabRenewals => 'Renewals';
+
+  @override
+  String get insightsTabBusyHours => 'Busy hours';
+
+  @override
+  String get insightsTabMembers => 'Members';
+
+  @override
+  String insightsMonths(int count) {
+    return '$count months';
+  }
+
+  @override
+  String insightsMoneyTotal(int count) {
+    return 'Taken in the last $count months, net of refunds';
+  }
+
+  @override
+  String get insightsByPlan => 'By plan';
+
+  @override
+  String get insightsByMethod => 'By how they paid';
+
+  @override
+  String get insightsRenewalRate => 'Renewal rate';
+
+  @override
+  String get insightsRenewedMeans =>
+      'Renewed: a new plan within 14 days of the old one ending.';
+
+  @override
+  String get insightsRenewed => 'Renewed';
+
+  @override
+  String get insightsLapsed => 'Didn\'t renew';
+
+  @override
+  String get insightsWaiting => 'Not decided yet';
+
+  @override
+  String insightsCheckIns(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count check-ins let in',
+      one: '1 check-in let in',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String insightsBusiest(String day, String hour) {
+    return 'Busiest: $day $hour';
+  }
+
+  @override
+  String get insightsActive => 'Members at the month\'s end';
+
+  @override
+  String get insightsNew => 'New members';
+
+  @override
+  String get insightsNewUnder => 'Under each bar: new members that month.';
+
+  @override
+  String get insightsPacks => 'Visit packs that ended';
+
+  @override
+  String get insightsPacksEnded => 'Packs ended';
+
+  @override
+  String get insightsVisitsUsed => 'Visits used of those bought';
+
+  @override
+  String get insightsPacksLeft => 'Ended with visits left';
+
+  @override
+  String get insightsNone => 'Nothing in these months yet.';
+
+  @override
+  String get insightsCsvInPanel =>
+      'To download these figures, open Reports › Insights in the staff panel.';
 }
