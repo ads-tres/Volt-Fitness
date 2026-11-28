@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// [expectNoOverflow] at the end; it names each screen that overflowed.
 final class LayoutErrors {
   LayoutErrors() {
-    final previous = FlutterError.onError;
+    final previous = _previous = FlutterError.onError;
     FlutterError.onError = (details) {
       final text = details.exceptionAsString();
       if (text.contains('overflowed')) {
@@ -19,12 +19,21 @@ final class LayoutErrors {
         previous?.call(details);
       }
     };
-    addTearDown(() => FlutterError.onError = previous);
+    addTearDown(_restore);
   }
+
+  FlutterExceptionHandler? _previous;
+
+  void _restore() => FlutterError.onError = _previous;
 
   /// Where the tour is, for the report.
   String screen = '';
   final found = <String>[];
 
-  void expectNoOverflow() => expect(found.toSet().toList(), isEmpty, reason: 'Text overflowed on these screens');
+  /// Hands errors back to the test first, so a failure here reports
+  /// cleanly.
+  void expectNoOverflow() {
+    _restore();
+    expect(found.toSet().toList(), isEmpty, reason: 'Text overflowed on these screens');
+  }
 }
