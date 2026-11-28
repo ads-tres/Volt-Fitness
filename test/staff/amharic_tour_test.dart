@@ -118,6 +118,13 @@ void main() {
       for (final route in [StaffRoutes.today, StaffRoutes.numbers, StaffRoutes.inbox, StaffRoutes.notificationSettings]) {
         await visit(tester, errors, route);
       }
+      await visit(tester, errors, StaffRoutes.insights);
+      for (final tab in [am.insightsTabRenewals, am.insightsTabBusyHours, am.insightsTabMembers]) {
+        errors.screen = 'insights: $tab';
+        await tester.tap(find.text(tab));
+        await tester.pumpAndSettle();
+        await scrollToEnd(tester);
+      }
       errors.screen = 'paused banner';
       fake.paused = true;
       await visit(tester, errors, StaffRoutes.today);

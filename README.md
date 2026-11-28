@@ -215,6 +215,22 @@ away, money and what is owed, members and plans sold, the busy hours, and
 the members to call, with a button to call each. The API leaves money out
 for roles that don't see it, so a receptionist sees no money cards.
 
+**Month by month.** Owners, managers and accountants open **Month by
+month** from Numbers: the gym's insights (`GET insights/{insight}`, the gym
+platform's ADR 0040) for the last 3, 6 or 12 months, at this branch or all.
+
+- **Money:** net taken each month, with totals by plan and by how members
+  paid. Accountants see only this tab.
+- **Renewals:** each month's ended plans, split into renewed (a new plan
+  within 14 days), not renewed and not decided yet, with the rate.
+- **Busy hours:** a weekday-by-hour grid shaded by check-ins, with the
+  busiest hour.
+- **Members:** members at each month's end, new members, and how fully the
+  visit packs that ended were used.
+
+The charts are plain widgets, with no chart package. To download the figures
+as CSV, staff use the panel.
+
 **Staff messages.** The bell in the top bar counts unread messages and
 opens the inbox (`GET /organizations/{gym}/notifications`): online
 payments, refunds to make, freezes members made in the app, and the
@@ -383,7 +399,9 @@ paid in parts, with receipts from R-000001. Demo Gym has Chapa connected, so
 pay links work and a second text within 5 minutes is refused; Bole Fitness
 doesn't. The plans are Monthly (1,500 ETB), 3 months (4,000 ETB) and 10
 visits (1,200 ETB, Main Branch only); `VOLT10` takes 10% off. Selling
-Tigist a plan lets her in again. Every plan has 7 freeze days; Hana has a
+Tigist a plan lets her in again. Month by month comes from fixed figures that grow each month, about half
+of them at one branch; the receptionist gets none and the accountant only
+money. Every plan has 7 freeze days; Hana has a
 3-day freeze next week, so her plan ends on 4 November. Members added at the
 desk are kept until the app restarts; Abebe's number (0911 234 567) is taken. Today starts with two earlier check-ins at Main Branch and
 lists every one made since; the fake forgets them when the app restarts.
