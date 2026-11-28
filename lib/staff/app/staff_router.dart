@@ -8,6 +8,7 @@ import '../features/gym/presentation/choose_branch_page.dart';
 import '../features/gym/presentation/choose_gym_page.dart';
 import '../features/messages/presentation/desk_notification_settings_page.dart';
 import '../features/messages/presentation/inbox_page.dart';
+import '../features/member/presentation/member_page.dart';
 import '../features/numbers/presentation/numbers_page.dart';
 import '../features/desk/presentation/desk_page.dart';
 import '../features/scan/presentation/scan_page.dart';
@@ -46,6 +47,10 @@ final staffRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: StaffRoutes.chooseBranch, builder: (context, state) => const ChooseBranchPage()),
       GoRoute(path: StaffRoutes.inbox, builder: (context, state) => const InboxPage()),
       GoRoute(path: StaffRoutes.numbers, builder: (context, state) => const NumbersPage()),
+      GoRoute(
+        path: '/member/:id',
+        builder: (context, state) => MemberPage(memberId: int.parse(state.pathParameters['id']!)),
+      ),
       GoRoute(
         path: StaffRoutes.notificationSettings,
         builder: (context, state) => const DeskNotificationSettingsPage(),

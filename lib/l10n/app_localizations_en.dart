@@ -1798,4 +1798,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskPauseDemo => 'Pause the gym (demo)';
+
+  @override
+  String get memberPageTitle => 'Member';
+
+  @override
+  String get memberStatusEnded => 'Ended';
+
+  @override
+  String get memberStatusCancelled => 'Cancelled';
+
+  @override
+  String get memberStatusNoPlan => 'No plan';
+
+  @override
+  String memberSince(String date) {
+    return 'Member since $date';
+  }
+
+  @override
+  String get memberMemberships => 'Memberships';
+
+  @override
+  String get memberNoMemberships => 'No membership yet.';
+
+  @override
+  String get memberPayments => 'Payments';
+
+  @override
+  String get memberNoPayments => 'No payments yet.';
+
+  @override
+  String get memberRefund => 'Refund';
+
+  @override
+  String get memberVoided => 'Voided';
+
+  @override
+  String get memberVisits => 'Visits';
+
+  @override
+  String get memberNoVisits => 'No visits yet.';
+
+  @override
+  String get memberLoadMore => 'Load more';
+
+  @override
+  String get memberDetails => 'Details';
+
+  @override
+  String get memberGender => 'Gender';
+
+  @override
+  String get memberLanguage => 'Messages in';
+
+  @override
+  String get memberOpenPage => 'Member page';
 }

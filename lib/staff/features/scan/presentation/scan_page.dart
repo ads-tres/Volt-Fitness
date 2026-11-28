@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/errors/failure.dart';
@@ -8,6 +9,7 @@ import '../../../../core/errors/failure_messages.dart';
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/time/clock.dart' show clockProvider;
 import '../../../../core/utils/uuid.dart';
+import '../../../app/staff_routes.dart';
 import '../../desk/data/new_member_repository.dart';
 import '../../memberships/presentation/membership_sheet.dart';
 import '../../offline/data/door_list_controller.dart';
@@ -172,6 +174,10 @@ class _ScanPageState extends ConsumerState<ScanPage> {
               onTakePayment: () => _takePayment(result),
               onRenew: ref.watch(deskRolesProvider).maySell ? () => _renew(result) : null,
               onEndFreeze: ref.watch(deskRolesProvider).mayFreeze ? () => _endFreeze(result) : null,
+              onOpenMember: () {
+                _done();
+                unawaited(context.push(StaffRoutes.member(result.memberId!)));
+              },
             ),
         ],
       ),

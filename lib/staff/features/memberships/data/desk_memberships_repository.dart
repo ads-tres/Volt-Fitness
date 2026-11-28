@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/failure.dart';
+import '../../../../core/money/money.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/json.dart';
 import '../../../../core/time/local_date.dart';
@@ -31,6 +32,7 @@ final class DeskMembership {
     required this.freezeDaysAllowed,
     required this.freezeDaysUsed,
     this.freezes = const [],
+    this.balanceDue,
   });
 
   final int id;
@@ -44,6 +46,9 @@ final class DeskMembership {
   final int freezeDaysUsed;
   final List<DeskFreeze> freezes;
 
+  /// What is still owed on it, when the API sent it.
+  final Money? balanceDue;
+
   int get freezeDaysLeft => freezeDaysAllowed - freezeDaysUsed < 0 ? 0 : freezeDaysAllowed - freezeDaysUsed;
 
   /// The freeze going on today, or else the next one.
@@ -55,10 +60,10 @@ final class DeskMembership {
 }
 
 /// A membership from the staff API, or null when it has ended or was
-/// cancelled, as the desk has nothing to do with those.
-DeskMembership? deskMembershipFromJson(Map<String, dynamic> json) {
+/// cancelled, as the desk has nothing to do with those, unless [any].
+DeskMembership? deskMembershipFromJson(Map<String, dynamic> json, {bool any = false}) {
   final status = json.field<String>('status');
-  if (!const {'active', 'frozen', 'upcoming'}.contains(status)) return null;
+  if (!any && !const {'active', 'frozen', 'upcoming'}.contains(status)) return null;
   return DeskMembership(
     id: json.field<int>('id'),
     planName: json.field<Map<String, dynamic>>('plan').field<String>('name'),
@@ -67,6 +72,10 @@ DeskMembership? deskMembershipFromJson(Map<String, dynamic> json) {
     endsOn: LocalDate.parse(json.field<String>('ends_on')),
     freezeDaysAllowed: json.optional<int>('freeze_days_allowed') ?? 0,
     freezeDaysUsed: json.optional<int>('freeze_days_used') ?? 0,
+    balanceDue: switch (json.optional<Map<String, dynamic>>('balance_due')) {
+      final money? => Money.fromJson(money),
+      null => null,
+    },
     freezes: [
       for (final freeze in json.objects('freezes'))
         DeskFreeze(
@@ -98,6 +107,18 @@ final class DeskMembershipsRepository {
     return readResponse(
       () => [
         for (final membership in (response! as Map<String, dynamic>).objects('data')) ?deskMembershipFromJson(membership),
+      ],
+    );
+  }
+
+  /// Every one of the member's memberships, ended and cancelled too, newest
+  /// first.
+  Future<List<DeskMembership>> history(int memberId) async {
+    final response = await _api.get(_path('/members/$memberId/memberships'));
+    return readResponse(
+      () => [
+        for (final membership in (response! as Map<String, dynamic>).objects('data'))
+          ?deskMembershipFromJson(membership, any: true),
       ],
     );
   }

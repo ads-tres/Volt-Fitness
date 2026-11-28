@@ -27,6 +27,7 @@ class CheckInResultView extends ConsumerWidget {
     this.onTakePayment,
     this.onRenew,
     this.onEndFreeze,
+    this.onOpenMember,
   });
 
   /// The reasons a new plan would let the member in.
@@ -49,6 +50,9 @@ class CheckInResultView extends ConsumerWidget {
   /// Opens the member's memberships to end the freeze that turned them away;
   /// only online, when the API named the member.
   final VoidCallback? onEndFreeze;
+
+  /// Opens the member's page; only online, when the API named the member.
+  final VoidCallback? onOpenMember;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -124,6 +128,14 @@ class CheckInResultView extends ConsumerWidget {
                   const SizedBox(height: 20),
                   Text(name, style: textTheme.headlineSmall),
                   if (checkIn.memberPhone case final phone?) Text(phone, style: textTheme.bodyMedium),
+                  if (onOpenMember case final open? when !checkIn.offline && checkIn.memberId != null)
+                    TextButton.icon(
+                      key: const Key('result-open-member'),
+                      style: TextButton.styleFrom(foregroundColor: Colors.white, padding: EdgeInsets.zero),
+                      onPressed: open,
+                      icon: const Icon(Icons.person_rounded, size: 18),
+                      label: Text(l10n.memberOpenPage),
+                    ),
                 ],
                 if ((checkIn.planName, checkIn.endsOn) case (final plan?, final endsOn?)) ...[
                   const SizedBox(height: 8),
