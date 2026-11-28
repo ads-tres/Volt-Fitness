@@ -398,6 +398,17 @@ flutter analyze
 flutter test
 ```
 
+**In Amharic.** `test/app/amharic_tour_test.dart` and
+`test/staff/amharic_tour_test.dart` walk every screen and sheet of each app
+in Amharic on a 360 × 780 phone, at normal and at 1.3× text, and fail on any
+text that overflows (`test/support/layout_errors.dart` collects them, naming
+each screen). A new screen joins its app's tour. `startApp` and `startDesk`
+take `language: 'am'` and `textScale:` for any test that needs them.
+`test/core/localization/amharic_messages_test.dart` checks that both
+languages have the same messages and placeholders, and that none is left in
+English. One Amharic word per idea: ዕቅድ plan, አባልነት membership, ክፍያ
+payment, ማቆም (የማቆሚያ ቀናት) freeze, ቅርንጫፍ branch.
+
 ## Structure
 
 ```
