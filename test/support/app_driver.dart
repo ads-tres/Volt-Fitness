@@ -16,10 +16,16 @@ Future<void> startApp(
   bool pushAllowed = true,
   HttpClientAdapter? backend,
   List<Override> extraOverrides = const [],
+  String? language,
+  double textScale = 1,
 }) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
+  if (textScale != 1) {
+    tester.platformDispatcher.textScaleFactorTestValue = textScale;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+  }
   await tester.pumpWidget(
     ProviderScope(
       retry: noAutomaticRetry,
@@ -29,6 +35,7 @@ Future<void> startApp(
           fakeAdapter: backend,
           onboardingDone: onboardingDone,
           pushAllowed: pushAllowed,
+          language: language,
         ),
         ...extraOverrides,
       ],

@@ -21,13 +21,20 @@ Future<void> startDesk(
   CodeCamera? camera,
   HttpClientAdapter? backend,
   List<Override> extraOverrides = const [],
+  String? language,
+  double textScale = 1,
 }) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
+  if (textScale != 1) {
+    tester.platformDispatcher.textScaleFactorTestValue = textScale;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+  }
   final overrides = await testOverrides(
     fakeBackend: true,
     fakeAdapter: backend ?? FakeFrontDesk(latency: Duration.zero, now: () => testNow),
+    language: language,
   );
   await tester.pumpWidget(
     ProviderScope(
