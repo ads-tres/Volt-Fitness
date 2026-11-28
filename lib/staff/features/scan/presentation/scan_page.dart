@@ -8,6 +8,7 @@ import '../../../../core/errors/failure_messages.dart';
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/time/clock.dart' show clockProvider;
 import '../../../../core/utils/uuid.dart';
+import '../../desk/data/new_member_repository.dart';
 import '../../offline/data/door_list_controller.dart';
 import '../../payments/presentation/take_payment_sheet.dart';
 import '../../plans/presentation/sell_plan_sheet.dart';
@@ -155,7 +156,7 @@ class _ScanPageState extends ConsumerState<ScanPage> {
               checkIn: result,
               onDone: _done,
               onTakePayment: () => _takePayment(result),
-              onRenew: () => _renew(result),
+              onRenew: ref.watch(deskRolesProvider).maySell ? () => _renew(result) : null,
             ),
         ],
       ),

@@ -83,10 +83,12 @@ class _DeskPageState extends ConsumerState<DeskPage> {
             takePayment = true;
             Navigator.of(context).pop();
           },
-          onRenew: () {
-            renew = true;
-            Navigator.of(context).pop();
-          },
+          onRenew: ref.read(deskRolesProvider).maySell
+              ? () {
+                  renew = true;
+                  Navigator.of(context).pop();
+                }
+              : null,
         ),
       );
       hide.cancel();
@@ -139,7 +141,8 @@ class _DeskPageState extends ConsumerState<DeskPage> {
     final textTheme = Theme.of(context).textTheme;
     final languageCode = ref.watch(languageCodeProvider);
     final results = ref.watch(memberSearchProvider(_typed));
-    final mayAdd = ref.watch(mayAddMembersProvider);
+    final roles = ref.watch(deskRolesProvider);
+    final mayAdd = roles.mayAddMembers;
     return Scaffold(
       appBar: const DeskAppBar(),
       body: ListView(
@@ -219,6 +222,7 @@ class _DeskPageState extends ConsumerState<DeskPage> {
                                 icon: const Icon(Icons.payments_rounded, size: 18),
                                 label: Text(l10n.deskTakePayment),
                               ),
+                            if (roles.maySell)
                             TextButton.icon(
                               key: Key('sell-plan-${member.id}'),
                               style: _rowAction,
