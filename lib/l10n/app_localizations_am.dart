@@ -1819,4 +1819,36 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get memberOpenPage => 'የአባሉ ገጽ';
+
+  @override
+  String get editMember => 'አስተካክል';
+
+  @override
+  String editMemberTitle(String name) {
+    return '$nameን አስተካክል';
+  }
+
+  @override
+  String get editMemberBody => 'ዝርዝሮቻቸውን ያስተካክሉ። ባዶ የሆነ መስክ ይሰረዛል።';
+
+  @override
+  String get editMemberSave => 'ለውጦቹን አስቀምጥ';
+
+  @override
+  String get editMemberSaved => 'ተቀምጧል።';
+
+  @override
+  String get editMemberPhoneNote =>
+      'በዚህ ቁጥር ወደ መተግበሪያው ይገባሉ፣ ስለዚህ ለእነሱም ይቀየራል።';
+
+  @override
+  String get editMemberHomeBranch => 'ዋና ቅርንጫፍ';
+
+  @override
+  String get editMemberHomeBranchHelp => 'ብዙውን ጊዜ የሚመጡበት።';
+
+  @override
+  String editMemberPhoneTaken(String phone) {
+    return '$phone የሌላ አባል ቁጥር ነው። በዴስክ ፍለጋ ያግኟቸው።';
+  }
 }

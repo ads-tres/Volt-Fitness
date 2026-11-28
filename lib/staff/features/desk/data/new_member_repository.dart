@@ -34,21 +34,27 @@ final class NewMember {
   final String emergencyContactName;
   final String emergencyContactPhone;
 
-  /// As `POST members` takes it, at the desk's branch. An Ethiopian mobile is
-  /// sent as E.164; anything else as typed, for the API to judge.
-  Map<String, Object?> toApi(int homeBranchId) {
+  /// As `POST members` takes it, at [homeBranchId]. An Ethiopian mobile is
+  /// sent as E.164; anything else as typed, for the API to judge. With
+  /// [everyField], as `PUT members/{id}` takes it: a field left empty is
+  /// sent as null, which clears it.
+  Map<String, Object?> toApi(int homeBranchId, {bool everyField = false}) {
     String? optional(String value) => value.trim().isEmpty ? null : value.trim();
     String phoneOf(String typed) => EthiopianPhone.normalize(typed) ?? typed.trim();
+    final optionalFields = <String, Object?>{
+      'gender': gender,
+      'date_of_birth': dateOfBirth?.toIso(),
+      'email': optional(email),
+      'message_language': messageLanguage,
+      'emergency_contact_name': optional(emergencyContactName),
+      'emergency_contact_phone': optional(emergencyContactPhone) == null ? null : phoneOf(emergencyContactPhone),
+    };
     return {
       'full_name': fullName.trim(),
       'phone': phoneOf(phone),
       'home_branch_id': homeBranchId,
-      'gender': ?gender,
-      'date_of_birth': ?dateOfBirth?.toIso(),
-      'email': ?optional(email),
-      'message_language': ?messageLanguage,
-      'emergency_contact_name': ?optional(emergencyContactName),
-      'emergency_contact_phone': ?(optional(emergencyContactPhone) == null ? null : phoneOf(emergencyContactPhone)),
+      for (final MapEntry(:key, :value) in optionalFields.entries)
+        if (everyField || value != null) key: value,
     };
   }
 }
@@ -73,6 +79,11 @@ final class NewMemberRepository {
       () => deskMemberFromJson((response! as Map<String, dynamic>).field<Map<String, dynamic>>('data')),
     );
   }
+
+  /// Changes the member's details to [member] (`PUT members/{id}`), with
+  /// [homeBranchId] as their home branch.
+  Future<void> update(int memberId, NewMember member, {required int homeBranchId}) =>
+      _api.put(deskPath(_session(), '/members/$memberId'), body: member.toApi(homeBranchId, everyField: true));
 }
 
 final newMemberRepositoryProvider = Provider<NewMemberRepository>(

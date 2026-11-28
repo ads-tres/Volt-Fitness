@@ -3067,6 +3067,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Member page'**
   String get memberOpenPage;
+
+  /// No description provided for @editMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get editMember;
+
+  /// No description provided for @editMemberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit {name}'**
+  String editMemberTitle(String name);
+
+  /// No description provided for @editMemberBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix their details. An empty field is cleared.'**
+  String get editMemberBody;
+
+  /// No description provided for @editMemberSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get editMemberSave;
+
+  /// No description provided for @editMemberSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved.'**
+  String get editMemberSaved;
+
+  /// No description provided for @editMemberPhoneNote.
+  ///
+  /// In en, this message translates to:
+  /// **'They sign in to the app with this number, so it changes for them too.'**
+  String get editMemberPhoneNote;
+
+  /// No description provided for @editMemberHomeBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Home branch'**
+  String get editMemberHomeBranch;
+
+  /// No description provided for @editMemberHomeBranchHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Where they usually come.'**
+  String get editMemberHomeBranchHelp;
+
+  /// No description provided for @editMemberPhoneTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'{phone} is another member\'s number. Find them in Desk search.'**
+  String editMemberPhoneTaken(String phone);
 }
 
 class _AppLocalizationsDelegate

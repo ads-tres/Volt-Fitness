@@ -636,5 +636,16 @@
   "memberDetails": "Details",
   "memberGender": "Gender",
   "memberLanguage": "Messages in",
-  "memberOpenPage": "Member page"
+  "memberOpenPage": "Member page",
+  "editMember": "Edit",
+  "editMemberTitle": "Edit {name}",
+  "@editMemberTitle": {"placeholders": {"name": {"type": "String"}}},
+  "editMemberBody": "Fix their details. An empty field is cleared.",
+  "editMemberSave": "Save changes",
+  "editMemberSaved": "Saved.",
+  "editMemberPhoneNote": "They sign in to the app with this number, so it changes for them too.",
+  "editMemberHomeBranch": "Home branch",
+  "editMemberHomeBranchHelp": "Where they usually come.",
+  "editMemberPhoneTaken": "{phone} is another member's number. Find them in Desk search.",
+  "@editMemberPhoneTaken": {"placeholders": {"phone": {"type": "String"}}}
 }

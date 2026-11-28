@@ -105,4 +105,41 @@ void main() {
       'The emergency contact phone field is required when emergency contact name is present.',
     ]);
   });
+
+  test('an edit sends every field, so an emptied one is cleared', () async {
+    final adapter = StubAdapter((_) => jsonResponse(200, {'data': <String, Object?>{}}));
+    await (await desk(adapter: adapter))
+        .read(newMemberRepositoryProvider)
+        .update(3, const NewMember(fullName: 'Hana G. Girma', phone: '0933 456 789'), homeBranchId: 2);
+
+    expect(adapter.requests.single.method, 'PUT');
+    expect(adapter.requests.single.path, '/organizations/demo-gym/members/3');
+    expect(adapter.requests.single.data, {
+      'full_name': 'Hana G. Girma',
+      'phone': '+251933456789',
+      'home_branch_id': 2,
+      'gender': null,
+      'date_of_birth': null,
+      'email': null,
+      'message_language': null,
+      'emergency_contact_name': null,
+      'emergency_contact_phone': null,
+    });
+  });
+
+  test('the fake keeps a member\'s own phone, refuses another\'s, and shows the edit everywhere', () async {
+    final container = await desk();
+    final members = container.read(newMemberRepositoryProvider);
+
+    try {
+      await members.update(3, const NewMember(fullName: 'Hana Girma', phone: '0911 234 567'), homeBranchId: 1);
+      fail('Abebe\'s phone was taken');
+    } on ValidationFailure catch (failure) {
+      expect(failure.fieldErrors['phone'], ['The phone has already been taken.']);
+    }
+
+    await members.update(3, const NewMember(fullName: 'Hana G. Girma', phone: '0933 456 789'), homeBranchId: 1);
+    final found = await container.read(memberSearchProvider('girma').future);
+    expect(found.single.name, 'Hana G. Girma');
+  });
 }
