@@ -1585,4 +1585,148 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get welcomeLater => 'በኋላ';
+
+  @override
+  String get deskMembershipAction => 'አባልነት';
+
+  @override
+  String deskMembershipTitle(String name) {
+    return 'የ$name አባልነት';
+  }
+
+  @override
+  String get deskMembershipBody => 'በሌሉበት ጊዜ ያቁሙት፣ ማቆሙን ያንሱ፣ ወይም ይሰርዙት።';
+
+  @override
+  String get deskNoRunningMembership =>
+      'እየሄደ ያለ ወይም የሚመጣ አባልነት የለም። ዕቅድ ይሽጡላቸው።';
+
+  @override
+  String get deskStatusActive => 'ንቁ';
+
+  @override
+  String get deskStatusFrozen => 'የቆመ';
+
+  @override
+  String get deskStatusUpcoming => 'በኋላ ይጀምራል';
+
+  @override
+  String deskFreezeDaysUsed(int used, int allowed) {
+    return 'የማቆሚያ ቀናት፦ ከ$allowed $used ጥቅም ላይ ውለዋል';
+  }
+
+  @override
+  String deskFrozenFrom(String from, String to) {
+    return 'የቆመ $from – $to';
+  }
+
+  @override
+  String get deskEndFreeze => 'ማቆሙን አንሳ';
+
+  @override
+  String get deskRemoveFreeze => 'ማቆሙን ሰርዝ';
+
+  @override
+  String get deskKeepFreeze => 'ይቆይ';
+
+  @override
+  String get deskEndFreezeTitle => 'ማቆሙ ዛሬ ይነሳ?';
+
+  @override
+  String deskEndFreezeBody(String to) {
+    return 'ከዛሬ ጀምሮ መግባት ይችላሉ፣ ዕቅዱም እስከ $to በቀሩት ቀናት ቀድሞ ያልቃል።';
+  }
+
+  @override
+  String get deskRemoveFreezeTitle => 'ይህ ማቆሚያ ይሰረዝ?';
+
+  @override
+  String deskRemoveFreezeBody(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'ዕቅዱ $days ቀናት ቀድሞ ያልቃል።',
+      one: 'ዕቅዱ 1 ቀን ቀድሞ ያልቃል።',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskFreezeEnded => 'ማቆሙ ተነስቷል።';
+
+  @override
+  String get deskFreezeRemoved => 'ማቆሙ ተሰርዟል።';
+
+  @override
+  String deskFreezeTitle(String plan) {
+    return '$plan አቁም';
+  }
+
+  @override
+  String get deskFreezeBody =>
+      'በእነዚህ ቀናት መግባት አይችሉም፣ ዕቅዱም በዚያው ቁጥር ቀናት ዘግይቶ ያልቃል።';
+
+  @override
+  String deskFreezeSummary(int days, String date) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days ቀናት',
+      one: '1 ቀን',
+    );
+    return '$_temp0 · ዕቅዱ አሁን $date ያልቃል';
+  }
+
+  @override
+  String deskFreezeDaysLeft(int left) {
+    String _temp0 = intl.Intl.pluralLogic(
+      left,
+      locale: localeName,
+      other: 'በዚህ ዕቅድ $left የማቆሚያ ቀናት ቀርተዋል።',
+      one: 'በዚህ ዕቅድ 1 የማቆሚያ ቀን ቀርቷል።',
+      zero: 'በዚህ ዕቅድ የቀረ የማቆሚያ ቀን የለም።',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskFreezeOverAllowanceOwner(int left) {
+    String _temp0 = intl.Intl.pluralLogic(
+      left,
+      locale: localeName,
+      other: 'ከቀሩት $left የማቆሚያ ቀናት ይበልጣል፤ እንደ ባለቤት ወይም አስተዳዳሪ አሁንም ማቆም ይችላሉ።',
+      one: 'ከቀረው 1 የማቆሚያ ቀን ይበልጣል፤ እንደ ባለቤት ወይም አስተዳዳሪ አሁንም ማቆም ይችላሉ።',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskFreezeReason => 'ለምን';
+
+  @override
+  String get deskFrozen => 'አባልነቱ ቆሟል።';
+
+  @override
+  String get deskCancelMembership => 'አባልነቱን ሰርዝ';
+
+  @override
+  String get deskKeepMembership => 'ይቆይ';
+
+  @override
+  String deskCancelTitle(String plan) {
+    return '$plan ይሰረዝ?';
+  }
+
+  @override
+  String get deskCancelBody =>
+      'ከእንግዲህ በዚህ አይገቡም። ተመላሽ ገንዘብ ካለ በሰራተኞች ፓነል ይሰጣል።';
+
+  @override
+  String get deskCancelReason => 'የተሰረዘበት ምክንያት';
+
+  @override
+  String get deskCancelled => 'አባልነቱ ተሰርዟል።';
+
+  @override
+  String get deskEndFreezeAction => 'ማቆሙን አንሳ';
 }

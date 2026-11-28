@@ -73,10 +73,17 @@ void main() {
     expect(added.name, 'Selam Tesfaye');
   });
 
-  test('only owners, managers and receptionists may add members', () async {
-    expect((await desk(role: 'receptionist')).read(mayAddMembersProvider), isTrue);
-    expect((await desk(role: 'manager')).read(mayAddMembersProvider), isTrue);
-    expect((await desk(role: 'accountant')).read(mayAddMembersProvider), isFalse);
+  test('only owners, managers and receptionists add, sell and freeze; only owners and managers cancel', () async {
+    expect((await desk(role: 'owner')).read(deskRolesProvider), (mayAddMembers: true, maySell: true, mayFreeze: true, mayCancel: true));
+    expect(
+      (await desk(role: 'receptionist')).read(deskRolesProvider),
+      (mayAddMembers: true, maySell: true, mayFreeze: true, mayCancel: false),
+    );
+    expect((await desk(role: 'manager')).read(deskRolesProvider).mayCancel, isTrue);
+    expect(
+      (await desk(role: 'accountant')).read(deskRolesProvider),
+      (mayAddMembers: false, maySell: false, mayFreeze: false, mayCancel: false),
+    );
   });
 
   test('the fake adds a member who is then found, and refuses a taken phone and half a contact', () async {

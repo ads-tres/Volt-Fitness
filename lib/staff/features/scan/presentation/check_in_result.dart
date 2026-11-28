@@ -20,7 +20,14 @@ const offlineColor = Color(0xFFB54708);
 /// owes shows either way, for the desk to ask for. Tapping it, or waiting,
 /// goes back to scanning.
 class CheckInResultView extends ConsumerWidget {
-  const CheckInResultView({super.key, required this.checkIn, required this.onDone, this.onTakePayment, this.onRenew});
+  const CheckInResultView({
+    super.key,
+    required this.checkIn,
+    required this.onDone,
+    this.onTakePayment,
+    this.onRenew,
+    this.onEndFreeze,
+  });
 
   /// The reasons a new plan would let the member in.
   static const renewable = {'MEMBERSHIP_EXPIRED', 'MEMBERSHIP_NONE', 'VISITS_USED_UP'};
@@ -38,6 +45,10 @@ class CheckInResultView extends ConsumerWidget {
   /// Opens the sheet to sell a plan, for a member turned away for having
   /// none that lets them in; only online, when the API named the member.
   final VoidCallback? onRenew;
+
+  /// Opens the member's memberships to end the freeze that turned them away;
+  /// only online, when the API named the member.
+  final VoidCallback? onEndFreeze;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -86,6 +97,21 @@ class CheckInResultView extends ConsumerWidget {
                       onPressed: renew,
                       icon: const Icon(Icons.autorenew_rounded),
                       label: Text(l10n.deskRenew),
+                    ),
+                  ],
+                  if (onEndFreeze case final endFreeze?
+                      when !checkIn.offline && checkIn.memberId != null && checkIn.reasonCode == 'MEMBERSHIP_FROZEN') ...[
+                    const SizedBox(height: 12),
+                    FilledButton.icon(
+                      key: const Key('result-end-freeze'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: turnedAwayColor,
+                        minimumSize: const Size(0, 44),
+                      ),
+                      onPressed: endFreeze,
+                      icon: const Icon(Icons.wb_sunny_outlined),
+                      label: Text(l10n.deskEndFreezeAction),
                     ),
                   ],
                 ],

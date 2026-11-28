@@ -277,6 +277,19 @@ E.164. A phone another member has comes back with **Find them instead**.
 Once added, the desk takes their photo, sells a plan and takes the payment
 in one go, or does it later.
 
+**Freezing and cancelling.** Owners, managers and receptionists see
+**Membership** on each member in Desk search. It lists the memberships that
+run or are still to come, with their freeze days used and any freeze now or
+coming. **Freeze** asks for the first and last day (from today; a past day
+only for owners and managers) and a reason, shows the new end date, and
+keeps receptionists within the plan's freeze days (`POST
+memberships/{id}/freezes`). **End freeze** stops one that started, and
+**Remove freeze** drops one still to come (`…/freezes/{freeze}/end`).
+Owners and managers can also **Cancel membership** with a reason (`…/
+cancellation`); any refund is made in the staff panel. A member turned away
+as frozen gets **End freeze** on the result. Accountants see none of these,
+nor Sell a plan or Renew, as the API allows them none.
+
 **Members' photos.** The scan and desk results show the member's photo
 large, so the desk can see the person is the member; desk search and Today
 show it small (`photo_url`, the gym platform's ADR 0036). At the desk,
@@ -330,8 +343,9 @@ paid in parts, with receipts from R-000001. Demo Gym has Chapa connected, so
 pay links work and a second text within 5 minutes is refused; Bole Fitness
 doesn't. The plans are Monthly (1,500 ETB), 3 months (4,000 ETB) and 10
 visits (1,200 ETB, Main Branch only); `VOLT10` takes 10% off. Selling
-Tigist a plan lets her in again. Members added at the desk are kept until
-the app restarts; Abebe's number (0911 234 567) is taken. Today starts with two earlier check-ins at Main Branch and
+Tigist a plan lets her in again. Every plan has 7 freeze days; Hana has a
+3-day freeze next week, so her plan ends on 4 November. Members added at the
+desk are kept until the app restarts; Abebe's number (0911 234 567) is taken. Today starts with two earlier check-ins at Main Branch and
 lists every one made since; the fake forgets them when the app restarts.
 
 To scan for real, run a staging build of each app and point the desk at the

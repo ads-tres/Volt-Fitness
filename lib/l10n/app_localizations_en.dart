@@ -1618,4 +1618,150 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcomeLater => 'Later';
+
+  @override
+  String get deskMembershipAction => 'Membership';
+
+  @override
+  String deskMembershipTitle(String name) {
+    return '$name\'s membership';
+  }
+
+  @override
+  String get deskMembershipBody =>
+      'Freeze it while they\'re away, end a freeze, or cancel it.';
+
+  @override
+  String get deskNoRunningMembership =>
+      'No membership running or to come. Sell them a plan.';
+
+  @override
+  String get deskStatusActive => 'Active';
+
+  @override
+  String get deskStatusFrozen => 'Frozen';
+
+  @override
+  String get deskStatusUpcoming => 'Starts later';
+
+  @override
+  String deskFreezeDaysUsed(int used, int allowed) {
+    return 'Freeze days: $used of $allowed used';
+  }
+
+  @override
+  String deskFrozenFrom(String from, String to) {
+    return 'Frozen $from – $to';
+  }
+
+  @override
+  String get deskEndFreeze => 'End freeze';
+
+  @override
+  String get deskRemoveFreeze => 'Remove freeze';
+
+  @override
+  String get deskKeepFreeze => 'Keep it';
+
+  @override
+  String get deskEndFreezeTitle => 'End the freeze today?';
+
+  @override
+  String deskEndFreezeBody(String to) {
+    return 'They can come in from today, and the plan ends sooner by the days left until $to.';
+  }
+
+  @override
+  String get deskRemoveFreezeTitle => 'Remove this freeze?';
+
+  @override
+  String deskRemoveFreezeBody(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'The plan ends $days days sooner.',
+      one: 'The plan ends 1 day sooner.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskFreezeEnded => 'The freeze is ended.';
+
+  @override
+  String get deskFreezeRemoved => 'The freeze is removed.';
+
+  @override
+  String deskFreezeTitle(String plan) {
+    return 'Freeze $plan';
+  }
+
+  @override
+  String get deskFreezeBody =>
+      'They can\'t come in on these days, and the plan ends that many days later.';
+
+  @override
+  String deskFreezeSummary(int days, String date) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '1 day',
+    );
+    return '$_temp0 · the plan will now end on $date';
+  }
+
+  @override
+  String deskFreezeDaysLeft(int left) {
+    String _temp0 = intl.Intl.pluralLogic(
+      left,
+      locale: localeName,
+      other: '$left freeze days left on this plan.',
+      one: '1 freeze day left on this plan.',
+      zero: 'No freeze days left on this plan.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskFreezeOverAllowanceOwner(int left) {
+    String _temp0 = intl.Intl.pluralLogic(
+      left,
+      locale: localeName,
+      other:
+          'More than the $left freeze days left; as an owner or manager you can still freeze it.',
+      one: 'More than the 1 freeze day left; as an owner or manager you can still freeze it.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskFreezeReason => 'Why';
+
+  @override
+  String get deskFrozen => 'The membership is frozen.';
+
+  @override
+  String get deskCancelMembership => 'Cancel membership';
+
+  @override
+  String get deskKeepMembership => 'Keep it';
+
+  @override
+  String deskCancelTitle(String plan) {
+    return 'Cancel $plan?';
+  }
+
+  @override
+  String get deskCancelBody =>
+      'They won\'t be let in on it any more. Any refund is made in the staff panel.';
+
+  @override
+  String get deskCancelReason => 'Why it is cancelled';
+
+  @override
+  String get deskCancelled => 'The membership is cancelled.';
+
+  @override
+  String get deskEndFreezeAction => 'End freeze';
 }

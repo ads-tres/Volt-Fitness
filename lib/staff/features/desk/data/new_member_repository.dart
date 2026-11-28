@@ -79,10 +79,17 @@ final newMemberRepositoryProvider = Provider<NewMemberRepository>(
   (ref) => NewMemberRepository(ref.watch(apiClientProvider), () => ref.read(deskSessionProvider)),
 );
 
-/// Owners, managers and receptionists add members; accountants don't.
-final mayAddMembersProvider = Provider<bool>(
-  (ref) => switch (ref.watch(deskSessionProvider)) {
-    DeskSignedIn(gym: final gym?) => const {'owner', 'manager', 'receptionist'}.contains(gym.role),
-    _ => false,
-  },
-);
+/// What the signed-in staff member's role lets them do at the desk, as the
+/// API's policies allow: owners, managers and receptionists add members,
+/// sell plans and freeze memberships; only owners and managers cancel one.
+/// Accountants do none of these.
+typedef DeskRoles = ({bool mayAddMembers, bool maySell, bool mayFreeze, bool mayCancel});
+
+final deskRolesProvider = Provider<DeskRoles>((ref) {
+  final role = switch (ref.watch(deskSessionProvider)) {
+    DeskSignedIn(gym: final gym?) => gym.role,
+    _ => null,
+  };
+  final front = const {'owner', 'manager', 'receptionist'}.contains(role);
+  return (mayAddMembers: front, maySell: front, mayFreeze: front, mayCancel: role == 'owner' || role == 'manager');
+});

@@ -72,7 +72,7 @@ void main() {
     expect(find.widgetWithText(ListTile, 'Abebe Kebede'), findsOneWidget);
   });
 
-  testWidgets('an accountant can\'t add members', (tester) async {
+  testWidgets('an accountant can\'t add members, sell plans or renew', (tester) async {
     await startDesk(tester);
     await signInAtDesk(tester, phone: '0911 00 00 03');
     await search(tester, 'zzz');
@@ -80,6 +80,17 @@ void main() {
     expect(find.text('No member of this gym matches.'), findsOneWidget);
     expect(find.byKey(const Key('add-member')), findsNothing);
     expect(find.text('Not a member yet? Add them.'), findsNothing);
+
+    await tester.enterText(find.byType(TextField), 'tig');
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('sell-plan-2')), findsNothing, reason: "accountants don't sell plans");
+    await tester.tap(find.text('Check in'));
+    await tester.pumpAndSettle();
+    expect(find.text('Turned away'), findsOneWidget);
+    expect(find.byKey(const Key('result-renew')), findsNothing);
+    await tester.tap(find.byKey(const Key('check-in-result')));
+    await tester.pumpAndSettle();
   });
 
   testWidgets('a walk-in joins in one go: photo, plan, payment, then let in', (tester) async {
