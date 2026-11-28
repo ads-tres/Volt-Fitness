@@ -1729,4 +1729,38 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get deskEndFreezeAction => 'ማቆሙን አንሳ';
+
+  @override
+  String get errorGymPaused => 'ይህ ጂም ለጊዜው ቆሟል።';
+
+  @override
+  String get gymPausedTag => 'የቆመ';
+
+  @override
+  String get gymPausedMember => 'ይህ ጂም ለጊዜው ቆሟል። ጂሙን ይጠይቁ።';
+
+  @override
+  String get gymPausedStaff =>
+      'ይህ ጂም ቆሟል። እንደገና እንዲከፈት መድረኩን ያነጋግሩ። አሁን የሚደረጉ ስካኖች ተቀምጠው ሲመለስ ይላካሉ።';
+
+  @override
+  String get paymentMethodCash => 'ጥሬ ገንዘብ';
+
+  @override
+  String get paymentMethodTelebirr => 'ቴሌብር';
+
+  @override
+  String get paymentMethodCbeBirr => 'ሲቢኢ ብር';
+
+  @override
+  String get paymentMethodBankTransfer => 'የባንክ ዝውውር';
+
+  @override
+  String get paymentMethodChapa => 'ቻፓ';
+
+  @override
+  String get paymentMethodBroughtIn => 'ከዚህ በፊት የተከፈለ';
+
+  @override
+  String get deskPauseDemo => 'ጂሙን አቁም (ሙከራ)';
 }
