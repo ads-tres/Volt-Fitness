@@ -163,6 +163,12 @@ final class FakeFrontDesk implements HttpClientAdapter {
       ('GET', '/plans') => _planList(phone, gym),
       ('GET', '/payments') => _payments(options),
       ('GET', final path) when RegExp(r'^/members/\d+$').hasMatch(path) => _member(int.parse(path.split('/')[2])),
+      ('PUT', final path) when RegExp(r'^/members/\d+$').hasMatch(path) => _updateMember(
+        options,
+        phone,
+        gym,
+        int.parse(path.split('/')[2]),
+      ),
       ('POST', '/members') => _addMember(options, phone, gym),
       ('POST', final path) when RegExp(r'^/memberships/\d+/freezes$').hasMatch(path) => _freeze(options, phone, int.parse(path.split('/')[2])),
       ('POST', final path) when RegExp(r'^/memberships/\d+/freezes/\d+/end$').hasMatch(path) => _endFreeze(
@@ -626,24 +632,26 @@ final class FakeFrontDesk implements HttpClientAdapter {
   }
 
   /// One member as the staff API shows them, with their details.
-  ResponseBody _member(int memberId) {
+  ResponseBody _member(int memberId, {int status = 200}) {
     final member = _members.where((member) => member['id'] == memberId).firstOrNull;
     if (member == null) return _json(404, {'message': 'Not found.'});
     final abebe = memberId == 1;
-    return _json(200, {
+    return _json(status, {
       'data': {
         ...member,
-        'email': abebe ? 'abebe@example.com' : null,
-        'gender': switch (memberId) {
-          1 => 'male',
-          2 || 3 => 'female',
-          _ => null,
-        },
-        'date_of_birth': abebe ? '1994-05-12' : null,
-        'emergency_contact': abebe ? {'name': 'Almaz Kebede', 'phone': '+251911998877'} : null,
-        'message_language': memberId == 3 ? 'am' : 'en',
+        ..._details.putIfAbsent(memberId, () => {
+          'email': abebe ? 'abebe@example.com' : null,
+          'gender': switch (memberId) {
+            1 => 'male',
+            2 || 3 => 'female',
+            _ => null,
+          },
+          'date_of_birth': abebe ? '1994-05-12' : null,
+          'emergency_contact': abebe ? {'name': 'Almaz Kebede', 'phone': '+251911998877'} : null,
+          'message_language': memberId == 3 ? 'am' : 'en',
+          'home_branch': _branch(1, 'MAIN', 'Main Branch'),
+        }),
         'photo_url': _photos[memberId],
-        'home_branch': _branch(1, 'MAIN', 'Main Branch'),
         'membership': switch (_currentOf(member)) {
           final membership? => _membershipJson(membership),
           null => null,
@@ -1092,14 +1100,22 @@ final class FakeFrontDesk implements HttpClientAdapter {
   }
 
   /// Everyone at the gym: the three demo members, then any added here.
-  final _members = <Map<String, Object?>>[_abebe, _tigist, _hana];
+  final _members = <Map<String, Object?>>[{..._abebe}, {..._tigist}, {..._hana}];
 
   /// Adds a member at the desk's branch, with the API's rules: a name, a
   /// phone no other member of the gym has, both halves of an emergency
   /// contact, a birthday in the past. Accountants may not.
-  ResponseBody _addMember(RequestOptions options, String phone, String gym) {
-    if (phone == accountantPhone) return _json(403, {'message': 'This action is unauthorized.'});
-    final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
+  /// Each member's details beyond name and phone, as kept here.
+  final _details = <int, Map<String, Object?>>{};
+
+  /// Checks a member's fields as the API does; [self] is the member being
+  /// edited, whose own phone isn't taken.
+  ({Map<String, List<String>> errors, Map<String, Object?>? branch}) _checkMember(
+    Map<String, dynamic> body,
+    String phone,
+    String gym, {
+    int? self,
+  }) {
     String text(String field) => '${body[field] ?? ''}'.trim();
     bool isPhone(String value) => RegExp(r'^\+251[79]\d{8}$').hasMatch(value);
     const phoneFormat = 'must be a phone number like 0911 234 567, or an international number starting with +.';
@@ -1110,7 +1126,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
       refuse('phone', 'The phone field is required.');
     } else if (!isPhone(text('phone'))) {
       refuse('phone', 'The phone $phoneFormat');
-    } else if (_members.any((member) => member['phone'] == text('phone'))) {
+    } else if (_members.any((member) => member['phone'] == text('phone') && member['id'] != self)) {
       refuse('phone', 'The phone has already been taken.');
     }
     if (text('email').isNotEmpty && !text('email').contains('@')) refuse('email', 'The email field must be a valid email address.');
@@ -1128,26 +1144,52 @@ final class FakeFrontDesk implements HttpClientAdapter {
     }
     final branch = _branches(phone, gym).where((branch) => branch['id'] == body['home_branch_id']).firstOrNull;
     if (branch == null) refuse('home_branch_id', 'Choose a branch of this gym that you work at.');
-    if (errors.isNotEmpty) return _json(422, {'message': errors.values.first.first, 'errors': errors});
-    final member = <String, Object?>{'id': 10 + _members.length, 'full_name': text('full_name'), 'phone': text('phone')};
+    return (errors: errors, branch: branch);
+  }
+
+  /// The details [body] gives, as `GET members/{id}` shows them.
+  Map<String, Object?> _detailsFrom(Map<String, dynamic> body, Map<String, Object?> branch) {
+    String text(String field) => '${body[field] ?? ''}'.trim();
+    return {
+      'email': text('email').isEmpty ? null : text('email'),
+      'gender': body['gender'],
+      'date_of_birth': body['date_of_birth'],
+      'emergency_contact': text('emergency_contact_name').isEmpty
+          ? null
+          : {'name': text('emergency_contact_name'), 'phone': text('emergency_contact_phone')},
+      'message_language': body['message_language'] ?? 'en',
+      'home_branch': branch,
+    };
+  }
+
+  /// Adds a member at the desk's branch, with the API's rules: a name, a
+  /// phone no other member of the gym has, both halves of an emergency
+  /// contact, a birthday in the past. Accountants may not.
+  ResponseBody _addMember(RequestOptions options, String phone, String gym) {
+    if (phone == accountantPhone) return _json(403, {'message': 'This action is unauthorized.'});
+    final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
+    final check = _checkMember(body, phone, gym);
+    if (check.errors.isNotEmpty) return _json(422, {'message': check.errors.values.first.first, 'errors': check.errors});
+    final id = 10 + _members.length;
+    final member = <String, Object?>{'id': id, 'full_name': '${body['full_name']}'.trim(), 'phone': '${body['phone']}'.trim()};
     _members.add(member);
-    return _json(201, {
-      'data': {
-        ...member,
-        'email': text('email').isEmpty ? null : text('email'),
-        'gender': body['gender'],
-        'date_of_birth': body['date_of_birth'],
-        'emergency_contact': text('emergency_contact_name').isEmpty
-            ? null
-            : {'name': text('emergency_contact_name'), 'phone': text('emergency_contact_phone')},
-        'message_language': body['message_language'] ?? 'en',
-        'photo_url': null,
-        'home_branch': branch,
-        'membership': null,
-        'balance_due': _money(0),
-        'registered_at': _now().toUtc().toIso8601String(),
-      },
-    });
+    _details[id] = _detailsFrom(body, check.branch!);
+    return _member(id, status: 201);
+  }
+
+  /// Changes a member's details, with the same rules as adding one.
+  ResponseBody _updateMember(RequestOptions options, String phone, String gym, int memberId) {
+    if (phone == accountantPhone) return _json(403, {'message': 'This action is unauthorized.'});
+    final member = _members.where((member) => member['id'] == memberId).firstOrNull;
+    if (member == null) return _json(404, {'message': 'Not found.'});
+    final body = options.data is Map<String, dynamic> ? options.data as Map<String, dynamic> : const <String, dynamic>{};
+    final check = _checkMember(body, phone, gym, self: memberId);
+    if (check.errors.isNotEmpty) return _json(422, {'message': check.errors.values.first.first, 'errors': check.errors});
+    member
+      ..['full_name'] = '${body['full_name']}'.trim()
+      ..['phone'] = '${body['phone']}'.trim();
+    _details[memberId] = _detailsFrom(body, check.branch!);
+    return _member(memberId);
   }
 
   static const _hana = {'id': 3, 'full_name': 'Hana Girma', 'phone': '+251933456789'};
