@@ -9,6 +9,7 @@ import '../../../../core/localization/l10n.dart';
 import '../../../../core/time/clock.dart' show clockProvider;
 import '../../../../core/utils/uuid.dart';
 import '../../desk/data/new_member_repository.dart';
+import '../../memberships/presentation/membership_sheet.dart';
 import '../../offline/data/door_list_controller.dart';
 import '../../payments/presentation/take_payment_sheet.dart';
 import '../../plans/presentation/sell_plan_sheet.dart';
@@ -121,6 +122,19 @@ class _ScanPageState extends ConsumerState<ScanPage> {
     );
   }
 
+  /// Closes the result and opens the member's memberships, to end the
+  /// freeze that turned them away.
+  void _endFreeze(DeskCheckIn checkIn) {
+    _done();
+    unawaited(
+      showMembershipSheet(
+        context,
+        (id: checkIn.memberId!, name: checkIn.memberName ?? '', phone: checkIn.memberPhone ?? ''),
+        onChanged: () {},
+      ),
+    );
+  }
+
   void _done() {
     _hideResult?.cancel();
     if (mounted) {
@@ -157,6 +171,7 @@ class _ScanPageState extends ConsumerState<ScanPage> {
               onDone: _done,
               onTakePayment: () => _takePayment(result),
               onRenew: ref.watch(deskRolesProvider).maySell ? () => _renew(result) : null,
+              onEndFreeze: ref.watch(deskRolesProvider).mayFreeze ? () => _endFreeze(result) : null,
             ),
         ],
       ),

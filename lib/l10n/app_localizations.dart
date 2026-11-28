@@ -2701,6 +2701,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Later'**
   String get welcomeLater;
+
+  /// No description provided for @deskMembershipAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership'**
+  String get deskMembershipAction;
+
+  /// No description provided for @deskMembershipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s membership'**
+  String deskMembershipTitle(String name);
+
+  /// No description provided for @deskMembershipBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Freeze it while they\'re away, end a freeze, or cancel it.'**
+  String get deskMembershipBody;
+
+  /// No description provided for @deskNoRunningMembership.
+  ///
+  /// In en, this message translates to:
+  /// **'No membership running or to come. Sell them a plan.'**
+  String get deskNoRunningMembership;
+
+  /// No description provided for @deskStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get deskStatusActive;
+
+  /// No description provided for @deskStatusFrozen.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen'**
+  String get deskStatusFrozen;
+
+  /// No description provided for @deskStatusUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts later'**
+  String get deskStatusUpcoming;
+
+  /// No description provided for @deskFreezeDaysUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Freeze days: {used} of {allowed} used'**
+  String deskFreezeDaysUsed(int used, int allowed);
+
+  /// No description provided for @deskFrozenFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen {from} – {to}'**
+  String deskFrozenFrom(String from, String to);
+
+  /// No description provided for @deskEndFreeze.
+  ///
+  /// In en, this message translates to:
+  /// **'End freeze'**
+  String get deskEndFreeze;
+
+  /// No description provided for @deskRemoveFreeze.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove freeze'**
+  String get deskRemoveFreeze;
+
+  /// No description provided for @deskKeepFreeze.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it'**
+  String get deskKeepFreeze;
+
+  /// No description provided for @deskEndFreezeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'End the freeze today?'**
+  String get deskEndFreezeTitle;
+
+  /// No description provided for @deskEndFreezeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They can come in from today, and the plan ends sooner by the days left until {to}.'**
+  String deskEndFreezeBody(String to);
+
+  /// No description provided for @deskRemoveFreezeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this freeze?'**
+  String get deskRemoveFreezeTitle;
+
+  /// No description provided for @deskRemoveFreezeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{The plan ends 1 day sooner.} other{The plan ends {days} days sooner.}}'**
+  String deskRemoveFreezeBody(int days);
+
+  /// No description provided for @deskFreezeEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'The freeze is ended.'**
+  String get deskFreezeEnded;
+
+  /// No description provided for @deskFreezeRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'The freeze is removed.'**
+  String get deskFreezeRemoved;
+
+  /// No description provided for @deskFreezeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Freeze {plan}'**
+  String deskFreezeTitle(String plan);
+
+  /// No description provided for @deskFreezeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They can\'t come in on these days, and the plan ends that many days later.'**
+  String get deskFreezeBody;
+
+  /// No description provided for @deskFreezeSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{1 day} other{{days} days}} · the plan will now end on {date}'**
+  String deskFreezeSummary(int days, String date);
+
+  /// No description provided for @deskFreezeDaysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{left, plural, =0{No freeze days left on this plan.} =1{1 freeze day left on this plan.} other{{left} freeze days left on this plan.}}'**
+  String deskFreezeDaysLeft(int left);
+
+  /// No description provided for @deskFreezeOverAllowanceOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'{left, plural, =1{More than the 1 freeze day left; as an owner or manager you can still freeze it.} other{More than the {left} freeze days left; as an owner or manager you can still freeze it.}}'**
+  String deskFreezeOverAllowanceOwner(int left);
+
+  /// No description provided for @deskFreezeReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why'**
+  String get deskFreezeReason;
+
+  /// No description provided for @deskFrozen.
+  ///
+  /// In en, this message translates to:
+  /// **'The membership is frozen.'**
+  String get deskFrozen;
+
+  /// No description provided for @deskCancelMembership.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel membership'**
+  String get deskCancelMembership;
+
+  /// No description provided for @deskKeepMembership.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it'**
+  String get deskKeepMembership;
+
+  /// No description provided for @deskCancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel {plan}?'**
+  String deskCancelTitle(String plan);
+
+  /// No description provided for @deskCancelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They won\'t be let in on it any more. Any refund is made in the staff panel.'**
+  String get deskCancelBody;
+
+  /// No description provided for @deskCancelReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why it is cancelled'**
+  String get deskCancelReason;
+
+  /// No description provided for @deskCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'The membership is cancelled.'**
+  String get deskCancelled;
+
+  /// No description provided for @deskEndFreezeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'End freeze'**
+  String get deskEndFreezeAction;
 }
 
 class _AppLocalizationsDelegate

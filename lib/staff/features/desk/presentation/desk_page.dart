@@ -11,6 +11,7 @@ import '../../../../core/design/widgets/member_photo.dart';
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/localization/locale_controller.dart';
 import '../../../../core/utils/ethiopian_phone.dart';
+import '../../memberships/presentation/membership_sheet.dart';
 import '../../payments/presentation/take_payment_sheet.dart';
 import '../../plans/presentation/sell_plan_sheet.dart';
 import '../../scan/data/check_in_repository.dart';
@@ -74,6 +75,7 @@ class _DeskPageState extends ConsumerState<DeskPage> {
       });
       var takePayment = false;
       var renew = false;
+      var endFreeze = false;
       await showGeneralDialog<void>(
         context: context,
         pageBuilder: (context, _, _) => CheckInResultView(
@@ -89,9 +91,22 @@ class _DeskPageState extends ConsumerState<DeskPage> {
                   Navigator.of(context).pop();
                 }
               : null,
+          onEndFreeze: ref.read(deskRolesProvider).mayFreeze
+              ? () {
+                  endFreeze = true;
+                  Navigator.of(context).pop();
+                }
+              : null,
         ),
       );
       hide.cancel();
+      if (endFreeze && mounted) {
+        await showMembershipSheet(
+          context,
+          (id: member.id, name: member.name, phone: member.phone),
+          onChanged: () => ref.invalidate(memberSearchProvider(_typed)),
+        );
+      }
       if (renew && mounted) {
         await showSellPlanSheet(
           context,
@@ -235,6 +250,18 @@ class _DeskPageState extends ConsumerState<DeskPage> {
                               icon: const Icon(Icons.autorenew_rounded, size: 18),
                               label: Text(l10n.deskSellPlan),
                             ),
+                            if (roles.mayFreeze)
+                              TextButton.icon(
+                                key: Key('membership-${member.id}'),
+                                style: _rowAction,
+                                onPressed: () => showMembershipSheet(
+                                  context,
+                                  (id: member.id, name: member.name, phone: member.phone),
+                                  onChanged: () => ref.invalidate(memberSearchProvider(_typed)),
+                                ),
+                                icon: const Icon(Icons.card_membership_rounded, size: 18),
+                                label: Text(l10n.deskMembershipAction),
+                              ),
                           ],
                         ),
                       ],
