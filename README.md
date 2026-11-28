@@ -102,6 +102,18 @@ link (`photo_url` in `GET /me/gyms`) works for 10 minutes, so the app reads
 it when a screen shows it and never stores it. The fake keeps the picture
 as a data link.
 
+### A paused gym
+
+When the platform pauses a gym (the gym platform's ADR 0043), `GET
+/me/gyms` marks it `paused` and its routes answer `403 GYM_PAUSED`. Home
+then says "This gym is paused for now. Ask at the gym." instead of an error,
+the gym list marks it **Paused**, and other screens show the API's own
+message. In the fake, `0988 88 88 88` is a member of a paused gym.
+
+Receipts name the way the member paid in their language; `brought_in`, money
+paid before the gym joined the platform and recorded when it imported its
+members, shows as **Paid before** (the fake's `0933 33 33 33`).
+
 ### Branches, past plans and language
 
 Profile, then **Branches and hours** lists the gym's branches
@@ -289,6 +301,14 @@ Owners and managers can also **Cancel membership** with a reason (`…/
 cancellation`); any refund is made in the staff panel. A member turned away
 as frozen gets **End freeze** on the result. Accountants see none of these,
 nor Sell a plan or Renew, as the API allows them none.
+
+**A paused gym.** `GET /me` marks a gym the platform paused, and its routes
+then answer `403 GYM_PAUSED`. The gym chooser marks it **Paused**, every tab
+shows a banner to contact the platform, and failed calls show the API's
+message. The banner follows the inbox and Today, which reload every few
+minutes, so it goes once the gym is back. Scans decided offline stay on the
+phone and are sent then. In dev builds the menu's **Pause the gym (demo)**
+switch tries it.
 
 **Members' photos.** The scan and desk results show the member's photo
 large, so the desk can see the person is the member; desk search and Today
