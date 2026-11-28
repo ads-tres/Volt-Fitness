@@ -1764,4 +1764,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskEndFreezeAction => 'End freeze';
+
+  @override
+  String get errorGymPaused => 'This gym is paused for now.';
+
+  @override
+  String get gymPausedTag => 'Paused';
+
+  @override
+  String get gymPausedMember => 'This gym is paused for now. Ask at the gym.';
+
+  @override
+  String get gymPausedStaff =>
+      'This gym is paused. Contact the platform to switch it back on. Scans made now are kept and sent once it is back.';
+
+  @override
+  String get paymentMethodCash => 'Cash';
+
+  @override
+  String get paymentMethodTelebirr => 'telebirr';
+
+  @override
+  String get paymentMethodCbeBirr => 'CBE Birr';
+
+  @override
+  String get paymentMethodBankTransfer => 'Bank transfer';
+
+  @override
+  String get paymentMethodChapa => 'Chapa';
+
+  @override
+  String get paymentMethodBroughtIn => 'Paid before';
+
+  @override
+  String get deskPauseDemo => 'Pause the gym (demo)';
 }

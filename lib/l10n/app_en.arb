@@ -606,5 +606,16 @@
   "deskCancelBody": "They won't be let in on it any more. Any refund is made in the staff panel.",
   "deskCancelReason": "Why it is cancelled",
   "deskCancelled": "The membership is cancelled.",
-  "deskEndFreezeAction": "End freeze"
+  "deskEndFreezeAction": "End freeze",
+  "errorGymPaused": "This gym is paused for now.",
+  "gymPausedTag": "Paused",
+  "gymPausedMember": "This gym is paused for now. Ask at the gym.",
+  "gymPausedStaff": "This gym is paused. Contact the platform to switch it back on. Scans made now are kept and sent once it is back.",
+  "paymentMethodCash": "Cash",
+  "paymentMethodTelebirr": "telebirr",
+  "paymentMethodCbeBirr": "CBE Birr",
+  "paymentMethodBankTransfer": "Bank transfer",
+  "paymentMethodChapa": "Chapa",
+  "paymentMethodBroughtIn": "Paid before",
+  "deskPauseDemo": "Pause the gym (demo)"
 }

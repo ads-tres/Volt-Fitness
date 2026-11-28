@@ -66,6 +66,11 @@ class SelectGymPage extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(organization.name, style: textTheme.titleMedium),
+                              if (organization.paused)
+                                Text(
+                                  l10n.gymPausedTag,
+                                  style: textTheme.labelMedium?.copyWith(color: AppColors.danger),
+                                ),
                               if (organization.branding.contactPhone case final phone?)
                                 Text(phone, style: textTheme.bodySmall),
                             ],

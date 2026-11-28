@@ -13,6 +13,7 @@ import '../../../app/staff_routes.dart';
 import '../../../core/desk_session.dart';
 import '../../../fake_front_desk.dart';
 import '../../auth/data/desk_auth_repository.dart';
+import '../../today/data/today_check_ins.dart';
 
 /// The branch this desk is at, and the menu to change it or sign out.
 class DeskMenu extends ConsumerWidget {
@@ -29,6 +30,12 @@ class DeskMenu extends ConsumerWidget {
             await ref.read(deskSessionProvider.notifier).chooseAgain();
           case 'no-internet':
             if (ref.read(fakeBackendProvider) case final FakeFrontDesk fake) fake.noInternet = !fake.noInternet;
+          case 'pause':
+            if (ref.read(fakeBackendProvider) case final FakeFrontDesk fake) {
+              fake.paused = !fake.paused;
+              // As the next poll would find out.
+              unawaited(ref.read(todayProvider.notifier).refresh());
+            }
           case 'numbers':
             unawaited(context.push(StaffRoutes.numbers));
           case 'notifications':
@@ -51,6 +58,8 @@ class DeskMenu extends ConsumerWidget {
         // Dev builds only: try the door list without turning the Wi-Fi off.
         if (ref.read(fakeBackendProvider) case final FakeFrontDesk fake when ref.read(envProvider).usesFakeBackend)
           CheckedPopupMenuItem(value: 'no-internet', checked: fake.noInternet, child: Text(l10n.deskNoInternetDemo)),
+        if (ref.read(fakeBackendProvider) case final FakeFrontDesk fake when ref.read(envProvider).usesFakeBackend)
+          CheckedPopupMenuItem(value: 'pause', checked: fake.paused, child: Text(l10n.deskPauseDemo)),
         PopupMenuItem(value: 'notifications', child: Text(l10n.deskNotificationSettings)),
         PopupMenuItem(value: 'sign-out', child: Text(l10n.signOut)),
       ],

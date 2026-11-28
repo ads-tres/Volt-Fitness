@@ -15,7 +15,13 @@ Profile profileFromApi({required Map<String, dynamic> user, required List<Map<St
     name: user.optional<String>('name'),
   ),
   organizations: [
-    for (final gym in gyms) Organization(id: gym.field<String>('slug'), name: gym.field<String>('name'), role: 'member'),
+    for (final gym in gyms)
+      Organization(
+        id: gym.field<String>('slug'),
+        name: gym.field<String>('name'),
+        role: 'member',
+        paused: gym.optional<bool>('paused') ?? false,
+      ),
   ],
 );
 
@@ -45,6 +51,7 @@ Map<String, Object?> profileToJson(Profile profile) => {
           'contact_phone': organization.branding.contactPhone,
         },
         'features': organization.features.toList(),
+        'paused': organization.paused,
       },
   ],
 };
@@ -71,6 +78,7 @@ Organization _organization(Map<String, dynamic> json) {
       for (final feature in json.optional<List<dynamic>>('features') ?? const <dynamic>[])
         if (feature is String) feature,
     },
+    paused: json.optional<bool>('paused') ?? false,
   );
 }
 

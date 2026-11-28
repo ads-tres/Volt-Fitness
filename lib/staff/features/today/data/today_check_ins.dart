@@ -8,6 +8,7 @@ import '../../../../core/network/json.dart';
 import '../../../../core/time/clock.dart';
 import '../../../../core/time/local_date.dart';
 import '../../../core/desk_session.dart';
+import '../../../core/gym_paused.dart';
 import '../../scan/domain/desk_check_in.dart';
 
 final class TodayState {
@@ -59,9 +60,13 @@ final class TodayController extends Notifier<TodayState> {
           json.optional<Map<String, dynamic>>('links')?.optional<String>('next') != null,
         );
       });
-      if (ref.mounted) state = TodayState(checkIns: [...keep, ...checkIns], nextPage: hasNext ? page + 1 : null);
+      if (!ref.mounted) return;
+      ref.read(deskGymPausedProvider.notifier).report(null);
+      state = TodayState(checkIns: [...keep, ...checkIns], nextPage: hasNext ? page + 1 : null);
     } on Failure catch (failure) {
-      if (ref.mounted) state = TodayState(checkIns: keep, nextPage: page, failure: failure);
+      if (!ref.mounted) return;
+      ref.read(deskGymPausedProvider.notifier).report(failure);
+      state = TodayState(checkIns: keep, nextPage: page, failure: failure);
     }
   }
 }

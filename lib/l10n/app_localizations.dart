@@ -2893,6 +2893,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'End freeze'**
   String get deskEndFreezeAction;
+
+  /// No description provided for @errorGymPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'This gym is paused for now.'**
+  String get errorGymPaused;
+
+  /// No description provided for @gymPausedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get gymPausedTag;
+
+  /// No description provided for @gymPausedMember.
+  ///
+  /// In en, this message translates to:
+  /// **'This gym is paused for now. Ask at the gym.'**
+  String get gymPausedMember;
+
+  /// No description provided for @gymPausedStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'This gym is paused. Contact the platform to switch it back on. Scans made now are kept and sent once it is back.'**
+  String get gymPausedStaff;
+
+  /// No description provided for @paymentMethodCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get paymentMethodCash;
+
+  /// No description provided for @paymentMethodTelebirr.
+  ///
+  /// In en, this message translates to:
+  /// **'telebirr'**
+  String get paymentMethodTelebirr;
+
+  /// No description provided for @paymentMethodCbeBirr.
+  ///
+  /// In en, this message translates to:
+  /// **'CBE Birr'**
+  String get paymentMethodCbeBirr;
+
+  /// No description provided for @paymentMethodBankTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank transfer'**
+  String get paymentMethodBankTransfer;
+
+  /// No description provided for @paymentMethodChapa.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapa'**
+  String get paymentMethodChapa;
+
+  /// No description provided for @paymentMethodBroughtIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid before'**
+  String get paymentMethodBroughtIn;
+
+  /// No description provided for @deskPauseDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause the gym (demo)'**
+  String get deskPauseDemo;
 }
 
 class _AppLocalizationsDelegate

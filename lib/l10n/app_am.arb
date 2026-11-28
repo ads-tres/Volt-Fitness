@@ -479,5 +479,16 @@
   "deskCancelBody": "ከእንግዲህ በዚህ አይገቡም። ተመላሽ ገንዘብ ካለ በሰራተኞች ፓነል ይሰጣል።",
   "deskCancelReason": "የተሰረዘበት ምክንያት",
   "deskCancelled": "አባልነቱ ተሰርዟል።",
-  "deskEndFreezeAction": "ማቆሙን አንሳ"
+  "deskEndFreezeAction": "ማቆሙን አንሳ",
+  "errorGymPaused": "ይህ ጂም ለጊዜው ቆሟል።",
+  "gymPausedTag": "የቆመ",
+  "gymPausedMember": "ይህ ጂም ለጊዜው ቆሟል። ጂሙን ይጠይቁ።",
+  "gymPausedStaff": "ይህ ጂም ቆሟል። እንደገና እንዲከፈት መድረኩን ያነጋግሩ። አሁን የሚደረጉ ስካኖች ተቀምጠው ሲመለስ ይላካሉ።",
+  "paymentMethodCash": "ጥሬ ገንዘብ",
+  "paymentMethodTelebirr": "ቴሌብር",
+  "paymentMethodCbeBirr": "ሲቢኢ ብር",
+  "paymentMethodBankTransfer": "የባንክ ዝውውር",
+  "paymentMethodChapa": "ቻፓ",
+  "paymentMethodBroughtIn": "ከዚህ በፊት የተከፈለ",
+  "deskPauseDemo": "ጂሙን አቁም (ሙከራ)"
 }

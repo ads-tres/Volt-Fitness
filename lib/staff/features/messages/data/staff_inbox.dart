@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/time/clock.dart' show clockProvider;
 import '../../../core/desk_session.dart';
+import '../../../core/gym_paused.dart';
 import '../domain/staff_message.dart';
 import 'staff_messages_repository.dart';
 
@@ -63,8 +64,10 @@ final class StaffInbox extends Notifier<StaffInboxState> {
     try {
       final page = await _repository.page();
       if (!ref.mounted || version != _version) return;
+      ref.read(deskGymPausedProvider.notifier).report(null);
       state = StaffInboxState(messages: page.messages, unreadCount: page.unreadCount, nextPage: page.nextPage);
     } on Failure catch (failure) {
+      if (ref.mounted) ref.read(deskGymPausedProvider.notifier).report(failure);
       if (ref.mounted && version == _version) state = state.copyWith(failure: failure);
     }
   }

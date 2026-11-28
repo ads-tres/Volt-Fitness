@@ -10,6 +10,7 @@ import '../../../core/design/tokens.dart';
 import '../../../core/design/widgets/controls.dart';
 import '../../../core/design/widgets/feedback.dart';
 import '../../../core/design/widgets/surfaces.dart';
+import '../../../core/errors/failure_messages.dart';
 import '../../../core/localization/l10n.dart';
 import '../../../core/time/clock.dart';
 import '../../../core/time/date_text.dart';
@@ -62,9 +63,14 @@ class HomePage extends ConsumerWidget {
               ),
               const SizedBox(height: 20),
               Text(firstName == null ? l10n.greetingNoName : l10n.greeting(firstName), style: textTheme.headlineSmall),
-              if (loaded.failure != null && dashboard != null) ...[const SizedBox(height: 12), const OfflineNotice()],
+              if (loaded.failure != null && dashboard != null && !isGymPaused(loaded.failure!)) ...[
+                const SizedBox(height: 12),
+                const OfflineNotice(),
+              ],
               const SizedBox(height: 12),
-              if (dashboard == null && loaded.failure != null)
+              if (loaded.failure case final failure? when isGymPaused(failure))
+                const _GymPausedCard()
+              else if (dashboard == null && loaded.failure != null)
                 LoadFailedCard(failure: loaded.failure!, onRetry: () => ref.read(dashboardProvider.notifier).refresh())
               else ...[
                 if (dashboard == null)
@@ -285,6 +291,27 @@ class _PillButton extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The platform paused the gym: nothing here works until it is back, so the
+/// member is told to ask at the gym.
+class _GymPausedCard extends StatelessWidget {
+  const _GymPausedCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return AppCard(
+      key: const Key('gym-paused'),
+      child: Row(
+        children: [
+          const Icon(Icons.pause_circle_outline_rounded, color: AppColors.danger, size: 32),
+          const SizedBox(width: 14),
+          Expanded(child: Text(context.l10n.gymPausedMember, style: textTheme.titleMedium)),
+        ],
       ),
     );
   }
