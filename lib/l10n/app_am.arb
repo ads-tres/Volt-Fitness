@@ -508,5 +508,14 @@
   "memberDetails": "ዝርዝሮች",
   "memberGender": "ጾታ",
   "memberLanguage": "የመልዕክት ቋንቋ",
-  "memberOpenPage": "የአባሉ ገጽ"
+  "memberOpenPage": "የአባሉ ገጽ",
+  "editMember": "አስተካክል",
+  "editMemberTitle": "{name}ን አስተካክል",
+  "editMemberBody": "ዝርዝሮቻቸውን ያስተካክሉ። ባዶ የሆነ መስክ ይሰረዛል።",
+  "editMemberSave": "ለውጦቹን አስቀምጥ",
+  "editMemberSaved": "ተቀምጧል።",
+  "editMemberPhoneNote": "በዚህ ቁጥር ወደ መተግበሪያው ይገባሉ፣ ስለዚህ ለእነሱም ይቀየራል።",
+  "editMemberHomeBranch": "ዋና ቅርንጫፍ",
+  "editMemberHomeBranchHelp": "ብዙውን ጊዜ የሚመጡበት።",
+  "editMemberPhoneTaken": "{phone} የሌላ አባል ቁጥር ነው። በዴስክ ፍለጋ ያግኟቸው።"
 }

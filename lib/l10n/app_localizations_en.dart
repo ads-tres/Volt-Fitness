@@ -1854,4 +1854,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get memberOpenPage => 'Member page';
+
+  @override
+  String get editMember => 'Edit';
+
+  @override
+  String editMemberTitle(String name) {
+    return 'Edit $name';
+  }
+
+  @override
+  String get editMemberBody => 'Fix their details. An empty field is cleared.';
+
+  @override
+  String get editMemberSave => 'Save changes';
+
+  @override
+  String get editMemberSaved => 'Saved.';
+
+  @override
+  String get editMemberPhoneNote =>
+      'They sign in to the app with this number, so it changes for them too.';
+
+  @override
+  String get editMemberHomeBranch => 'Home branch';
+
+  @override
+  String get editMemberHomeBranchHelp => 'Where they usually come.';
+
+  @override
+  String editMemberPhoneTaken(String phone) {
+    return '$phone is another member\'s number. Find them in Desk search.';
+  }
 }

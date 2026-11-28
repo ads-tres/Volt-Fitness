@@ -19,6 +19,7 @@ import '../../../../core/utils/ethiopian_phone.dart';
 import '../../desk/data/member_search.dart';
 import '../../desk/data/new_member_repository.dart';
 import '../../desk/presentation/member_photo_sheet.dart';
+import '../../desk/presentation/new_member_sheet.dart';
 import '../../memberships/data/desk_memberships_repository.dart';
 import '../../memberships/presentation/membership_sheet.dart';
 import '../../payments/presentation/take_payment_sheet.dart';
@@ -61,6 +62,24 @@ class _MemberPageState extends ConsumerState<MemberPage> {
     unawaited(ref.read(memberVisitsProvider(_id).notifier).refresh());
   }
 
+  Future<void> _edit(DeskMemberProfile member) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final outcome = await showNewMemberSheet(context, editing: member);
+    if (!mounted || outcome == null) return;
+    if (outcome.findPhone case final phone?) {
+      // Their number belongs to someone else: look them up in Desk search.
+      messenger.showSnackBar(SnackBar(content: Text(l10n.editMemberPhoneTaken(EthiopianPhone.format(phone)))));
+      return;
+    }
+    if (outcome.saved) {
+      _reload();
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(l10n.editMemberSaved)));
+    }
+  }
+
   Future<void> _checkIn() async {
     setState(() => _checkingIn = true);
     try {
@@ -92,7 +111,18 @@ class _MemberPageState extends ConsumerState<MemberPage> {
     final l10n = context.l10n;
     final profile = ref.watch(memberProfileProvider(_id));
     return Scaffold(
-      appBar: AppBar(title: Text(profile.value?.name ?? l10n.memberPageTitle)),
+      appBar: AppBar(
+        title: Text(profile.value?.name ?? l10n.memberPageTitle),
+        actions: [
+          if (profile.value case final member? when ref.watch(deskRolesProvider).mayAddMembers)
+            IconButton(
+              key: const Key('edit-member'),
+              tooltip: l10n.editMember,
+              onPressed: () => _edit(member),
+              icon: const Icon(Icons.edit_outlined),
+            ),
+        ],
+      ),
       body: RefreshIndicator(
         onRefresh: () async => _reload(),
         child: ListView(

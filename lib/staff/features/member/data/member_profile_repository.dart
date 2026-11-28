@@ -23,6 +23,7 @@ final class DeskMemberProfile {
     this.messageLanguage,
     this.photoUrl,
     this.homeBranchName,
+    this.homeBranchId,
     this.planName,
     this.status,
     this.endsOn,
@@ -48,6 +49,7 @@ final class DeskMemberProfile {
   /// A link that works for 10 minutes; never stored.
   final String? photoUrl;
   final String? homeBranchName;
+  final int? homeBranchId;
   final String? planName;
 
   /// Their membership today: `active`, `frozen`, `upcoming`, `expired` or
@@ -109,6 +111,7 @@ DeskMemberProfile deskMemberProfileFromJson(Map<String, dynamic> json) {
     messageLanguage: json.optional<String>('message_language'),
     photoUrl: json.optional<String>('photo_url'),
     homeBranchName: json.optional<Map<String, dynamic>>('home_branch')?.optional<String>('name'),
+    homeBranchId: json.optional<Map<String, dynamic>>('home_branch')?.optional<int>('id'),
     planName: membership?.optional<Map<String, dynamic>>('plan')?.optional<String>('name'),
     status: membership?.optional<String>('status'),
     endsOn: day(membership?.optional<String>('ends_on')),
