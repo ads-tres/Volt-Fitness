@@ -16,7 +16,8 @@ import 'api_headers.dart';
 /// Gyms are known by their slug, in the path (`/me/gyms/{slug}/…`).
 /// [twoGymsPhone] belongs to two gyms, [noGymPhone] to none, any other
 /// number to one. The membership depends on the number too: see
-/// [endingSoonPhone], [expiredPhone], [frozenPhone] and [noPlanPhone]; any
+/// [endingSoonPhone], [expiredPhone], [frozenPhone] and [noPlanPhone], and
+/// [pausedGymPhone]'s gym is paused; any
 /// other number has a monthly plan with 18 days left. Payments made through
 /// the fake checkout succeed, except for [paymentFailsPhone]. Each number
 /// starts with a few notifications that fit its membership, and
@@ -37,6 +38,10 @@ final class FakeBackend implements HttpClientAdapter {
 
   /// In the gym's "Student" discount group: 20% off every plan.
   static const studentPhone = '+251977777777';
+
+  /// A member of a gym the platform has paused: its routes answer
+  /// `403 GYM_PAUSED` (the API's ADR 0043).
+  static const pausedGymPhone = '+251988888888';
 
   /// A promo code: 10% off Monthly and Quarterly, not Annual. [usedCode]
   /// is one the member has used; any other code doesn't exist.
@@ -251,6 +256,7 @@ final class FakeBackend implements HttpClientAdapter {
       {
         'slug': gym['id'],
         'name': gym['name'],
+        'paused': phone == pausedGymPhone,
         'member': {'id': 7, 'full_name': 'Abebe Kebede', 'photo_url': _photos[phone], 'home_branch': null},
         'membership': null,
         'balance_due': _money(0),
@@ -581,7 +587,15 @@ final class FakeBackend implements HttpClientAdapter {
   List<Map<String, Object?>> _receiptsFor(String phone, String gym) => _receipts.putIfAbsent(_key(phone, gym), () {
     if (phone == noPlanPhone) return [];
     final paidDaysAgo = phone == expiredPhone ? 36 : 12;
-    return [_receiptFor(gym, 'R-2026-0142', 'Monthly', 150000, _today.subtract(Duration(days: paidDaysAgo)))];
+    final receipt = _receiptFor(gym, 'R-2026-0142', 'Monthly', 150000, _today.subtract(Duration(days: paidDaysAgo)));
+    // The expired member was brought in with the gym's members, so their
+    // plan was paid before the gym joined the platform (ADR 0044).
+    if (phone == expiredPhone) {
+      receipt
+        ..['method'] = 'brought_in'
+        ..['reference'] = null;
+    }
+    return [receipt];
   });
 
   var _receiptCount = 0;
@@ -1123,6 +1137,9 @@ final class FakeBackend implements HttpClientAdapter {
       final member = [for (final organization in _memberGyms(phone)) organization['id']];
       if (gym is! String || !member.contains(gym)) {
         return _error(404, 'NOT_FOUND', 'Not found.', request);
+      }
+      if (phone == pausedGymPhone) {
+        return _error(403, 'GYM_PAUSED', 'Bole Iron is paused for now. Ask at the gym.', request);
       }
       return respond(phone, gym);
     },

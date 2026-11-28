@@ -134,7 +134,7 @@ class _InvoiceDetails extends ConsumerWidget {
                 ),
                 if (receipt.method case final method?) ...[
                   const SizedBox(height: 10),
-                  _Row(label: l10n.paymentMethod, value: paymentMethodName(method)),
+                  _Row(label: l10n.paymentMethod, value: paymentMethodName(l10n, method)),
                 ],
                 if (receipt.reference case final reference?) ...[
                   const SizedBox(height: 10),

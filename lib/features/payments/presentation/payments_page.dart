@@ -13,6 +13,7 @@ import '../../../core/localization/l10n.dart';
 import '../../../core/localization/language_menu.dart';
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/time/date_text.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../home/data/dashboard_repository.dart';
 import '../data/billing_repository.dart';
 import '../domain/billing.dart';
@@ -394,15 +395,16 @@ class InvoiceStatusText extends StatelessWidget {
   }
 }
 
-/// How a receipt names the way the member paid.
-/// The API's payment methods by name: paid at the desk, or online
-/// through Chapa.
-String paymentMethodName(String method) => switch (method) {
-  'cash' => 'Cash',
-  'telebirr' => 'telebirr',
-  'cbe_birr' => 'CBE Birr',
-  'bank_transfer' => 'Bank transfer',
-  'chapa' => 'Chapa',
+/// How a receipt names the way the member paid: at the desk, online
+/// through Chapa, or before the gym joined the platform (`brought_in`, from
+/// its import of members).
+String paymentMethodName(AppLocalizations l10n, String method) => switch (method) {
+  'cash' => l10n.paymentMethodCash,
+  'telebirr' => l10n.paymentMethodTelebirr,
+  'cbe_birr' => l10n.paymentMethodCbeBirr,
+  'bank_transfer' => l10n.paymentMethodBankTransfer,
+  'chapa' => l10n.paymentMethodChapa,
+  'brought_in' => l10n.paymentMethodBroughtIn,
   _ => method,
 };
 
