@@ -41,9 +41,9 @@ void main() {
 
     await tester.tap(find.byKey(const Key('messages')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Mark all read'));
+    await tester.tap(find.byTooltip('Mark all read'));
     await tester.pumpAndSettle();
-    expect(find.text('Mark all read'), findsNothing);
+    expect(find.byTooltip('Mark all read'), findsNothing);
 
     await tester.pageBack();
     await tester.pumpAndSettle();

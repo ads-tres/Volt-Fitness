@@ -40,10 +40,13 @@ class _InboxPageState extends ConsumerState<InboxPage> {
         title: Text(l10n.deskInboxTitle),
         actions: [
           if (state.unreadCount > 0)
-            TextButton(
+            // An icon, as in the member app: the words don't fit the top
+            // bar in Amharic.
+            IconButton(
               onPressed: inbox.markAllRead,
-              style: TextButton.styleFrom(foregroundColor: AppColors.ink),
-              child: Text(l10n.deskMarkAllRead),
+              tooltip: l10n.deskMarkAllRead,
+              color: AppColors.ink,
+              icon: const Icon(Icons.done_all_rounded),
             ),
         ],
       ),
