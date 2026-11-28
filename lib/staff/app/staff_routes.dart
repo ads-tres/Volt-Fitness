@@ -7,6 +7,7 @@ abstract final class StaffRoutes {
   static const today = '/today';
   static const inbox = '/inbox';
   static const numbers = '/numbers';
+  static const insights = '/insights';
   static const notificationSettings = '/notification-settings';
 
   /// One member's page: `/member/{id}`.
