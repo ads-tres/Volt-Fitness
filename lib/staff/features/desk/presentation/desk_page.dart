@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/design/tokens.dart';
@@ -11,6 +12,7 @@ import '../../../../core/design/widgets/member_photo.dart';
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/localization/locale_controller.dart';
 import '../../../../core/utils/ethiopian_phone.dart';
+import '../../../app/staff_routes.dart';
 import '../../memberships/presentation/membership_sheet.dart';
 import '../../payments/presentation/take_payment_sheet.dart';
 import '../../plans/presentation/sell_plan_sheet.dart';
@@ -76,6 +78,7 @@ class _DeskPageState extends ConsumerState<DeskPage> {
       var takePayment = false;
       var renew = false;
       var endFreeze = false;
+      var openMember = false;
       await showGeneralDialog<void>(
         context: context,
         pageBuilder: (context, _, _) => CheckInResultView(
@@ -91,6 +94,10 @@ class _DeskPageState extends ConsumerState<DeskPage> {
                   Navigator.of(context).pop();
                 }
               : null,
+          onOpenMember: () {
+            openMember = true;
+            Navigator.of(context).pop();
+          },
           onEndFreeze: ref.read(deskRolesProvider).mayFreeze
               ? () {
                   endFreeze = true;
@@ -100,6 +107,7 @@ class _DeskPageState extends ConsumerState<DeskPage> {
         ),
       );
       hide.cancel();
+      if (openMember && mounted) await _openMember(member.id);
       if (endFreeze && mounted) {
         await showMembershipSheet(
           context,
@@ -136,6 +144,12 @@ class _DeskPageState extends ConsumerState<DeskPage> {
     _debounce?.cancel();
     _search.text = text;
     setState(() => _typed = text);
+  }
+
+  /// Opens the member's page, and shows what changed there on return.
+  Future<void> _openMember(int memberId) async {
+    await context.push(StaffRoutes.member(memberId));
+    if (mounted) ref.invalidate(memberSearchProvider(_typed));
   }
 
   Future<void> _addMember() async {
@@ -210,7 +224,14 @@ class _DeskPageState extends ConsumerState<DeskPage> {
                         child: MemberPhoto(url: member.photoUrl, size: 44, fallback: InitialsCircle(name: member.name, size: 44)),
                       ),
                     ),
-                    title: Text(member.name),
+                    title: InkWell(
+                      key: Key('open-member-${member.id}'),
+                      onTap: () => _openMember(member.id),
+                      child: Text(
+                        member.name,
+                        style: textTheme.titleMedium?.copyWith(decoration: TextDecoration.underline),
+                      ),
+                    ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

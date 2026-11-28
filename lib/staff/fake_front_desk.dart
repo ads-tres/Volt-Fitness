@@ -161,6 +161,8 @@ final class FakeFrontDesk implements HttpClientAdapter {
     return switch ((options.method, path)) {
       ('GET', '/branches') => _json(200, {'data': _branches(phone, gym)}),
       ('GET', '/plans') => _planList(phone, gym),
+      ('GET', '/payments') => _payments(options),
+      ('GET', final path) when RegExp(r'^/members/\d+$').hasMatch(path) => _member(int.parse(path.split('/')[2])),
       ('POST', '/members') => _addMember(options, phone, gym),
       ('POST', final path) when RegExp(r'^/memberships/\d+/freezes$').hasMatch(path) => _freeze(options, phone, int.parse(path.split('/')[2])),
       ('POST', final path) when RegExp(r'^/memberships/\d+/freezes/\d+/end$').hasMatch(path) => _endFreeze(
@@ -551,15 +553,104 @@ final class FakeFrontDesk implements HttpClientAdapter {
     }
     membership.owedMinor = owed - amount;
     if (owed == amount) _links.removeWhere((_, link) => link.membershipId == membershipId);
-    return _json(201, {
+    final payment = _receiptJson(
+      membership,
+      id: 900 + _receipts,
+      number: 'R-${(++_receipts).toString().padLeft(6, '0')}',
+      amountMinor: amount,
+      method: '$method',
+      reference: method == 'cash' ? null : reference,
+      paidOn: '${body['paid_on'] ?? _now().toIso8601String().substring(0, 10)}',
+      branch: _branches(phone, gym).firstWhere((branch) => branch['id'] == body['branch_id']),
+    );
+    _paid.add(payment);
+    return _json(201, {'data': payment});
+  }
+
+  /// Every payment, oldest first: one from before for each demo member
+  /// (Tigist's brought in with the gym's members), then those taken here.
+  late final _paid = <Map<String, Object?>>[
+    _receiptJson(_sold[0], id: 890, number: 'R-2026-0090', amountMinor: 50000, method: 'cash', paidOn: '2026-10-02'),
+    _receiptJson(_sold[1], id: 891, number: 'R-2026-0061', amountMinor: 150000, method: 'brought_in', paidOn: '2026-09-09'),
+    _receiptJson(_sold[2], id: 892, number: 'R-2026-0091', amountMinor: 150000, method: 'telebirr', reference: 'TB7781', paidOn: '2026-10-02'),
+  ];
+
+  Map<String, Object?> _receiptJson(
+    _FakeMembership membership, {
+    required int id,
+    required String number,
+    required int amountMinor,
+    required String method,
+    required String paidOn,
+    String? reference,
+    Map<String, Object?>? branch,
+  }) {
+    final member = _members.firstWhere((member) => member['id'] == membership.memberId);
+    return {
+      'id': id,
+      'receipt_number': number,
+      'type': 'payment',
+      'amount': _money(amountMinor),
+      'method': method,
+      'reference': reference,
+      'paid_on': paidOn,
+      'branch': branch ?? _branch(1, 'MAIN', 'Main Branch'),
+      'member': {'id': member['id'], 'full_name': member['full_name'], 'phone': member['phone']},
+      'membership': {
+        'id': membership.id,
+        'plan': {'id': membership.plan.id, 'name': membership.plan.name},
+      },
+      'void': null,
+    };
+  }
+
+  /// One page of 25 from [all], with the next page's link.
+  ResponseBody _paged(RequestOptions options, List<Map<String, Object?>> all) {
+    final page = int.tryParse('${options.queryParameters['page'] ?? ''}') ?? 1;
+    final from = ((page - 1) * 25).clamp(0, all.length);
+    final to = (from + 25).clamp(0, all.length);
+    return _json(200, {
+      'data': all.sublist(from, to),
+      'links': {'next': to < all.length ? '?page=${page + 1}' : null},
+      'meta': {'current_page': page},
+    });
+  }
+
+  /// The gym's payments, newest first, for one member when asked.
+  ResponseBody _payments(RequestOptions options) {
+    final memberId = int.tryParse('${options.queryParameters['member_id'] ?? ''}');
+    return _paged(options, [
+      for (final payment in _paid.reversed)
+        if (memberId == null || (payment['member']! as Map)['id'] == memberId) payment,
+    ]);
+  }
+
+  /// One member as the staff API shows them, with their details.
+  ResponseBody _member(int memberId) {
+    final member = _members.where((member) => member['id'] == memberId).firstOrNull;
+    if (member == null) return _json(404, {'message': 'Not found.'});
+    final abebe = memberId == 1;
+    return _json(200, {
       'data': {
-        'id': 900 + _receipts,
-        'receipt_number': 'R-${(++_receipts).toString().padLeft(6, '0')}',
-        'type': 'payment',
-        'amount': _money(amount),
-        'method': method,
-        'reference': method == 'cash' ? null : reference,
-        'paid_on': '${body['paid_on'] ?? _now().toIso8601String().substring(0, 10)}',
+        ...member,
+        'email': abebe ? 'abebe@example.com' : null,
+        'gender': switch (memberId) {
+          1 => 'male',
+          2 || 3 => 'female',
+          _ => null,
+        },
+        'date_of_birth': abebe ? '1994-05-12' : null,
+        'emergency_contact': abebe ? {'name': 'Almaz Kebede', 'phone': '+251911998877'} : null,
+        'message_language': memberId == 3 ? 'am' : 'en',
+        'photo_url': _photos[memberId],
+        'home_branch': _branch(1, 'MAIN', 'Main Branch'),
+        'membership': switch (_currentOf(member)) {
+          final membership? => _membershipJson(membership),
+          null => null,
+        },
+        'balance_due': _money(_owed(member)),
+        'discount_group': abebe ? {'id': 1, 'name': 'Student', 'discount': '20%', 'until': null} : null,
+        'registered_at': memberId <= 3 ? '2026-09-01T07:00:00Z' : _now().toUtc().toIso8601String(),
       },
     });
   }
@@ -982,10 +1073,13 @@ final class FakeFrontDesk implements HttpClientAdapter {
   /// Today's check-ins at a branch, newest first, 25 a page.
   ResponseBody _today(RequestOptions options) {
     final branchId = int.tryParse('${options.queryParameters['branch_id'] ?? ''}');
+    final memberId = int.tryParse('${options.queryParameters['member_id'] ?? ''}');
     // Newest first by when they happened: a scan sent late lands at its time.
     final all = [
       for (final checkIn in _history.reversed)
-        if (branchId == null || (checkIn['branch']! as Map)['id'] == branchId) checkIn,
+        if ((branchId == null || (checkIn['branch']! as Map)['id'] == branchId) &&
+            (memberId == null || (checkIn['member'] as Map?)?['id'] == memberId))
+          checkIn,
     ]..sort((a, b) => (b['checked_in_at']! as String).compareTo(a['checked_in_at']! as String));
     final page = int.tryParse('${options.queryParameters['page'] ?? ''}') ?? 1;
     final from = ((page - 1) * 25).clamp(0, all.length);

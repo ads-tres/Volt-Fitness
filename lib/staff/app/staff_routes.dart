@@ -8,4 +8,7 @@ abstract final class StaffRoutes {
   static const inbox = '/inbox';
   static const numbers = '/numbers';
   static const notificationSettings = '/notification-settings';
+
+  /// One member's page: `/member/{id}`.
+  static String member(int id) => '/member/$id';
 }

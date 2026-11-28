@@ -1763,4 +1763,60 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get deskPauseDemo => 'ጂሙን አቁም (ሙከራ)';
+
+  @override
+  String get memberPageTitle => 'አባል';
+
+  @override
+  String get memberStatusEnded => 'ያለቀ';
+
+  @override
+  String get memberStatusCancelled => 'የተሰረዘ';
+
+  @override
+  String get memberStatusNoPlan => 'ዕቅድ የለም';
+
+  @override
+  String memberSince(String date) {
+    return 'ከ$date ጀምሮ አባል';
+  }
+
+  @override
+  String get memberMemberships => 'አባልነቶች';
+
+  @override
+  String get memberNoMemberships => 'ገና አባልነት የለም።';
+
+  @override
+  String get memberPayments => 'ክፍያዎች';
+
+  @override
+  String get memberNoPayments => 'ገና ክፍያ የለም።';
+
+  @override
+  String get memberRefund => 'ተመላሽ';
+
+  @override
+  String get memberVoided => 'የተሰረዘ';
+
+  @override
+  String get memberVisits => 'ጉብኝቶች';
+
+  @override
+  String get memberNoVisits => 'ገና ጉብኝት የለም።';
+
+  @override
+  String get memberLoadMore => 'ተጨማሪ አሳይ';
+
+  @override
+  String get memberDetails => 'ዝርዝሮች';
+
+  @override
+  String get memberGender => 'ጾታ';
+
+  @override
+  String get memberLanguage => 'የመልዕክት ቋንቋ';
+
+  @override
+  String get memberOpenPage => 'የአባሉ ገጽ';
 }

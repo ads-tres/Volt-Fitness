@@ -82,8 +82,8 @@ final newMemberRepositoryProvider = Provider<NewMemberRepository>(
 /// What the signed-in staff member's role lets them do at the desk, as the
 /// API's policies allow: owners, managers and receptionists add members,
 /// sell plans and freeze memberships; only owners and managers cancel one.
-/// Accountants do none of these.
-typedef DeskRoles = ({bool mayAddMembers, bool maySell, bool mayFreeze, bool mayCancel});
+/// Accountants do none of these, and trainers don't see payments.
+typedef DeskRoles = ({bool mayAddMembers, bool maySell, bool mayFreeze, bool mayCancel, bool maySeePayments});
 
 final deskRolesProvider = Provider<DeskRoles>((ref) {
   final role = switch (ref.watch(deskSessionProvider)) {
@@ -91,5 +91,12 @@ final deskRolesProvider = Provider<DeskRoles>((ref) {
     _ => null,
   };
   final front = const {'owner', 'manager', 'receptionist'}.contains(role);
-  return (mayAddMembers: front, maySell: front, mayFreeze: front, mayCancel: role == 'owner' || role == 'manager');
+  return (
+    mayAddMembers: front,
+    maySell: front,
+    mayFreeze: front,
+    mayCancel: role == 'owner' || role == 'manager',
+    // Everyone but trainers sees what members paid.
+    maySeePayments: role != null && role != 'trainer',
+  );
 });

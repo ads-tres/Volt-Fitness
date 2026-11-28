@@ -2959,6 +2959,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pause the gym (demo)'**
   String get deskPauseDemo;
+
+  /// No description provided for @memberPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get memberPageTitle;
+
+  /// No description provided for @memberStatusEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get memberStatusEnded;
+
+  /// No description provided for @memberStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get memberStatusCancelled;
+
+  /// No description provided for @memberStatusNoPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'No plan'**
+  String get memberStatusNoPlan;
+
+  /// No description provided for @memberSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Member since {date}'**
+  String memberSince(String date);
+
+  /// No description provided for @memberMemberships.
+  ///
+  /// In en, this message translates to:
+  /// **'Memberships'**
+  String get memberMemberships;
+
+  /// No description provided for @memberNoMemberships.
+  ///
+  /// In en, this message translates to:
+  /// **'No membership yet.'**
+  String get memberNoMemberships;
+
+  /// No description provided for @memberPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get memberPayments;
+
+  /// No description provided for @memberNoPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'No payments yet.'**
+  String get memberNoPayments;
+
+  /// No description provided for @memberRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund'**
+  String get memberRefund;
+
+  /// No description provided for @memberVoided.
+  ///
+  /// In en, this message translates to:
+  /// **'Voided'**
+  String get memberVoided;
+
+  /// No description provided for @memberVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'Visits'**
+  String get memberVisits;
+
+  /// No description provided for @memberNoVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'No visits yet.'**
+  String get memberNoVisits;
+
+  /// No description provided for @memberLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get memberLoadMore;
+
+  /// No description provided for @memberDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get memberDetails;
+
+  /// No description provided for @memberGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get memberGender;
+
+  /// No description provided for @memberLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages in'**
+  String get memberLanguage;
+
+  /// No description provided for @memberOpenPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Member page'**
+  String get memberOpenPage;
 }
 
 class _AppLocalizationsDelegate
