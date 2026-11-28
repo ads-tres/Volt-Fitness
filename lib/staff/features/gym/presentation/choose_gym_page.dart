@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../core/design/tokens.dart';
 import '../../../../core/design/widgets/surfaces.dart';
 import '../../../../core/localization/l10n.dart';
 import '../../../core/desk_session.dart';
@@ -21,7 +22,16 @@ class ChooseGymPage extends ConsumerWidget {
           for (final gym in gyms) ...[
             AppCard(
               onTap: () => ref.read(deskSessionProvider.notifier).selectGym(gym),
-              child: Text(gym.name, style: Theme.of(context).textTheme.titleMedium),
+              child: Row(
+                children: [
+                  Expanded(child: Text(gym.name, style: Theme.of(context).textTheme.titleMedium)),
+                  if (gym.paused)
+                    Text(
+                      context.l10n.gymPausedTag,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.danger),
+                    ),
+                ],
+              ),
             ),
             const SizedBox(height: 12),
           ],

@@ -9,7 +9,13 @@ import '../../core/storage/secure_store.dart';
 
 /// A gym the staff member works at, as `GET /me` lists it.
 final class DeskGym {
-  const DeskGym({required this.slug, required this.name, required this.role, required this.worksAtAllBranches});
+  const DeskGym({
+    required this.slug,
+    required this.name,
+    required this.role,
+    required this.worksAtAllBranches,
+    this.paused = false,
+  });
 
   final String slug;
   final String name;
@@ -17,6 +23,10 @@ final class DeskGym {
   /// `owner`, `manager`, `receptionist`, `trainer` or `accountant`.
   final String role;
   final bool worksAtAllBranches;
+
+  /// The platform paused the gym: its routes answer `403 GYM_PAUSED` until
+  /// it is back (the API's ADR 0043).
+  final bool paused;
 }
 
 /// The branch whose door this phone is at.
@@ -117,7 +127,7 @@ final class DeskSessionController extends Notifier<DeskSession> {
   };
 
   static Map<String, Object?> _gymToJson(DeskGym gym) => {
-    'organization': {'slug': gym.slug, 'name': gym.name},
+    'organization': {'slug': gym.slug, 'name': gym.name, 'paused': gym.paused},
     'role': gym.role,
     'works_at_all_branches': gym.worksAtAllBranches,
   };
@@ -145,6 +155,7 @@ DeskGym deskGymFromJson(Map<String, dynamic> json) {
     name: organization.field<String>('name'),
     role: json.optional<String>('role') ?? 'receptionist',
     worksAtAllBranches: json.optional<bool>('works_at_all_branches') ?? false,
+    paused: organization.optional<bool>('paused') ?? false,
   );
 }
 

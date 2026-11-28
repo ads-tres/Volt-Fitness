@@ -42,6 +42,10 @@ final class FakeFrontDesk implements HttpClientAdapter {
 
   /// Dev builds' "No internet" switch in the desk menu, and tests'.
   bool noInternet = false;
+
+  /// Dev builds' "Pause the gym" switch: every gym route answers
+  /// `403 GYM_PAUSED`, as when the platform pauses a gym (ADR 0043).
+  bool paused = false;
   final DateTime Function() _now;
   final _scanned = <String>{};
   var _checkIns = 0;
@@ -88,6 +92,13 @@ final class FakeFrontDesk implements HttpClientAdapter {
       ('GET', '/me') => _signedIn(options, (phone) => _json(200, {'data': _me(phone)})),
       ('DELETE', '/auth/tokens/current') => _signedIn(options, (_) => _empty()),
       ('PUT' || 'DELETE', '/me/push-token') => _signedIn(options, (_) => _empty()),
+      _ when gymPath != null && paused => _signedIn(
+        options,
+        (_) => _json(403, {
+          'message': 'This gym is paused by the platform. Contact the platform to switch it back on.',
+          'code': 'GYM_PAUSED',
+        }),
+      ),
       _ when gymPath != null => _signedIn(options, (phone) => _inGym(options, phone, gymPath.group(1)!, gymPath.group(2)!)),
       _ => _json(404, {'message': 'Not found.'}),
     };
@@ -127,7 +138,7 @@ final class FakeFrontDesk implements HttpClientAdapter {
     'user': _user(phone),
     'staff': [
       {
-        'organization': {'slug': 'demo-gym', 'name': 'Demo Gym'},
+        'organization': {'slug': 'demo-gym', 'name': 'Demo Gym', 'paused': paused},
         'role': switch (phone) {
           staffPhone => 'owner',
           twoGymsPhone => 'receptionist',

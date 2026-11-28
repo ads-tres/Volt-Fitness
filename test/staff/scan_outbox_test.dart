@@ -137,4 +137,26 @@ void main() {
     expect(container.read(scanOutboxProvider).pending, isEmpty);
     expect(preferences.values.containsKey(ScanOutbox.storageKey), isFalse);
   });
+
+  test('keeps the door\'s decisions while the gym is paused, and sends them once it is back', () async {
+    var paused = true;
+    final adapter = StubAdapter(
+      (request) => paused
+          ? jsonResponse(403, {'message': 'This gym is paused by the platform.', 'code': 'GYM_PAUSED'})
+          : request.path.endsWith('/check-ins/offline')
+          ? answer(request, (_) => 'recorded')
+          : jsonResponse(200, {'data': <Object?>[]}),
+    );
+    final container = await desk(adapter);
+    final outbox = container.read(scanOutboxProvider.notifier);
+    await outbox.add('GQ1:PAUSED', letIn: true);
+
+    expect(await outbox.flush(), 0);
+    expect(container.read(scanOutboxProvider).pending, hasLength(1), reason: 'nothing is dropped while paused');
+    expect(container.read(scanOutboxProvider).refused, 0);
+
+    paused = false;
+    expect(await outbox.flush(), 1);
+    expect(container.read(scanOutboxProvider).pending, isEmpty);
+  });
 }

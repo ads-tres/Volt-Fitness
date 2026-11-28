@@ -8,6 +8,7 @@ import '../../core/localization/l10n.dart';
 import '../../core/push/push_service.dart';
 import '../core/desk_push.dart';
 import '../core/desk_session.dart';
+import '../core/gym_paused.dart';
 import '../features/messages/data/staff_inbox.dart';
 import '../features/messages/presentation/inbox_page.dart';
 import '../features/offline/data/door_list_controller.dart';
@@ -134,8 +135,24 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       // Keeps the door list loaded and fresh while the desk is open.
       ..listen(doorListProvider, (_, _) {});
     final l10n = context.l10n;
+    final paused = ref.watch(deskGymPausedProvider);
     return Scaffold(
-      body: widget.child,
+      body: paused
+          ? Column(
+              children: [
+                SafeArea(
+                  bottom: false,
+                  child: MaterialBanner(
+                    key: const Key('gym-paused'),
+                    leading: const Icon(Icons.pause_circle_outline_rounded),
+                    content: Text(l10n.gymPausedStaff),
+                    actions: const [SizedBox.shrink()],
+                  ),
+                ),
+                Expanded(child: MediaQuery.removePadding(context: context, removeTop: true, child: widget.child)),
+              ],
+            )
+          : widget.child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: DeskShell.tabs.indexWhere(widget.location.startsWith).clamp(0, DeskShell.tabs.length - 1),
         onDestinationSelected: (index) => context.go(DeskShell.tabs[index]),
