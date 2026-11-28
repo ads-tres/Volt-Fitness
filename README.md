@@ -303,6 +303,11 @@ page** on a check-in result, opens everything about them in one place:
   language.
 
 Each part loads on its own, and the page reloads after every action.
+**Edit**, for owners, managers and receptionists, opens the add-member form
+filled in, plus their home branch (`PUT members/{id}`, every field sent, so
+an emptied one is cleared). Changing the phone warns that the member signs
+in with it, and another member's number comes back with **Find them
+instead**.
 
 **Freezing and cancelling.** Owners, managers and receptionists see
 **Membership** on each member in Desk search. It lists the memberships that
