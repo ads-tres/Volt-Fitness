@@ -89,9 +89,12 @@ Future<List<Override>> testOverrides({
   HttpClientAdapter? fakeAdapter,
   bool onboardingDone = true,
   bool pushAllowed = true,
+  String? language,
 }) async {
   secureStore ??= InMemorySecureStore();
   preferences ??= InMemoryPreferencesStore();
+  // As if chosen in the language menu (`LocaleController`).
+  if (language != null) preferences.values['settings.language'] = language;
   if (onboardingDone) preferences.values['onboarding.done'] = 'true';
   if (pushAllowed) preferences.values[FakePushService.permissionKey] = PushPermission.granted.name;
   if (signedInAs != null) {
